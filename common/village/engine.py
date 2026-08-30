@@ -262,6 +262,48 @@ DISPLAY_MODES = frozenset(
 )
 
 
+BOARD_KEYS_MAX = 4
+
+
+def role_display(npc: Npc) -> str:
+    """Panneau par défaut du rôle, seulement si on a quelque chose à montrer."""
+    role = npc.role or ""
+    if role == "shop" and npc.shop_mode == "sell":
+        return "stock"
+    if role == "shop" and npc.shop_mode == "buy":
+        return "purse"
+    if role == "repair":
+        return "repairs"
+    if role == "travel":
+        return "destinations"
+    if role == "special":
+        return "env"
+    if role == "summon":
+        return "fossils"
+    return "none"
+
+
+def focus_talk_board(
+    npc: Npc,
+    *,
+    display: str,
+    board_keys: list[str] | None,
+    item_key: str | None = None,
+    milieu_key: str | None = None,
+    shown_key: str | None = None,
+) -> tuple[str, list[str]]:
+    """Ne garde que ce dont on parle / ce qu'on montre. Jamais le catalogue entier."""
+    keys: list[str] = []
+    for token in list(board_keys or []) + [shown_key, item_key, milieu_key]:
+        if token and token not in keys:
+            keys.append(token)
+    keys = keys[:BOARD_KEYS_MAX]
+    mode = display if display and display != "none" else "none"
+    if mode == "none" and keys:
+        mode = role_display(npc)
+    return mode, keys
+
+
 def allowed_displays(npc: Npc) -> set[str]:
     role = npc.role or ""
     if role == "shop" and npc.shop_mode == "sell":

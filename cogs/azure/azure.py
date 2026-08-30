@@ -13,7 +13,7 @@ from discord.ext import commands, tasks
 from common.asset_emojis import species_emoji, with_emoji
 from common.catalog import Catalog, CatalogError
 from common.discord_ui import ack, send_error
-from common.display import item_display
+from common.display import item_display, species_display
 from common.emoji_setup import (
     bind_application_emojis,
     bound_count,
@@ -429,8 +429,8 @@ class Azure(commands.Cog):
                 shown_label = item_display(cat, shown_key)
             except Exception:
                 try:
-                    species = cat.get_species(shown_key)
-                    shown_label = with_emoji(species_emoji(shown_key), species.name)
+                    cat.get_species(shown_key)
+                    shown_label = species_display(cat, shown_key)
                 except Exception:
                     shown_label = shown_key
             question = f"{shown_label} · {question}" if question else shown_label

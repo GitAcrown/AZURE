@@ -31,6 +31,7 @@ from common.display import (
     dialogue_turn,
     italic_text,
     item_display,
+    species_display,
     npc_speech_text,
     title_name,
     weather_display,
@@ -1063,7 +1064,7 @@ class DexView(discord.ui.LayoutView):
             extra = f" ×{row.catch_count}"
             if row.best_length_cm is not None:
                 extra += f" · `{row.best_length_cm} cm`"
-            lines.append(with_emoji(species_emoji(spec.key), f"{spec.name}{extra}"))
+            lines.append(species_display(catalog, spec.key, extra=extra))
 
         group_label = "Tout" if group == "all" else DEX_GROUP_LABELS.get(group, group)
         options = [
@@ -1145,16 +1146,12 @@ class RecordsView(discord.ui.LayoutView):
         names = names or {}
         lines: list[str] = []
         for species_key, user_id, length, weight in rows:
-            try:
-                species = catalog.get_species(species_key)
-                label = species.name
-            except Exception:
-                label = species_key
             who = names.get(user_id) or f"<@{user_id}>"
             lines.append(
-                with_emoji(
-                    species_emoji(species_key),
-                    f"**{label}** · `{length} cm` · `{weight} kg` · {who}",
+                species_display(
+                    catalog,
+                    species_key,
+                    extra=f" · `{length} cm` · `{weight} kg` · {who}",
                 )
             )
         body = "\n".join(lines) if lines else "Aucun record pour l'instant."
@@ -1186,12 +1183,8 @@ def _specimens_for_tab(
 
 
 def _specimen_line(catalog: Catalog, specimen: CaughtSpecimen) -> str:
-    try:
-        name = catalog.get_species(specimen.species_key).name
-    except Exception:
-        name = specimen.species_key
-    extra = f"`{specimen.length_cm} cm` · `{specimen.weight_kg} kg`"
-    return with_emoji(species_emoji(specimen.species_key), f"{name} · {extra}")
+    extra = f" · `{specimen.length_cm} cm` · `{specimen.weight_kg} kg`"
+    return species_display(catalog, specimen.species_key, extra=extra)
 
 
 def _drop_specimen_local(
@@ -1387,11 +1380,7 @@ class _SacReleaseSelect(discord.ui.Select):
         except (PlayerError, ValueError) as exc:
             await edit_error(interaction, str(exc))
             return
-        try:
-            name = catalog.get_species(released.species_key).name
-        except Exception:
-            name = released.species_key
-        flash = f"**Relâché** · {with_emoji(species_emoji(released.species_key), name)}"
+        flash = f"**Relâché** · {species_display(catalog, released.species_key)}"
         nxt = SacView(
             catalog,
             parent.snap,
@@ -1572,7 +1561,7 @@ class VillageView(discord.ui.LayoutView):
                 name = npc.name or npc.key
                 lines.append(f"**{name}** · {npc_role_label(npc)}")
             body = "\n".join(lines) if lines else body
-            note = flash or "Approche-toi. **Ils te montrent ce qu'ils veulent.**"
+            note = flash or "Approche-toi. **Parle-leur** · **montre** ce que tu as."
         else:
             name = current.name or current.key
             role = npc_role_label(current)
@@ -1699,24 +1688,20 @@ class VillageView(discord.ui.LayoutView):
             parts.append(dialogue_turn(speaker, said))
         return "\n\n".join(parts)
 
-    def _wanted_keys(self) -> set[str] | None:
-        if not self.talk_board_keys:
-            return None
-        return set(self.talk_board_keys)
+    def _revealed_keys(self) -> set[str]:
+        keys = set(self.talk_board_keys or [])
+        if self.talk_item_key:
+            keys.add(self.talk_item_key)
+        if self.talk_milieu_key:
+            keys.add(self.talk_milieu_key)
+        return keys
 
     def _display_board(self, npc: Npc, *, env_good: bool) -> str:
         mode = self.talk_display
         if mode == "none":
-            if npc.role == "special":
-                mode = "env"
-            elif npc.role == "shop" and npc.shop_mode == "buy":
-                mode = "purse"
-            elif npc.role == "travel":
-                mode = "destinations"
-            elif npc.role == "repair":
-                mode = "repairs"
-            elif npc.role == "summon":
-                mode = "fossils"
+            if npc.role == "travel":
+                return self._here_only()
+            return ""
         if mode == "stock":
             return self._board_stock(npc)
         if mode == "purse":
@@ -1732,8 +1717,7 @@ class VillageView(discord.ui.LayoutView):
         return ""
 
     def _filter_keys(self, key: str) -> bool:
-        wanted = self._wanted_keys()
-        return wanted is None or key in wanted
+        return key in self._revealed_keys()
 
     def _mods(self) -> list:
         return price_modifiers(self.announcements, self.bargain)
@@ -1754,42 +1738,37 @@ class VillageView(discord.ui.LayoutView):
             return ""
         return "**Étal**\n" + "\n".join(lines[:25])
 
-    def _asked_price(self, key: str) -> bool:
-        """Prix seulement si le joueur a demandé (display purse / intent sell)."""
-        if self.talk_intent == "sell":
-            if not self.talk_item_key or self.talk_item_key == key:
-                return True
-        if self.talk_display != "purse":
-            return False
-        if not self.talk_board_keys:
-            return True
-        return key in self.talk_board_keys or self.talk_item_key == key
-
     def _board_purse(self) -> str:
         catalog = self.catalog
         money = catalog.game.money
         mods = self._mods()
+        revealed = self._revealed_keys()
+        if not revealed:
+            return ""
         lines: list[str] = []
         for spec in self.specimens:
+            if spec.species_key not in revealed:
+                continue
             try:
                 species = catalog.get_species(spec.species_key)
             except Exception:
                 continue
             if not species.economy.sellable:
                 continue
-            extra = f"`{spec.length_cm} cm` · `{spec.weight_kg} kg`"
-            if self._asked_price(spec.species_key):
-                price = specimen_price(
-                    catalog, species, spec.length_cm, spec.weight_kg, modifiers=mods
-                )
-                extra += f" · {format_money(price, money)}"
+            price = specimen_price(
+                catalog, species, spec.length_cm, spec.weight_kg, modifiers=mods
+            )
+            extra = (
+                f" · `{spec.length_cm} cm` · `{spec.weight_kg} kg` · "
+                f"{format_money(price, money)}"
+            )
             mark = ""
             if self.talk_item_key == spec.species_key:
                 mark = f" · **×{self.talk_quantity}**" if self.talk_quantity > 1 else " · **ça**"
-            lines.append(
-                with_emoji(species_emoji(spec.species_key), f"{species.name} · {extra}{mark}")
-            )
+            lines.append(species_display(catalog, spec.species_key, extra=f"{extra}{mark}"))
         for stack in self.snap.stacks:
+            if stack.item_key not in revealed:
+                continue
             try:
                 item = catalog.get_item(stack.item_key)
             except Exception:
@@ -1799,7 +1778,6 @@ class VillageView(discord.ui.LayoutView):
             mark = ""
             if self.talk_item_key == item.key:
                 mark = f" · **×{self.talk_quantity}**" if self.talk_quantity > 1 else " · **ça**"
-            show_price = self._asked_price(item.key)
             if item.category == "waste":
                 lines.append(
                     self._waste_rate_line(
@@ -1807,18 +1785,15 @@ class VillageView(discord.ui.LayoutView):
                         qty=stack.quantity,
                         mark=mark,
                         modifiers=mods,
-                        show_price=show_price,
                     )
                 )
                 continue
-            extra = f"×{stack.quantity}"
-            if show_price:
-                price = apply_named_mult(int(item.economy.sell_price), mods, "sell_mult")
-                extra += f" · {format_money(price, money)}"
+            price = apply_named_mult(int(item.economy.sell_price), mods, "sell_mult")
+            extra = f" ×{stack.quantity} · {format_money(price, money)}"
             lines.append(item_display(catalog, item.key, extra=f"{extra}{mark}"))
         if not lines:
-            return "**Dans votre sac**\nRien à vendre pour l'instant."
-        return "**Dans votre sac**\n" + "\n".join(lines[:25])
+            return ""
+        return "\n".join(lines[:25])
 
     def _here_line(self) -> str:
         key = self.snap.milieu_key
@@ -1851,6 +1826,15 @@ class VillageView(discord.ui.LayoutView):
             phrase = key
         return f"**Tu es à {phrase}.**"
 
+    def _walk_note(self) -> str:
+        return (
+            f"-# Marche · **{walk_minutes(self.catalog, self.snap)} min** · "
+            f"**gratuite** · /monde"
+        )
+
+    def _here_only(self) -> str:
+        return "\n\n".join([self._here_line(), self._walk_note()])
+
     def _board_destinations(self) -> str:
         money = self.catalog.game.money
         mods = self._mods()
@@ -1882,10 +1866,7 @@ class VillageView(discord.ui.LayoutView):
         parts = [self._here_line()]
         if dests:
             parts.append("**Passage**\n" + "\n".join(dests))
-        parts.append(
-            f"-# Marche · **{walk_minutes(self.catalog, self.snap)} min** · "
-            f"**gratuite** · /monde"
-        )
+        parts.append(self._walk_note())
         return "\n\n".join(parts)
 
     def _board_repairs(self) -> str:
@@ -1967,7 +1948,7 @@ class VillageView(discord.ui.LayoutView):
                 mark = f" · **×{self.talk_quantity}**" if self.talk_quantity > 1 else " · **ça**"
             rates.append(self._waste_rate_line(item, qty=qty, mark=mark, modifiers=mods))
         if rates:
-            lines.append("**Elle prend**\n" + "\n".join(rates[:25]))
+            lines.append("\n".join(rates[:25]))
         return "\n".join(lines)
 
     def _board_fossils(self) -> str:
@@ -2101,19 +2082,13 @@ def _talk_show_options(
 ) -> list[discord.SelectOption]:
     options: list[discord.SelectOption] = []
     for key in talk_show_keys(catalog, npc, snap=snap, specimens=specimens):
+        extra = ""
         try:
             item = catalog.get_item(key)
             label = item.name
-            extra = ""
-            if npc.role == "shop" and npc.shop_mode == "sell" and item.economy.buy_price is not None:
-                extra = format_money_plain(int(item.economy.buy_price), catalog.game.money)
-            elif item.category == "waste" and item.economy.sell_price is not None:
-                env = waste_env_points(item)
-                extra = format_money_plain(int(item.economy.sell_price), catalog.game.money)
-                if env:
-                    extra = f"{extra} · +{env} note environnementale"
-            elif item.economy.sell_price is not None:
-                extra = format_money_plain(int(item.economy.sell_price), catalog.game.money)
+            qty = next((s.quantity for s in snap.stacks if s.item_key == key), 0)
+            if qty > 1:
+                extra = f"×{qty}"
             emoji = _select_emoji(item.key)
         except Exception:
             try:
@@ -2121,7 +2096,11 @@ def _talk_show_options(
             except Exception:
                 continue
             label = species.name
-            extra = ""
+            have = [s for s in specimens if s.species_key == key]
+            if have:
+                extra = f"{have[0].length_cm:g} cm"
+                if len(have) > 1:
+                    extra = f"×{len(have)}"
             emoji = _partial_emoji(species_emoji(key))
         kwargs: dict = {"label": label[:100], "value": key}
         if extra:
@@ -2331,7 +2310,7 @@ async def _apply_talk_intent(
                 sold += 1
             extra = f" ×{sold}" if sold > 1 else ""
             return (
-                f"**Vendu** · {with_emoji(species_emoji(species_key), species.name)}{extra} · "
+                f"**Vendu** · {species_display(catalog, species_key)}{extra} · "
                 f"{format_money_plain(total, catalog.game.money)}"
             )
         try:

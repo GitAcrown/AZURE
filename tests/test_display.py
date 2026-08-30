@@ -10,6 +10,7 @@ from common.display import (
     error_message,
     italic_text,
     item_display,
+    species_display,
     npc_speech_text,
     quote_text,
     title_name,
@@ -71,3 +72,12 @@ def test_item_display_uses_catalog_name() -> None:
     assert item_display(catalog, "coastal_rod", emoji=False, brackets=False) == "**Canne côtière**"
     text = item_display(catalog, "coastal_rod")
     assert "**[Canne côtière]**" in text
+
+
+def test_species_display_matches_item_style() -> None:
+    catalog = load_catalog(ROOT / "assets")
+    assert species_display(catalog, "perch", emoji=False) == "**[Perche]**"
+    assert (
+        species_display(catalog, "perch", extra=" · `20 cm`", emoji=False)
+        == "**[Perche]** · `20 cm`"
+    )

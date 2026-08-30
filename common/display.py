@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 
-from common.asset_emojis import item_emoji, with_emoji
+from common.asset_emojis import item_emoji, species_emoji, with_emoji
 from common.catalog import Catalog
 from common.catalog.models import WeatherKind
 
@@ -113,3 +113,25 @@ def item_display(
     if not emoji:
         return text
     return with_emoji(item_emoji(item_key), text)
+
+
+def species_display(
+    catalog: Catalog,
+    species_key: str,
+    *,
+    extra: str = "",
+    emoji: bool = True,
+    brackets: bool = True,
+) -> str:
+    """Même format que les items : **[Perche]**."""
+    try:
+        name = catalog.get_species(species_key).name
+    except Exception:
+        name = species_key
+    if brackets or extra:
+        text = f"{bracket_name(name)}{extra}"
+    else:
+        text = f"**{name}**"
+    if not emoji:
+        return text
+    return with_emoji(species_emoji(species_key), text)

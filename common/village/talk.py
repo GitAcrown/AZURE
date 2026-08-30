@@ -17,6 +17,7 @@ from common.village.engine import (
     environment_is_great,
     environment_is_poor,
     environment_pct,
+    focus_talk_board,
     fossil_replicas,
     modifier_label,
     npc_can_bargain,
@@ -75,7 +76,10 @@ NPC_TALK_SCHEMA = {
         "board_keys": {
             "type": "array",
             "items": {"type": "string"},
-            "description": "Sous-ensemble à afficher (item_key ou milieu_key). Vide = tout.",
+            "description": (
+                "Uniquement ce dont tu parles maintenant (1 à 4 clés). "
+                "Vide = rien sur le layout."
+            ),
         },
         "quantity": {
             "type": "integer",
@@ -111,14 +115,15 @@ Actions : tu PEUX (et souvent tu DOIS) insérer des didascalies entre parenthès
 ex. (Tape du bec sur le bois) (Plisse les yeux). Elles sont visibles telles quelles.
 1 à 4 phrases max, plus les actions. Pas de listes à puces dans `reponse`.
 
-Layout vivant : tu décides ce que le joueur VOIT via `display`.
-- Marchand vendeur : `stock` pour étaler tes items (tout ou `board_keys`).
-- Acheteur : `purse` pour montrer ce qu'il peut te vendre.
-- Passeur : `destinations` si tu parles du trajet.
-- Réparateur : `repairs` si tu inspectes le matos.
-- Gaia : `env` si tu parles de la note.
-- Oz : `fossils` si tu tends un fossile.
-Tu n'es PAS obligé de tout montrer à chaque réplique. Change selon le moment.
+Layout vivant : tu décides ce que le joueur VOIT via `display` + `board_keys`.
+N'étale JAMAIS tout ton rayon, tes tarifs ou son sac. Il découvre en parlant
+et en MONTRANT. `board_keys` = 1 à 4 clés de CE TOUR. Vide = rien sur le layout.
+- Marchand vendeur : `stock` pour l'article dont vous parlez.
+- Acheteur : `purse` pour ce qu'il te MONTRE, pas tout son sac.
+- Passeur : `destinations` pour le milieu dont vous parlez.
+- Réparateur : `repairs` pour le matos qu'il montre.
+- Gaia : `env` si tu parles de la note ; un déchet seulement s'il le montre.
+- Oz : `fossils` s'il tend un fossile.
 Si tu ne montres rien : display=none, board_keys=[].
 
 Réalité : le message utilisateur liste TON stock, TES prix, le sac du joueur.
@@ -152,6 +157,7 @@ def sanitize_talk(
     npc: Npc,
     *,
     already_bargained: bool = False,
+    shown_key: str | None = None,
 ) -> dict[str, Any]:
     allowed = allowed_intents(npc)
     intent = str(raw.get("intent") or "none")
@@ -241,6 +247,16 @@ def sanitize_talk(
             token = str(key).strip()
             if token and token in valid_keys and token not in board_keys:
                 board_keys.append(token)
+    display, board_keys = focus_talk_board(
+        npc,
+        display=display,
+        board_keys=board_keys,
+        item_key=item_key,
+        milieu_key=milieu_key,
+        shown_key=shown_key,
+    )
+    if display not in displays:
+        display = "none"
     try:
         quantity = int(raw.get("quantity") or 1)
     except (TypeError, ValueError):
@@ -297,7 +313,10 @@ def talk_facts(
 
     role = npc.role or ""
     if role == "shop" and npc.shop_mode == "sell":
-        lines.append("Tu VENDS uniquement le rayon ci-dessous. intent=buy, display=stock.")
+        lines.append(
+            "Tu VENDS uniquement le rayon ci-dessous. intent=buy, display=stock. "
+            "N'étale PAS tout le rayon : board_keys = l'article dont vous parlez."
+        )
         lines.append(f"Ton rayon (clé = nom · prix actuel en {money_name}) :")
         stock = shop_stock(catalog, npc)
         if not stock:
@@ -313,7 +332,9 @@ def talk_facts(
         lines.append(
             "Tu n'as rien à vendre. Tu ACHÈTES prises sellable et déchets. "
             "intent=sell (un type) ou cleanup (tous les déchets). display=purse. "
-            "Le jeu montre son sac ; ne cite un prix que s'il te le demande."
+            "N'affiche PAS son sac. Il doit te MONTRER. "
+            "board_keys = seulement ce qu'il montre ou dont vous parlez. "
+            "Cite un prix seulement s'il te le demande."
         )
         catch_lines: list[str] = []
         for spec in specimens or []:
@@ -372,7 +393,10 @@ def talk_facts(
         if not catch_lines and not waste_lines and not item_lines:
             lines.append("Le joueur n'a rien à te vendre pour l'instant. Dis-le.")
     elif role == "repair":
-        lines.append("Tu RÉPARES le matériel usé. intent=repair, display=repairs.")
+        lines.append(
+            "Tu RÉPARES le matériel usé. intent=repair, display=repairs. "
+            "Uniquement le matos qu'il montre."
+        )
         worn: list[str] = []
         if snap is not None:
             for gear in snap.gear:
@@ -437,9 +461,10 @@ def talk_facts(
             f"plus de beaux poissons. En dessous de {village.environment_poor_threshold} % : "
             f"moins. La surpêche dans un même milieu "
             f"(plus de {village.overfish_per_bucket} prises / heure) fait baisser la note. "
-            "intent=cleanup, display=env."
+            "intent=cleanup, display=env. "
+            "N'étale PAS tous tes tarifs. Un déchet seulement s'il le montre."
         )
-        lines.append(f"Tes tarifs déchets (clé = nom · prix · note environnementale) :")
+        lines.append(f"Tes tarifs (pour toi, pas le layout) :")
         for it in cleanup_waste_items(catalog):
             unit = waste_sell_unit(it, mods)
             env = waste_env_points(it)
@@ -575,5 +600,9 @@ async def talk_npc(
         on_partial_reponse=on_partial,
     )
     return sanitize_talk(
-        raw, catalog, npc, already_bargained=bargain is not None
+        raw,
+        catalog,
+        npc,
+        already_bargained=bargain is not None,
+        shown_key=shown_key,
     )

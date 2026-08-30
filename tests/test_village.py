@@ -18,6 +18,7 @@ from common.village import (
     bargain_modifier,
     build_announcement_modifier,
     env_quality_mult,
+    focus_talk_board,
     environment_is_good,
     environment_is_great,
     environment_is_poor,
@@ -791,6 +792,28 @@ def test_talk_show_keys(catalog) -> None:
     assert "lantern" in talk_show_keys(catalog, catalog.get_npc("maurice"), snap=snap)
     assert "broken_bottle" in talk_show_keys(catalog, catalog.get_npc("gaia"), snap=snap)
     assert talk_show_keys(catalog, catalog.get_npc("oz"), snap=snap) == []
+
+
+def test_focus_talk_board_never_dumps_catalog(catalog) -> None:
+    agathe = catalog.get_npc("agathe")
+    display, keys = focus_talk_board(
+        agathe, display="none", board_keys=[], shown_key="perch"
+    )
+    assert display == "purse"
+    assert keys == ["perch"]
+    display, keys = focus_talk_board(agathe, display="purse", board_keys=[])
+    assert keys == []
+    gaia = catalog.get_npc("gaia")
+    display, keys = focus_talk_board(gaia, display="env", board_keys=[])
+    assert keys == []
+    dan = catalog.get_npc("dan")
+    display, keys = focus_talk_board(
+        dan,
+        display="stock",
+        board_keys=["bread", "worm_bait", "coffee", "lantern", "extra"],
+        item_key="bread",
+    )
+    assert len(keys) <= 4
 
 
 def test_waste_rates(catalog) -> None:
