@@ -1,0 +1,1367 @@
+schema_version: 1
+balance_status: provisional
+notes:
+  asset_order: left_to_right_top_to_bottom
+  asset_naming: item<index>.png
+  shadow_naming: item<index>_s.png
+  active_slots:
+  - tool
+  - hook
+  - bait
+  - objet
+  base_tools: Les cannes, le filet et plus tard l'équipement de plongée sont donnés de base,
+    sans durabilité, et ne s'achètent pas.
+  hook_durability: Durabilité à l'utilisation (ferrage).
+  passive_durability: Durabilité en jours IRL (longue), pas à l'usage.
+  passive_items_rule: Les objets passifs n'occupent pas le slot outil ; leur effet s'applique
+    tant qu'ils sont possédés (cooldown de swap plus tard). Le slot actif `objet` est
+    réservé à l'objet passif éventuellement mis en avant.
+  jack_o_lantern_ignored_for_now: true
+  skull_summon_threshold: null
+items:
+- id: 1
+  key: coastal_rod
+  name: Canne côtière
+  category: tool
+  sprite: item1.png
+  shadow: item1_s.png
+  shadow_ready: true
+  description: Une canne en bois légère et fiable, pensée pour la pêche depuis les berges, quais et côtes calmes.
+  enabled: true
+  sources:
+  - starter
+  economy:
+    buy_price: null
+    sell_price: null
+  inventory:
+    stackable: false
+    max_stack: 1
+  flags:
+  - v1
+  - base_kit
+  equipment:
+    equippable: true
+    mode: active
+    slot: tool
+    capture_method: rod
+    tool_profile: coastal
+- id: 2
+  key: widewater_rod
+  name: Canne du large
+  category: tool
+  sprite: item2.png
+  shadow: item2_s.png
+  shadow_ready: true
+  description: Une canne plus robuste conçue pour les eaux ouvertes et les prises plus puissantes.
+  enabled: true
+  sources:
+  - starter
+  economy:
+    buy_price: null
+    sell_price: null
+  inventory:
+    stackable: false
+    max_stack: 1
+  flags:
+  - v1
+  - base_kit
+  equipment:
+    equippable: true
+    mode: active
+    slot: tool
+    capture_method: rod
+    tool_profile: offshore
+- id: 3
+  key: bread
+  name: Pain
+  category: food
+  sprite: item3.png
+  shadow: item3_s.png
+  shadow_ready: true
+  description: Un morceau de pain simple et bon marché. De quoi reprendre un peu d'énergie entre deux sorties.
+  enabled: true
+  sources:
+  - shop
+  economy:
+    buy_price: 12
+    sell_price: 3
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  consumable:
+    consumed_on_use: true
+  effects:
+    restore_energy_pct: 0.15
+- id: 4
+  key: canned_food
+  name: Conserve
+  category: food
+  sprite: item4.png
+  shadow: item4_s.png
+  shadow_ready: true
+  description: Une conserve pratique, parfois repêchée intacte. Elle rend une quantité correcte d'énergie.
+  enabled: true
+  sources:
+  - shop
+  - fishing_loot
+  economy:
+    buy_price: 28
+    sell_price: 7
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  consumable:
+    consumed_on_use: true
+  effects:
+    restore_energy_pct: 0.35
+- id: 5
+  key: coffee
+  name: Café
+  category: food
+  sprite: item5.png
+  shadow: item5_s.png
+  shadow_ready: true
+  description: Un café bien serré qui augmente temporairement le maximum d'énergie.
+  enabled: true
+  sources:
+  - shop
+  economy:
+    buy_price: 35
+    sell_price: 8
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  consumable:
+    consumed_on_use: true
+  effects:
+    max_energy_bonus_pct: 0.2
+    duration_minutes: 30
+- id: 6
+  key: red_gem
+  name: Gemme rouge
+  category: treasure
+  sprite: item6.png
+  shadow: item6_s.png
+  shadow_ready: false
+  description: Une pierre rouge lumineuse, recherchée uniquement pour le prestige.
+  enabled: true
+  sources:
+  - rare_loot
+  economy:
+    buy_price: null
+    sell_price: null
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  - prestige_only
+  collection:
+    collectible: true
+    group: gemstones
+    prestige_value: 1
+- id: 7
+  key: orange_gem
+  name: Gemme orange
+  category: treasure
+  sprite: item7.png
+  shadow: item7_s.png
+  shadow_ready: false
+  description: Une gemme chaude et translucide, très appréciée des collectionneurs.
+  enabled: true
+  sources:
+  - rare_loot
+  economy:
+    buy_price: null
+    sell_price: null
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  - prestige_only
+  collection:
+    collectible: true
+    group: gemstones
+    prestige_value: 2
+- id: 8
+  key: green_gem
+  name: Gemme verte
+  category: treasure
+  sprite: item8.png
+  shadow: item8_s.png
+  shadow_ready: false
+  description: Une pierre verte aux reflets profonds, symbole classique de richesse.
+  enabled: true
+  sources:
+  - rare_loot
+  economy:
+    buy_price: null
+    sell_price: null
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  - prestige_only
+  collection:
+    collectible: true
+    group: gemstones
+    prestige_value: 2
+- id: 9
+  key: azure_gem
+  name: Gemme azur
+  category: treasure
+  sprite: item9.png
+  shadow: item9_s.png
+  shadow_ready: false
+  description: Une gemme claire aux tons de lagune tropicale.
+  enabled: true
+  sources:
+  - rare_loot
+  economy:
+    buy_price: null
+    sell_price: null
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  - prestige_only
+  collection:
+    collectible: true
+    group: gemstones
+    prestige_value: 3
+- id: 10
+  key: deep_blue_gem
+  name: Gemme bleue foncée
+  category: treasure
+  sprite: item10.png
+  shadow: item10_s.png
+  shadow_ready: false
+  description: Une pierre sombre rappelant la mer au large.
+  enabled: true
+  sources:
+  - rare_loot
+  economy:
+    buy_price: null
+    sell_price: null
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  - prestige_only
+  collection:
+    collectible: true
+    group: gemstones
+    prestige_value: 3
+- id: 11
+  key: diamond
+  name: Diamant
+  category: treasure
+  sprite: item11.png
+  shadow: item11_s.png
+  shadow_ready: false
+  description: Un cristal brillant et très pur, pièce de prestige par excellence.
+  enabled: true
+  sources:
+  - rare_loot
+  economy:
+    buy_price: null
+    sell_price: null
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  - prestige_only
+  collection:
+    collectible: true
+    group: gemstones
+    prestige_value: 5
+- id: 12
+  key: iridescent_stone
+  name: Pierre iridescente
+  category: treasure
+  sprite: item12.png
+  shadow: item12_s.png
+  shadow_ready: false
+  description: Une pierre aux couleurs changeantes dont les reflets semblent vivants.
+  enabled: true
+  sources:
+  - rare_loot
+  economy:
+    buy_price: null
+    sell_price: null
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  - prestige_only
+  collection:
+    collectible: true
+    group: gemstones
+    prestige_value: 4
+- id: 13
+  key: umbrella
+  name: Parapluie
+  category: passive_item
+  sprite: item13.png
+  shadow: item13_s.png
+  shadow_ready: true
+  description: Un parapluie solide qui annule la fatigue supplémentaire par mauvais temps.
+  enabled: true
+  sources:
+  - shop
+  economy:
+    buy_price: 180
+    sell_price: 70
+  inventory:
+    stackable: false
+    max_stack: 1
+  flags:
+  - v1
+  equipment:
+    equippable: false
+    mode: passive_while_owned
+  durability:
+    max_days: 30
+    unit: days
+    loss_trigger: real_time
+    repairable: true
+    repair_cost: 45
+  effects:
+    ignore_bad_weather_fatigue_penalty: true
+- id: 14
+  key: broken_bottle
+  name: Bouteille cassée
+  category: waste
+  sprite: item14.png
+  shadow: item14_s.png
+  shadow_ready: true
+  description: Des débris de verre rejetés par l'eau. Les retirer du milieu contribue à son nettoyage.
+  enabled: true
+  sources:
+  - fishing_loot
+  economy:
+    buy_price: null
+    sell_price: 1
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  - environmental_waste
+  effects:
+    environment_cleanup_score: 1
+- id: 15
+  key: lantern
+  name: Lanterne
+  category: passive_item
+  sprite: item15.png
+  shadow: item15_s.png
+  shadow_ready: true
+  description: Une lanterne utile pour pêcher de nuit sans subir le malus normal de réussite.
+  enabled: true
+  sources:
+  - shop
+  economy:
+    buy_price: 220
+    sell_price: 90
+  inventory:
+    stackable: false
+    max_stack: 1
+  flags:
+  - v1
+  equipment:
+    equippable: false
+    mode: passive_while_owned
+  durability:
+    max_days: 30
+    unit: days
+    loss_trigger: real_time
+    repairable: true
+    repair_cost: 55
+  effects:
+    ignore_night_fishing_success_penalty: true
+- id: 16
+  key: nuclear_waste
+  name: Déchet nucléaire
+  category: waste
+  sprite: item16.png
+  shadow: item16_s.png
+  shadow_ready: true
+  description: Un conteneur radioactif extrêmement rare. Le retirer de l'eau améliore fortement la note environnementale et
+    peut alerter certains PNJ.
+  enabled: true
+  sources:
+  - very_rare_fishing_loot
+  economy:
+    buy_price: null
+    sell_price: 150
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  - rare
+  - environmental_waste
+  - dialogue_trigger
+  effects:
+    environment_cleanup_score: 25
+    special_dialogue_trigger: nuclear_waste_found
+- id: 17
+  key: toxic_waste
+  name: Déchet toxique
+  category: waste
+  sprite: item17.png
+  shadow: item17_s.png
+  shadow_ready: true
+  description: Un conteneur toxique rare. Le remonter améliore fortement l'état du milieu et peut déclencher des dialogues
+    spéciaux.
+  enabled: true
+  sources:
+  - very_rare_fishing_loot
+  economy:
+    buy_price: null
+    sell_price: 100
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  - rare
+  - environmental_waste
+  - dialogue_trigger
+  effects:
+    environment_cleanup_score: 18
+    special_dialogue_trigger: toxic_waste_found
+- id: 18
+  key: compass
+  name: Boussole
+  category: passive_item
+  sprite: item18.png
+  shadow: item18_s.png
+  shadow_ready: true
+  description: Une boussole de navigation liée au voyage entre milieux. Son rôle précis sera affiné plus tard.
+  enabled: true
+  sources:
+  - shop
+  economy:
+    buy_price: 250
+    sell_price: 100
+  inventory:
+    stackable: false
+    max_stack: 1
+  flags:
+  - v1
+  - effect_tbd
+  equipment:
+    equippable: false
+    mode: passive_while_owned
+  durability:
+    max_days: 45
+    unit: days
+    loss_trigger: real_time
+    repairable: true
+    repair_cost: 60
+  effects:
+    travel_effect: null
+- id: 19
+  key: spyglass
+  name: Longue-vue
+  category: passive_item
+  sprite: item19.png
+  shadow: item19_s.png
+  shadow_ready: true
+  description: Une longue-vue permettant de consulter la météo à venir avant de voyager vers un milieu.
+  enabled: true
+  sources:
+  - shop
+  economy:
+    buy_price: 300
+    sell_price: 120
+  inventory:
+    stackable: false
+    max_stack: 1
+  flags:
+  - v1
+  equipment:
+    equippable: false
+    mode: passive_while_owned
+  durability:
+    max_days: 45
+    unit: days
+    loss_trigger: real_time
+    repairable: true
+    repair_cost: 65
+  effects:
+    destination_weather_forecast_minutes: 60
+- id: 20
+  key: net
+  name: Filet
+  category: tool
+  sprite: item20.png
+  shadow: item20_s.png
+  shadow_ready: true
+  description: Un filet destiné aux petites créatures, coquillages et autres prises non capturées à la canne.
+  enabled: true
+  sources:
+  - starter
+  economy:
+    buy_price: null
+    sell_price: null
+  inventory:
+    stackable: false
+    max_stack: 1
+  flags:
+  - v1
+  - base_kit
+  equipment:
+    equippable: true
+    mode: active
+    slot: tool
+    capture_method: net
+    tool_profile: shore_creatures
+- id: 21
+  key: basket
+  name: Panier
+  category: passive_item
+  sprite: item21.png
+  shadow: item21_s.png
+  shadow_ready: true
+  description: Un panier tressé permettant de ramener davantage de créatures et coquillages.
+  enabled: true
+  sources:
+  - shop
+  economy:
+    buy_price: 160
+    sell_price: 65
+  inventory:
+    stackable: false
+    max_stack: 1
+  flags:
+  - v1
+  equipment:
+    equippable: false
+    mode: passive_while_owned
+  durability:
+    max_days: 40
+    unit: days
+    loss_trigger: real_time
+    repairable: true
+    repair_cost: 40
+  effects:
+    non_fish_carry_capacity_bonus: 3
+- id: 22
+  key: golden_insect
+  name: Insecte doré
+  category: bait
+  sprite: item22.png
+  shadow: item22_s.png
+  shadow_ready: true
+  description: Un appât exceptionnel garantissant une prise qui dépasse au moins un record personnel, si le maximum biologique
+    de l'espèce n'est pas déjà atteint.
+  enabled: true
+  sources:
+  - rare_npc
+  - event_reward
+  economy:
+    buy_price: null
+    sell_price: 250
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  - rare
+  - special_bait
+  equipment:
+    equippable: true
+    mode: active
+    slot: bait
+  consumable:
+    consumed_on_attempt: true
+  effects:
+    guarantee_personal_record: true
+    record_axis: any_available
+    respect_species_absolute_max: true
+- id: 23
+  key: ocarina
+  name: Ocarina
+  category: passive_item
+  sprite: item23.png
+  shadow: item23_s.png
+  shadow_ready: true
+  description: Un petit instrument dont les mélodies semblent attirer des espèces hors saison.
+  enabled: true
+  sources:
+  - rare_npc
+  - collection_reward
+  economy:
+    buy_price: null
+    sell_price: 180
+  inventory:
+    stackable: false
+    max_stack: 1
+  flags:
+  - v1
+  - rare
+  equipment:
+    equippable: false
+    mode: passive_while_owned
+  durability:
+    max_days: 30
+    unit: days
+    loss_trigger: real_time
+    repairable: true
+    repair_cost: 70
+  effects:
+    offseason_species_chance_bonus: 0.05
+- id: 24
+  key: broken_pcb
+  name: PCB cassé
+  category: waste
+  sprite: item24.png
+  shadow: item24_s.png
+  shadow_ready: true
+  description: Un fragment de circuit imprimé rongé par l'eau. Le retirer améliore le milieu et peut intriguer certains PNJ.
+  enabled: true
+  sources:
+  - rare_fishing_loot
+  economy:
+    buy_price: null
+    sell_price: 40
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  - rare
+  - environmental_waste
+  - dialogue_trigger
+  effects:
+    environment_cleanup_score: 8
+    special_dialogue_trigger: broken_pcb_found
+- id: 25
+  key: planks
+  name: Planches
+  category: waste
+  sprite: item25.png
+  shadow: item25_s.png
+  shadow_ready: true
+  description: Des planches charriées par les courants. Déchet courant.
+  enabled: true
+  sources:
+  - fishing_loot
+  economy:
+    buy_price: null
+    sell_price: 2
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  - common_waste
+  effects:
+    environment_cleanup_score: 1
+- id: 26
+  key: branches
+  name: Branches
+  category: waste
+  sprite: item26.png
+  shadow: item26_s.png
+  shadow_ready: true
+  description: Des branches flottées qui finissent régulièrement dans les lignes et les filets.
+  enabled: true
+  sources:
+  - fishing_loot
+  economy:
+    buy_price: null
+    sell_price: 1
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  - common_waste
+  effects:
+    environment_cleanup_score: 1
+- id: 27
+  key: jack_o_lantern
+  name: Jack o' Lantern
+  category: event
+  sprite: item27.png
+  shadow: item27_s.png
+  shadow_ready: true
+  description: Un objet réservé à un futur événement d'Halloween.
+  enabled: false
+  sources:
+  - halloween_event
+  economy:
+    buy_price: null
+    sell_price: null
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - event
+  - halloween
+  - not_v1
+- id: 28
+  key: big_hook
+  name: Gros crochet
+  category: hook
+  sprite: item28.png
+  shadow: item28_s.png
+  shadow_ready: true
+  description: Un crochet imposant qui favorise légèrement les grosses prises.
+  enabled: true
+  sources:
+  - shop
+  economy:
+    buy_price: 90
+    sell_price: 35
+  inventory:
+    stackable: false
+    max_stack: 1
+  flags:
+  - v1
+  equipment:
+    equippable: true
+    mode: active
+    slot: hook
+  durability:
+    max: 140
+    loss_trigger: hooked_attempt
+    loss_per_use: 1
+    repairable: true
+    repair_cost: 30
+  effects:
+    encounter_tag_multipliers:
+      large: 1.15
+      small: 0.9
+    minigame:
+      hook_window_multiplier: 0.95
+      tension_tolerance_multiplier: 1.05
+- id: 29
+  key: small_hook
+  name: Petit crochet
+  category: hook
+  sprite: item29.png
+  shadow: item29_s.png
+  shadow_ready: true
+  description: Un crochet discret plus à l'aise sur les petites prises.
+  enabled: true
+  sources:
+  - shop
+  economy:
+    buy_price: 125
+    sell_price: 50
+  inventory:
+    stackable: false
+    max_stack: 1
+  flags:
+  - v1
+  equipment:
+    equippable: true
+    mode: active
+    slot: hook
+  durability:
+    max: 140
+    loss_trigger: hooked_attempt
+    loss_per_use: 1
+    repairable: true
+    repair_cost: 38
+  effects:
+    encounter_tag_multipliers:
+      small: 1.15
+      large: 0.95
+    minigame:
+      hook_window_multiplier: 1.05
+- id: 30
+  key: multi_hook
+  name: Crochet multiple
+  category: hook
+  sprite: item30.png
+  shadow: item30_s.png
+  shadow_ready: true
+  description: Un montage à plusieurs pointes, utile sur les espèces agressives mais un peu plus exigeant au ferrage.
+  enabled: true
+  sources:
+  - shop
+  economy:
+    buy_price: 160
+    sell_price: 65
+  inventory:
+    stackable: false
+    max_stack: 1
+  flags:
+  - v1
+  equipment:
+    equippable: true
+    mode: active
+    slot: hook
+  durability:
+    max: 140
+    loss_trigger: hooked_attempt
+    loss_per_use: 1
+    repairable: true
+    repair_cost: 46
+  effects:
+    encounter_tag_multipliers:
+      aggressive: 1.1
+      schooling: 1.08
+    minigame:
+      hook_window_multiplier: 0.92
+      escape_rate_multiplier: 0.82
+- id: 31
+  key: bead_hook
+  name: Crochet à perle
+  category: hook
+  sprite: item31.png
+  shadow: item31_s.png
+  shadow_ready: true
+  description: Un crochet orné d'une perle attirant légèrement les espèces curieuses ou sensibles à l'éclat.
+  enabled: true
+  sources:
+  - shop
+  economy:
+    buy_price: 195
+    sell_price: 80
+  inventory:
+    stackable: false
+    max_stack: 1
+  flags:
+  - v1
+  equipment:
+    equippable: true
+    mode: active
+    slot: hook
+  durability:
+    max: 140
+    loss_trigger: hooked_attempt
+    loss_per_use: 1
+    repairable: true
+    repair_cost: 54
+  effects:
+    encounter_tag_multipliers:
+      curious: 1.12
+      light_attracted: 1.12
+    minigame: {}
+- id: 32
+  key: tactical_hook
+  name: Crochet tactique
+  category: hook
+  sprite: item32.png
+  shadow: item32_s.png
+  shadow_ready: true
+  description: Un crochet bien conçu et équilibré, offrant un léger confort de mini-jeu sans forte spécialisation.
+  enabled: true
+  sources:
+  - shop
+  economy:
+    buy_price: 230
+    sell_price: 95
+  inventory:
+    stackable: false
+    max_stack: 1
+  flags:
+  - v1
+  equipment:
+    equippable: true
+    mode: active
+    slot: hook
+  durability:
+    max: 140
+    loss_trigger: hooked_attempt
+    loss_per_use: 1
+    repairable: true
+    repair_cost: 62
+  effects:
+    encounter_tag_multipliers:
+      difficult: 1.05
+    minigame:
+      hook_window_multiplier: 1.04
+      tension_tolerance_multiplier: 1.04
+- id: 33
+  key: lifebuoy
+  name: Bouée
+  category: diving
+  sprite: item33.png
+  shadow: item33_s.png
+  shadow_ready: true
+  description: Une bouée prévue pour faciliter une extraction rapide lors des futures plongées.
+  enabled: false
+  sources:
+  - starter
+  economy:
+    buy_price: null
+    sell_price: null
+  inventory:
+    stackable: false
+    max_stack: 1
+  flags:
+  - future
+  - diving
+  - base_kit
+  effects:
+    diving_escape_bonus: null
+- id: 34
+  key: diving_fins
+  name: Palmes de plongée
+  category: diving
+  sprite: item34.png
+  shadow: item34_s.png
+  shadow_ready: true
+  description: Des palmes destinées aux futures explorations sous-marines.
+  enabled: false
+  sources:
+  - starter
+  economy:
+    buy_price: null
+    sell_price: null
+  inventory:
+    stackable: false
+    max_stack: 1
+  flags:
+  - future
+  - diving
+  - base_kit
+  effects:
+    diving_effect: null
+- id: 35
+  key: diving_mask
+  name: Masque de plongée
+  category: diving
+  sprite: item35.png
+  shadow: item35_s.png
+  shadow_ready: true
+  description: Un masque destiné aux futures explorations sous-marines.
+  enabled: false
+  sources:
+  - starter
+  economy:
+    buy_price: null
+    sell_price: null
+  inventory:
+    stackable: false
+    max_stack: 1
+  flags:
+  - future
+  - diving
+  - base_kit
+  effects:
+    diving_effect: null
+- id: 36
+  key: air_tanks
+  name: Bouteilles d'air de plongée
+  category: diving
+  sprite: item36.png
+  shadow: item36_s.png
+  shadow_ready: true
+  description: Des bouteilles d'air réservées aux futures plongées prolongées.
+  enabled: false
+  sources:
+  - starter
+  economy:
+    buy_price: null
+    sell_price: null
+  inventory:
+    stackable: false
+    max_stack: 1
+  flags:
+  - future
+  - diving
+  - base_kit
+  effects:
+    diving_effect: null
+- id: 37
+  key: fossil_in_stone
+  name: Fossile dans la pierre
+  category: fossil
+  sprite: item37.png
+  shadow: item37_s.png
+  shadow_ready: true
+  description: Un fossile encore pris dans la roche, pouvant être échangé au PNJ squelette rare contre une réplique en plâtre.
+  enabled: true
+  sources:
+  - rare_fishing_loot
+  - rare_net_loot
+  economy:
+    buy_price: null
+    sell_price: 80
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  - rare
+  - npc_exchange
+  effects:
+    npc_exchange:
+      npc: skeleton_collector
+      result_group: fossil_replicas
+- id: 38
+  key: bucket
+  name: Seau
+  category: passive_item
+  sprite: item38.png
+  shadow: item38_s.png
+  shadow_ready: true
+  description: Un seau aménagé pour ramener davantage de poissons, sans augmenter la capacité pour les autres créatures.
+  enabled: true
+  sources:
+  - shop
+  economy:
+    buy_price: 150
+    sell_price: 60
+  inventory:
+    stackable: false
+    max_stack: 1
+  flags:
+  - v1
+  equipment:
+    equippable: false
+    mode: passive_while_owned
+  durability:
+    max_days: 40
+    unit: days
+    loss_trigger: real_time
+    repairable: true
+    repair_cost: 40
+  effects:
+    fish_carry_capacity_bonus: 3
+- id: 39
+  key: normal_skull
+  name: Crâne normal
+  category: summon_currency
+  sprite: item39.png
+  shadow: item39_s.png
+  shadow_ready: true
+  description: Un crâne rituel servant de ressource pour invoquer le PNJ squelette rare.
+  enabled: true
+  sources:
+  - rare_loot
+  economy:
+    buy_price: null
+    sell_price: null
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  - summon_resource
+  collection:
+    collectible: true
+    group: skulls
+    numeric: true
+  effects:
+    skeleton_summon_value: 1
+- id: 40
+  key: golden_skull
+  name: Crâne doré
+  category: summon_currency
+  sprite: item40.png
+  shadow: item40_s.png
+  shadow_ready: true
+  description: Une version dorée du crâne rituel, comptant comme cinq crânes normaux pour l'invocation.
+  enabled: true
+  sources:
+  - very_rare_loot
+  economy:
+    buy_price: null
+    sell_price: null
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  - rare
+  - summon_resource
+  collection:
+    collectible: true
+    group: skulls
+    numeric: true
+  effects:
+    skeleton_summon_value: 5
+- id: 41
+  key: fish_tail_bait
+  name: Queue de poisson
+  category: bait
+  sprite: item41.png
+  shadow: item41_s.png
+  shadow_ready: true
+  description: Un appât carné attirant légèrement davantage les espèces prédatrices et charognardes.
+  enabled: true
+  sources:
+  - shop
+  - foraging
+  economy:
+    buy_price: 8
+    sell_price: 2
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  equipment:
+    equippable: true
+    mode: active
+    slot: bait
+  consumable:
+    consumed_on_attempt: true
+  effects:
+    encounter_tag_multipliers:
+      predator: 1.25
+      scavenger: 1.15
+      herbivore: 0.9
+- id: 42
+  key: worm_bait
+  name: Ver
+  category: bait
+  sprite: item42.png
+  shadow: item42_s.png
+  shadow_ready: true
+  description: Un appât naturel polyvalent intéressant pour les poissons fouillant près du fond.
+  enabled: true
+  sources:
+  - shop
+  - foraging
+  economy:
+    buy_price: 8
+    sell_price: 2
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  equipment:
+    equippable: true
+    mode: active
+    slot: bait
+  consumable:
+    consumed_on_attempt: true
+  effects:
+    encounter_tag_multipliers:
+      worm_eater: 1.3
+      bottom_feeder: 1.15
+- id: 43
+  key: larva_bait
+  name: Larve
+  category: bait
+  sprite: item43.png
+  shadow: item43_s.png
+  shadow_ready: true
+  description: Un appât tendre apprécié par diverses espèces opportunistes et insectivores.
+  enabled: true
+  sources:
+  - shop
+  - foraging
+  economy:
+    buy_price: 8
+    sell_price: 2
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  equipment:
+    equippable: true
+    mode: active
+    slot: bait
+  consumable:
+    consumed_on_attempt: true
+  effects:
+    encounter_tag_multipliers:
+      insectivore: 1.18
+      opportunist: 1.18
+      small: 1.1
+- id: 44
+  key: roach_bait
+  name: Blatte
+  category: bait
+  sprite: item44.png
+  shadow: item44_s.png
+  shadow_ready: true
+  description: Un appât plus particulier qui favorise légèrement certaines espèces opportunistes ou nocturnes.
+  enabled: true
+  sources:
+  - shop
+  - foraging
+  economy:
+    buy_price: 8
+    sell_price: 2
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  equipment:
+    equippable: true
+    mode: active
+    slot: bait
+  consumable:
+    consumed_on_attempt: true
+  effects:
+    encounter_tag_multipliers:
+      opportunist: 1.22
+      nocturnal: 1.1
+- id: 45
+  key: fly_bait
+  name: Mouche
+  category: bait
+  sprite: item45.png
+  shadow: item45_s.png
+  shadow_ready: true
+  description: Un petit appât de surface apprécié par de nombreuses espèces se nourrissant près de l'eau libre.
+  enabled: true
+  sources:
+  - shop
+  - foraging
+  economy:
+    buy_price: 8
+    sell_price: 2
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  equipment:
+    equippable: true
+    mode: active
+    slot: bait
+  consumable:
+    consumed_on_attempt: true
+  effects:
+    encounter_tag_multipliers:
+      surface_feeder: 1.2
+      insectivore: 1.25
+- id: 46
+  key: fossil_plaster_a
+  name: Pièce fossile plâtre A
+  category: collectible
+  sprite: item46.png
+  shadow: item46_s.png
+  shadow_ready: true
+  description: Une réplique en plâtre de fossile, obtenue auprès du collectionneur squelette rare.
+  enabled: true
+  sources:
+  - skeleton_collector
+  economy:
+    buy_price: null
+    sell_price: null
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  - prestige_only
+  collection:
+    collectible: true
+    group: fossil_replicas
+    prestige_value: 1
+- id: 47
+  key: fossil_plaster_b
+  name: Pièce fossile plâtre B
+  category: collectible
+  sprite: item47.png
+  shadow: item47_s.png
+  shadow_ready: true
+  description: Une réplique en plâtre de fossile, obtenue auprès du collectionneur squelette rare.
+  enabled: true
+  sources:
+  - skeleton_collector
+  economy:
+    buy_price: null
+    sell_price: null
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  - prestige_only
+  collection:
+    collectible: true
+    group: fossil_replicas
+    prestige_value: 1
+- id: 48
+  key: fossil_plaster_c
+  name: Pièce fossile plâtre C
+  category: collectible
+  sprite: item48.png
+  shadow: item48_s.png
+  shadow_ready: true
+  description: Une réplique en plâtre de fossile, obtenue auprès du collectionneur squelette rare.
+  enabled: true
+  sources:
+  - skeleton_collector
+  economy:
+    buy_price: null
+    sell_price: null
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  - prestige_only
+  collection:
+    collectible: true
+    group: fossil_replicas
+    prestige_value: 2
+- id: 49
+  key: fossil_plaster_d
+  name: Pièce fossile plâtre D
+  category: collectible
+  sprite: item49.png
+  shadow: item49_s.png
+  shadow_ready: true
+  description: Une réplique en plâtre de fossile, obtenue auprès du collectionneur squelette rare.
+  enabled: true
+  sources:
+  - skeleton_collector
+  economy:
+    buy_price: null
+    sell_price: null
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  - prestige_only
+  collection:
+    collectible: true
+    group: fossil_replicas
+    prestige_value: 2
+- id: 50
+  key: fossil_plaster_e
+  name: Pièce fossile plâtre E
+  category: collectible
+  sprite: item50.png
+  shadow: item50_s.png
+  shadow_ready: true
+  description: Une réplique en plâtre de fossile, obtenue auprès du collectionneur squelette rare.
+  enabled: true
+  sources:
+  - skeleton_collector
+  economy:
+    buy_price: null
+    sell_price: null
+  inventory:
+    stackable: true
+    max_stack: 99
+  flags:
+  - v1
+  - prestige_only
+  collection:
+    collectible: true
+    group: fossil_replicas
+    prestige_value: 3

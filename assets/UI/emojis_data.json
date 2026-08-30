@@ -1,0 +1,673 @@
+{
+    "ui": {
+        "COIN1": "<:azure_coin1:1543646173934653563>",
+        "COIN2": "<:azure_coin2:1543646175142355025>",
+        "COIN3": "<:azure_coin3:1543646176203776151>",
+        "MEDAL1": "<:azure_medal1:1543646176887177217>",
+        "MEDAL2": "<:azure_medal2:1543646178573295767>",
+        "MEDAL3": "<:azure_medal3:1543646180523647087>",
+        "MEDAL4": "<:azure_medal4:1543646181576413337>"
+    },
+    "species": {
+        "parrot_fish": {
+            "sprite": "<:specie1:1543655151951155210>",
+            "shadow": "<:specie1_s:1543655154337718332>"
+        },
+        "mackerel": {
+            "sprite": "<:specie2:1543655156778934312>",
+            "shadow": "<:specie2_s:1543655159006236693>"
+        },
+        "clown_fish": {
+            "sprite": "<:specie3:1543655161522683917>",
+            "shadow": "<:specie3_s:1543655164483866774>"
+        },
+        "plaice": {
+            "sprite": "<:specie4:1543655166811709512>",
+            "shadow": "<:specie4_s:1543655169286479876>"
+        },
+        "silver_eel": {
+            "sprite": "<:specie5:1543655172012642414>",
+            "shadow": "<:specie5_s:1543655174461988975>"
+        },
+        "sea_horse": {
+            "sprite": "<:specie6:1543655176878030989>",
+            "shadow": "<:specie6_s:1543655179088302192>"
+        },
+        "lionfish": {
+            "sprite": "<:specie7:1543655181605011487>",
+            "shadow": "<:specie7_s:1543655185249730661>"
+        },
+        "cowfish": {
+            "sprite": "<:specie8:1543655187665649815>",
+            "shadow": "<:specie8_s:1543655189754548236>"
+        },
+        "tuna": {
+            "sprite": "<:specie9:1543655192631705630>",
+            "shadow": "<:specie9_s:1543655194984849548>"
+        },
+        "banded_butterflyfish": {
+            "sprite": "<:specie10:1543655197102968965>",
+            "shadow": "<:specie10_s:1543655199791653084>"
+        },
+        "atlantic_bass": {
+            "sprite": "<:specie11:1543655202249379920>",
+            "shadow": "<:specie11_s:1543655204921155764>"
+        },
+        "blue_tang": {
+            "sprite": "<:specie12:1543655208263876748>",
+            "shadow": "<:specie12_s:1543655211703205948>"
+        },
+        "pollock": {
+            "sprite": "<:specie13:1543655214245085204>",
+            "shadow": "<:specie13_s:1543655216627318864>"
+        },
+        "ballan_wrasse": {
+            "sprite": "<:specie14:1543655221303967864>",
+            "shadow": "<:specie14_s:1543655223912833024>"
+        },
+        "weaver_fish": {
+            "sprite": "<:specie15:1543655226320359596>",
+            "shadow": "<:specie15_s:1543655228945989682>"
+        },
+        "bream": {
+            "sprite": "<:specie16:1543655239561773189>",
+            "shadow": "<:specie16_s:1543655242087014600>"
+        },
+        "pufferfish": {
+            "sprite": "<:specie17:1543655244804919306>",
+            "shadow": "<:specie17_s:1543655248227209436>"
+        },
+        "cod": {
+            "sprite": "<:specie18:1543655250530013305>",
+            "shadow": "<:specie18_s:1543655253361041500>"
+        },
+        "dab": {
+            "sprite": "<:specie19:1543655256364425326>",
+            "shadow": "<:specie19_s:1543655258994245762>"
+        },
+        "flounder": {
+            "sprite": "<:specie20:1543655261518958642>",
+            "shadow": "<:specie20_s:1543655264744382657>"
+        },
+        "whiting": {
+            "sprite": "<:specie21:1543655270771589232>",
+            "shadow": "<:specie21_s:1543655273342705676>"
+        },
+        "halibut": {
+            "sprite": "<:specie22:1543655276312395786>",
+            "shadow": "<:specie22_s:1543655278879449158>"
+        },
+        "herring": {
+            "sprite": "<:specie23:1543655281324597248>",
+            "shadow": "<:specie23_s:1543655283836854393>"
+        },
+        "stingray": {
+            "sprite": "<:specie24:1543655286387122296>",
+            "shadow": "<:specie24_s:1543655288568156191>"
+        },
+        "wolfish": {
+            "sprite": "<:specie25:1543655292049432698>",
+            "shadow": "<:specie25_s:1543655294897225730>"
+        },
+        "bonefish": {
+            "sprite": "<:specie26:1543655297913065482>",
+            "shadow": "<:specie26_s:1543655300748419263>"
+        },
+        "cobia": {
+            "sprite": "<:specie27:1543655304162443316>",
+            "shadow": "<:specie27_s:1543655307996037120>"
+        },
+        "black_drum": {
+            "sprite": "<:specie28:1543655316997017632>",
+            "shadow": "<:specie28_s:1543655327973773402>"
+        },
+        "blobfish": {
+            "sprite": "<:specie29:1543655342385266758>",
+            "shadow": "<:specie29_s:1543655345463754772>"
+        },
+        "pompano": {
+            "sprite": "<:specie30:1543655348089520148>",
+            "shadow": "<:specie30_s:1543655350538866728>"
+        },
+        "sardine": {
+            "sprite": "<:specie31:1543655352460116093>",
+            "shadow": "<:specie31_s:1543655355379224606>"
+        },
+        "angelfish": {
+            "sprite": "<:specie32:1543655357786755134>",
+            "shadow": "<:specie32_s:1543655360337027113>"
+        },
+        "red_snapper": {
+            "sprite": "<:specie33:1543655363205668916>",
+            "shadow": "<:specie33_s:1543655365869174915>"
+        },
+        "salmon": {
+            "sprite": "<:specie34:1543655372823461960>",
+            "shadow": "<:specie34_s:1543655375880851586>"
+        },
+        "anglerfish": {
+            "sprite": "<:specie35:1543655378666135623>",
+            "shadow": "<:specie35_s:1543655381136576572>"
+        },
+        "shrimp": {
+            "sprite": "<:specie36:1543655383716073595>",
+            "shadow": "<:specie36_s:1543655386186387527>"
+        },
+        "squid": {
+            "sprite": "<:specie37:1543655388518420522>",
+            "shadow": "<:specie37_s:1543655392175718450>"
+        },
+        "dumbo_octopus": {
+            "sprite": "<:specie38:1543655394583248996>",
+            "shadow": "<:specie38_s:1543655397330784256>"
+        },
+        "crab": {
+            "sprite": "<:specie39:1543655399826391060>",
+            "shadow": "<:specie39_s:1543655402229731338>"
+        },
+        "lobster": {
+            "sprite": "<:specie40:1543655404700180610>",
+            "shadow": "<:specie40_s:1543655407531204698>"
+        },
+        "sea_angel": {
+            "sprite": "<:specie41:1543655410492379186>",
+            "shadow": "<:specie41_s:1543655413231386654>"
+        },
+        "turtle": {
+            "sprite": "<:specie42:1543655415714422824>",
+            "shadow": "<:specie42_s:1543655418415419452>"
+        },
+        "octopus": {
+            "sprite": "<:specie43:1543655420906963004>",
+            "shadow": "<:specie43_s:1543655423033221202>"
+        },
+        "pink_fantasia": {
+            "sprite": "<:specie44:1543655425306661066>",
+            "shadow": "<:specie44_s:1543655427810787532>"
+        },
+        "sea_spider": {
+            "sprite": "<:specie45:1543655431224819732>",
+            "shadow": "<:specie45_s:1543655433737211924>"
+        },
+        "jellyfish": {
+            "sprite": "<:specie46:1543655436484485121>",
+            "shadow": "<:specie46_s:1543655439127023618>"
+        },
+        "sea_cucumber": {
+            "sprite": "<:specie47:1543655441551069266>",
+            "shadow": "<:specie47_s:1543655445884043345>"
+        },
+        "christmas_tree_worm": {
+            "sprite": "<:specie48:1543655448639569920>",
+            "shadow": "<:specie48_s:1543655451474927766>"
+        },
+        "sea_pen": {
+            "sprite": "<:specie49:1543655453932912721>",
+            "shadow": "<:specie49_s:1543655456302436545>"
+        },
+        "sea_urchin": {
+            "sprite": "<:specie50:1543655458739327036>",
+            "shadow": "<:specie50_s:1543655461289726072>"
+        },
+        "blue_lobster": {
+            "sprite": "<:specie51:1543655463873290383>",
+            "shadow": "<:specie51_s:1543655465785753752>"
+        },
+        "saltwater_snail": {
+            "sprite": "<:specie52:1543655468713648139>",
+            "shadow": "<:specie52_s:1543655471221706813>"
+        },
+        "crucian_carp": {
+            "sprite": "<:specie53:1543655473742483556>",
+            "shadow": "<:specie53_s:1543655476246483014>"
+        },
+        "bluegill": {
+            "sprite": "<:specie54:1543655478842757160>",
+            "shadow": "<:specie54_s:1543655481485172736>"
+        },
+        "tilapia": {
+            "sprite": "<:specie55:1543655483745894454>",
+            "shadow": "<:specie55_s:1543655486677717016>"
+        },
+        "smelt": {
+            "sprite": "<:specie56:1543655488707895398>",
+            "shadow": "<:specie56_s:1543655491811414076>"
+        },
+        "trout": {
+            "sprite": "<:specie57:1543655494617530498>",
+            "shadow": "<:specie57_s:1543655498237350032>"
+        },
+        "betta": {
+            "sprite": "<:specie58:1543655500825235588>",
+            "shadow": "<:specie58_s:1543655503618383892>"
+        },
+        "rainbow_trout": {
+            "sprite": "<:specie59:1543655506147680296>",
+            "shadow": "<:specie59_s:1543655508592955432>"
+        },
+        "yellow_perch": {
+            "sprite": "<:specie60:1543655511017132082>",
+            "shadow": "<:specie60_s:1543655513391235233>"
+        },
+        "char": {
+            "sprite": "<:specie61:1543655515718942802>",
+            "shadow": "<:specie61_s:1543655518399234050>"
+        },
+        "guppy": {
+            "sprite": "<:specie62:1543655520911499384>",
+            "shadow": "<:specie62_s:1543655523461894144>"
+        },
+        "king_salmon": {
+            "sprite": "<:specie63:1543655525777154220>",
+            "shadow": "<:specie63_s:1543655528163442762>"
+        },
+        "neon_tetra": {
+            "sprite": "<:specie64:1543655530889748580>",
+            "shadow": "<:specie64_s:1543655533263851530>"
+        },
+        "piranha": {
+            "sprite": "<:specie65:1543655536128557126>",
+            "shadow": "<:specie65_s:1543655538712248462>"
+        },
+        "bitterling": {
+            "sprite": "<:specie66:1543655541442879648>",
+            "shadow": "<:specie66_s:1543655544005333162>"
+        },
+        "black_bass": {
+            "sprite": "<:specie67:1543655546740015237>",
+            "shadow": "<:specie67_s:1543655550796177418>"
+        },
+        "eel": {
+            "sprite": "<:specie68:1543655553199509665>",
+            "shadow": "<:specie68_s:1543655555774816336>"
+        },
+        "chub": {
+            "sprite": "<:specie69:1543655558597582868>",
+            "shadow": "<:specie69_s:1543655561663356988>"
+        },
+        "perch": {
+            "sprite": "<:specie70:1543655564125409391>",
+            "shadow": "<:specie70_s:1543655566801633401>"
+        },
+        "crappie": {
+            "sprite": "<:specie71:1543655569125019722>",
+            "shadow": "<:specie71_s:1543655572120014961>"
+        },
+        "catfish": {
+            "sprite": "<:specie72:1543655574795722895>",
+            "shadow": "<:specie72_s:1543655577287139338>"
+        },
+        "walleye": {
+            "sprite": "<:specie73:1543655580097450126>",
+            "shadow": "<:specie73_s:1543655582764892261>"
+        },
+        "dace": {
+            "sprite": "<:specie74:1543655586544095352>",
+            "shadow": "<:specie74_s:1543655589610262678>"
+        },
+        "loach": {
+            "sprite": "<:specie75:1543655592177180683>",
+            "shadow": "<:specie75_s:1543655595310194768>"
+        },
+        "largemouth_bass": {
+            "sprite": "<:specie76:1543655597839220798>",
+            "shadow": "<:specie76_s:1543655603938009108>"
+        },
+        "water_beetle": {
+            "sprite": "<:specie77:1543655606584352878>",
+            "shadow": "<:specie77_s:1543655611114463362>"
+        },
+        "crayfish": {
+            "sprite": "<:specie78:1543655613563666482>",
+            "shadow": "<:specie78_s:1543655616105554000>"
+        },
+        "snake": {
+            "sprite": "<:specie79:1543655618664206538>",
+            "shadow": "<:specie79_s:1543655621629583380>"
+        },
+        "freshwater_snail": {
+            "sprite": "<:specie80:1543655624188100771>",
+            "shadow": "<:specie80_s:1543655626503364621>"
+        },
+        "goldfish": {
+            "sprite": "<:specie81:1543655629074202696>",
+            "shadow": "<:specie81_s:1543655631787917433>"
+        },
+        "koi": {
+            "sprite": "<:specie82:1543655634464018532>",
+            "shadow": "<:specie82_s:1543655636707971156>"
+        },
+        "grass_carp": {
+            "sprite": "<:specie83:1543655639564165254>",
+            "shadow": "<:specie83_s:1543655642143920178>"
+        },
+        "fathead_minnow": {
+            "sprite": "<:specie84:1543655644593393734>",
+            "shadow": "<:specie84_s:1543655647491391639>"
+        },
+        "green_sunfish": {
+            "sprite": "<:specie85:1543655649949515926>",
+            "shadow": "<:specie85_s:1543655652314976426>"
+        },
+        "plecostomus": {
+            "sprite": "<:specie86:1543655654776905788>",
+            "shadow": "<:specie86_s:1543655657280901140>"
+        },
+        "red_shiner": {
+            "sprite": "<:specie87:1543655659646623884>",
+            "shadow": "<:specie87_s:1543655663597650012>"
+        },
+        "pumpkin_seed_fish": {
+            "sprite": "<:specie88:1543655669435990057>",
+            "shadow": "<:specie88_s:1543655671843659887>"
+        },
+        "goby": {
+            "sprite": "<:specie89:1543655674381336727>",
+            "shadow": "<:specie89_s:1543655677061373972>"
+        },
+        "shubukin": {
+            "sprite": "<:specie90:1543655680358092880>",
+            "shadow": "<:specie90_s:1543655685730992188>"
+        },
+        "fancy_goldfish": {
+            "sprite": "<:specie91:1543655688331460728>",
+            "shadow": "<:specie91_s:1543655690822754324>"
+        },
+        "high_fin_banded_shark": {
+            "sprite": "<:specie92:1543655693217697845>",
+            "shadow": "<:specie92_s:1543655696497643741>"
+        },
+        "paradise_fish": {
+            "sprite": "<:specie93:1543655699005841489>",
+            "shadow": "<:specie93_s:1543655701799374848>"
+        },
+        "gizzard_shad": {
+            "sprite": "<:specie94:1543655704970141736>",
+            "shadow": "<:specie94_s:1543655707507953686>"
+        },
+        "rosette": {
+            "sprite": "<:specie95:1543655710208827523>",
+            "shadow": "<:specie95_s:1543655713245765682>"
+        },
+        "golden_tench": {
+            "sprite": "<:specie96:1543655715565215785>",
+            "shadow": "<:specie96_s:1543655718610145351>"
+        },
+        "molly": {
+            "sprite": "<:specie97:1543655721172992068>",
+            "shadow": "<:specie97_s:1543655724666851507>"
+        },
+        "frog": {
+            "sprite": "<:specie98:1543655727342555146>",
+            "shadow": "<:specie98_s:1543655729380986981>"
+        },
+        "tadpole": {
+            "sprite": "<:specie99:1543655732182908968>",
+            "shadow": "<:specie99_s:1543655734766604348>"
+        },
+        "axolotl": {
+            "sprite": "<:specie100:1543655737107161171>",
+            "shadow": "<:specie100_s:1543655739892039842>"
+        },
+        "pink_conch": {
+            "sprite": "<:specie101:1543655742102446132>",
+            "shadow": "<:specie101_s:1543655745508212826>"
+        },
+        "striped_whelk": {
+            "sprite": "<:specie102:1543655748217610310>",
+            "shadow": "<:specie102_s:1543655750449233922>"
+        },
+        "green_turban_shell": {
+            "sprite": "<:specie103:1543655753079062632>",
+            "shadow": "<:specie103_s:1543655755763155104>"
+        },
+        "golden_scallop": {
+            "sprite": "<:specie104:1543655758304903439>",
+            "shadow": "<:specie104_s:1543655760649519216>"
+        },
+        "spotted_turban_shell": {
+            "sprite": "<:specie105:1543655764512604322>",
+            "shadow": "<:specie105_s:1543655767046098944>"
+        },
+        "sun_scallop": {
+            "sprite": "<:specie106:1543655769520603156>",
+            "shadow": "<:specie106_s:1543655773500866570>"
+        },
+        "amber_clam": {
+            "sprite": "<:specie107:1543655778144100510>",
+            "shadow": "<:specie107_s:1543655782900568164>"
+        },
+        "sand_clam": {
+            "sprite": "<:specie108:1543655785639182537>",
+            "shadow": "<:specie108_s:1543655788256432209>"
+        },
+        "limpet_shell": {
+            "sprite": "<:specie109:1543655790676811796>",
+            "shadow": "<:specie109_s:1543655793147257003>"
+        },
+        "orange_turban_shell": {
+            "sprite": "<:specie110:1543655795932008568>",
+            "shadow": "<:specie110_s:1543655798582808678>"
+        },
+        "pearl_oyster": {
+            "sprite": "<:specie111:1543655801225351198>",
+            "shadow": "<:specie111_s:1543655803356061728>"
+        },
+        "dark_mussel": {
+            "sprite": "<:specie112:1543655806556184710>",
+            "shadow": "<:specie112_s:1543655810100371486>"
+        },
+        "sun_shell": {
+            "sprite": "<:specie113:1543655812944240741>",
+            "shadow": "<:specie113_s:1543655825099464896>"
+        },
+        "brown_whelk": {
+            "sprite": "<:specie114:1543655827926290512>",
+            "shadow": "<:specie114_s:1543655830489141399>"
+        }
+    },
+    "items": {
+        "coastal_rod": {
+            "sprite": "<:item1:1543655833169166346>"
+        },
+        "widewater_rod": {
+            "sprite": "<:item2:1543655836365103104>"
+        },
+        "bread": {
+            "sprite": "<:item3:1543655838806319154>"
+        },
+        "canned_food": {
+            "sprite": "<:item4:1543655841352126617>"
+        },
+        "coffee": {
+            "sprite": "<:item5:1543655843491225746>"
+        },
+        "red_gem": {
+            "sprite": "<:item6:1543655847861690409>",
+            "shadow": "<:item6_s:1543655850285998101>"
+        },
+        "orange_gem": {
+            "sprite": "<:item7:1543655852886458381>",
+            "shadow": "<:item7_s:1543655855621144776>"
+        },
+        "green_gem": {
+            "sprite": "<:item8:1543655857911234611>",
+            "shadow": "<:item8_s:1543655860490735726>"
+        },
+        "azure_gem": {
+            "sprite": "<:item9:1543655863175086170>",
+            "shadow": "<:item9_s:1543655865805180929>"
+        },
+        "deep_blue_gem": {
+            "sprite": "<:item10:1543655867977699362>",
+            "shadow": "<:item10_s:1543655870976630854>"
+        },
+        "diamond": {
+            "sprite": "<:item11:1543655873501462538>",
+            "shadow": "<:item11_s:1543655875963658260>"
+        },
+        "iridescent_stone": {
+            "sprite": "<:item12:1543655878102745130>",
+            "shadow": "<:item12_s:1543655880963133460>"
+        },
+        "umbrella": {
+            "sprite": "<:item13:1543655883538702337>"
+        },
+        "broken_bottle": {
+            "sprite": "<:item14:1543655886344687678>"
+        },
+        "lantern": {
+            "sprite": "<:item15:1543655888789708840>"
+        },
+        "nuclear_waste": {
+            "sprite": "<:item16:1543655891839229952>"
+        },
+        "toxic_waste": {
+            "sprite": "<:item17:1543655895937065123>"
+        },
+        "compass": {
+            "sprite": "<:item18:1543655898755506196>"
+        },
+        "spyglass": {
+            "sprite": "<:item19:1543655902345826457>"
+        },
+        "net": {
+            "sprite": "<:item20:1543655904744833024>"
+        },
+        "basket": {
+            "sprite": "<:item21:1543655907244769350>"
+        },
+        "golden_insect": {
+            "sprite": "<:item22:1543655909975138375>"
+        },
+        "ocarina": {
+            "sprite": "<:item23:1543655913007620186>"
+        },
+        "broken_pcb": {
+            "sprite": "<:item24:1543655926349832245>"
+        },
+        "planks": {
+            "sprite": "<:item25:1543655929239568554>"
+        },
+        "branches": {
+            "sprite": "<:item26:1543655931873861755>"
+        },
+        "jack_o_lantern": {
+            "sprite": "<:item27:1543655934537244692>"
+        },
+        "big_hook": {
+            "sprite": "<:item28:1543655936814743573>"
+        },
+        "small_hook": {
+            "sprite": "<:item29:1543655939541041204>"
+        },
+        "multi_hook": {
+            "sprite": "<:item30:1543655942070206594>"
+        },
+        "bead_hook": {
+            "sprite": "<:item31:1543655944490197102>"
+        },
+        "tactical_hook": {
+            "sprite": "<:item32:1543655946973085977>"
+        },
+        "lifebuoy": {
+            "sprite": "<:item33:1543655949909229818>"
+        },
+        "diving_fins": {
+            "sprite": "<:item34:1543655952560160918>"
+        },
+        "diving_mask": {
+            "sprite": "<:item35:1543655955110170655>"
+        },
+        "air_tanks": {
+            "sprite": "<:item36:1543655957798854827>"
+        },
+        "fossil_in_stone": {
+            "sprite": "<:item37:1543655960172695705>",
+            "shadow": "<:item37_s:1543655962957578270>"
+        },
+        "bucket": {
+            "sprite": "<:item38:1543655966938239056>"
+        },
+        "normal_skull": {
+            "sprite": "<:item39:1543655969001836687>",
+            "shadow": "<:item39_s:1543655971447120134>"
+        },
+        "golden_skull": {
+            "sprite": "<:item40:1543655974458499193>",
+            "shadow": "<:item40_s:1543655977000243382>"
+        },
+        "fish_tail_bait": {
+            "sprite": "<:item41:1543655979483398224>"
+        },
+        "worm_bait": {
+            "sprite": "<:item42:1543655982305902723>"
+        },
+        "larva_bait": {
+            "sprite": "<:item43:1543655984952647700>"
+        },
+        "roach_bait": {
+            "sprite": "<:item44:1543655987351654522>"
+        },
+        "fly_bait": {
+            "sprite": "<:item45:1543655989876621442>"
+        },
+        "fossil_plaster_a": {
+            "sprite": "<:item46:1543655992233828396>",
+            "shadow": "<:item46_s:1543655995329355800>"
+        },
+        "fossil_plaster_b": {
+            "sprite": "<:item47:1543655997992599632>",
+            "shadow": "<:item47_s:1543656000505127055>"
+        },
+        "fossil_plaster_c": {
+            "sprite": "<:item48:1543656002514063522>",
+            "shadow": "<:item48_s:1543656005404065912>"
+        },
+        "fossil_plaster_d": {
+            "sprite": "<:item49:1543656008054865920>",
+            "shadow": "<:item49_s:1543656010693222483>"
+        },
+        "fossil_plaster_e": {
+            "sprite": "<:item50:1543656013369053307>",
+            "shadow": "<:item50_s:1543656015856271443>"
+        }
+    },
+    "npcs": {
+        "gabriel": {
+            "default": "<:portrait1:1543656019832610916>"
+        },
+        "inti": {
+            "default": "<:portrait2:1543656022416293951>"
+        },
+        "maurice": {
+            "default": "<:portrait3:1543656024546873406>"
+        },
+        "patrick": {
+            "default": "<:portrait4:1543656027524825088>"
+        },
+        "npc5": {
+            "default": "<:portrait5:1543656029936427098>"
+        },
+        "dan": {
+            "default": "<:portrait6:1543656032746872955>"
+        },
+        "agathe": {
+            "default": "<:portrait7:1543656035452190770>"
+        },
+        "joel": {
+            "default": "<:portrait8:1543656039612682441>"
+        },
+        "hedwig": {
+            "default": "<:portrait9:1543656042544631961>"
+        },
+        "gaia": {
+            "default": "<:portrait10:1543656045274988664>",
+            "alt": "<:portrait11:1543656047691038850>"
+        },
+        "oz": {
+            "default": "<:portrait12:1543656050203566100>",
+            "alt": "<:portrait13:1543656052552110182>"
+        }
+    }
+}

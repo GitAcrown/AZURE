@@ -1,0 +1,5169 @@
+schema_version: 2
+balance_status: provisional
+notes:
+  species_count: 114
+  design: Les conditions, prix, raretés, tailles, poids, tags d'appât et comportements sont prévus dans le schéma mais restent
+    équilibrables.
+  capture_methods:
+    rod: poissons
+    net: créatures/coquillages
+  asset_naming: specie<index>.png / specie<index>_s.png
+species:
+- id: 1
+  key: parrot_fish
+  name: Poisson-perroquet
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie1.png
+    shadow: specie1_s.png
+  description: Poisson tropical dont les dents soudées forment un bec puissant, utilisé pour racler les algues et le corail.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 2
+  key: mackerel
+  name: Maquereau
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie2.png
+    shadow: specie2_s.png
+  description: Poisson marin rapide vivant souvent en bancs, reconnaissable à son dos rayé et apprécié pour sa chair riche
+    en oméga-3.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 3
+  key: clown_fish
+  name: Poisson-clown
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie3.png
+    shadow: specie3_s.png
+  description: Petit poisson récifal vivant en symbiose avec certaines anémones de mer, dont les tentacules le protègent des
+    prédateurs.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 4
+  key: plaice
+  name: Plie
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie4.png
+    shadow: specie4_s.png
+  description: Poisson plat vivant sur les fonds sableux ou vaseux, avec les deux yeux regroupés sur le même côté du corps.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 5
+  key: silver_eel
+  name: Anguille argentée
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie5.png
+    shadow: specie5_s.png
+  description: Stade migrateur de l’anguille européenne, dont le corps s’argente avant son départ vers la mer pour se reproduire.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred:
+    - rain
+    - fog
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - nocturnal
+    - bottom_feeder
+    - worm_eater
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags:
+  - nocturnal
+  - bottom_feeder
+  - worm_eater
+  flags: []
+- id: 6
+  key: sea_horse
+  name: Hippocampe
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie6.png
+    shadow: specie6_s.png
+  description: Poisson marin à tête chevaline dont le mâle porte les œufs dans une poche incubatrice jusqu’à l’éclosion.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 7
+  key: lionfish
+  name: Poisson-lion
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie7.png
+    shadow: specie7_s.png
+  description: Poisson tropical muni de longues épines venimeuses ; certaines espèces sont devenues invasives dans l’Atlantique
+    occidental.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided:
+    - storm
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - predator
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags:
+  - predator
+  flags: []
+- id: 8
+  key: cowfish
+  name: Poisson-vache
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie8.png
+    shadow: specie8_s.png
+  description: Poisson-coffre au corps rigide souvent muni de petites cornes, protégé par une carapace de plaques osseuses.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags: []
+  flags: []
+- id: 9
+  key: tuna
+  name: Thon
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie9.png
+    shadow: specie9_s.png
+  description: Grand poisson pélagique extrêmement endurant, capable de maintenir une température musculaire supérieure à
+    celle de l’eau.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - summer
+    - autumn
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided:
+    - fog
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - predator
+    - surface_feeder
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags:
+  - predator
+  - surface_feeder
+  flags: []
+- id: 10
+  key: banded_butterflyfish
+  name: Poisson-papillon à bandes
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie10.png
+    shadow: specie10_s.png
+  description: Poisson récifal tropical à corps comprimé, généralement observé près des coraux où il recherche de petits invertébrés.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 11
+  key: atlantic_bass
+  name: Bar de l’Atlantique
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie11.png
+    shadow: specie11_s.png
+  description: Nom anglais assez générique ; il désigne ici un bar marin, prédateur côtier fréquentant notamment les zones
+    rocheuses et les estuaires.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 12
+  key: blue_tang
+  name: Chirurgien bleu
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie12.png
+    shadow: specie12_s.png
+  description: Poisson récifal bleu vif possédant près de la queue une épine tranchante caractéristique des poissons-chirurgiens.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags: []
+  flags: []
+- id: 13
+  key: pollock
+  name: Lieu noir
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie13.png
+    shadow: specie13_s.png
+  description: Poisson de la famille des gadidés vivant dans l’Atlantique Nord, souvent présent près des côtes rocheuses et
+    en pleine eau.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 14
+  key: ballan_wrasse
+  name: Vieille commune
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie14.png
+    shadow: specie14_s.png
+  description: Grand labre de l’Atlantique Nord-Est, aux couleurs très variables, vivant surtout sur les fonds rocheux.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags: []
+  flags: []
+- id: 15
+  key: weaver_fish
+  name: Vive
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie15.png
+    shadow: specie15_s.png
+  description: Poisson côtier qui s’enfouit dans le sable et possède des épines dorsales venimeuses capables de provoquer
+    une piqûre douloureuse.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 16
+  key: bream
+  name: Dorade
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie16.png
+    shadow: specie16_s.png
+  description: Nom commun couvrant plusieurs poissons marins au corps comprimé ; beaucoup fréquentent les côtes et se nourrissent
+    d’invertébrés.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 17
+  key: pufferfish
+  name: Poisson-globe
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie17.png
+    shadow: specie17_s.png
+  description: Poisson capable de gonfler son corps en avalant de l’eau ou de l’air ; plusieurs espèces contiennent de la
+    tétrodotoxine.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags: []
+  flags: []
+- id: 18
+  key: cod
+  name: Morue
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie18.png
+    shadow: specie18_s.png
+  description: Grand poisson de l’Atlantique Nord vivant près du fond, longtemps au cœur d’importantes pêcheries commerciales.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 19
+  key: dab
+  name: Limande
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie19.png
+    shadow: specie19_s.png
+  description: Petit poisson plat des mers européennes, vivant sur des fonds sableux ou vaseux où il chasse de petits invertébrés.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 20
+  key: flounder
+  name: Flet
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie20.png
+    shadow: specie20_s.png
+  description: Nom donné à plusieurs poissons plats benthiques dont le corps asymétrique est adapté à la vie posée sur le
+    fond.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 21
+  key: whiting
+  name: Merlan
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie21.png
+    shadow: specie21_s.png
+  description: Gadidé de l’Atlantique Nord-Est, plutôt élancé, se nourrissant de crustacés et de petits poissons.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 22
+  key: halibut
+  name: Flétan
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie22.png
+    shadow: specie22_s.png
+  description: Très grand poisson plat des eaux froides, capable d’atteindre une taille et un poids considérables.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags: []
+  flags: []
+- id: 23
+  key: herring
+  name: Hareng
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie23.png
+    shadow: specie23_s.png
+  description: Petit poisson pélagique vivant en immenses bancs et jouant un rôle essentiel dans les chaînes alimentaires
+    marines.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred:
+    - wind
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - opportunist
+    - small
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags:
+  - opportunist
+  - small
+  flags: []
+- id: 24
+  key: stingray
+  name: Raie pastenague
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie24.png
+    shadow: specie24_s.png
+  description: Raie aplatie possédant généralement un aiguillon venimeux sur la queue, qu’elle utilise surtout pour se défendre.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    time:
+    - dawn
+    - day
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - bottom_feeder
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags:
+  - bottom_feeder
+  flags: []
+- id: 25
+  key: wolfish
+  name: Loup de mer
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie25.png
+    shadow: specie25_s.png
+  description: Poisson des eaux froides doté de puissantes mâchoires adaptées au broyage de coquillages, crustacés et oursins.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags: []
+  flags: []
+- id: 26
+  key: bonefish
+  name: Albule
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie26.png
+    shadow: specie26_s.png
+  description: Poisson argenté des eaux tropicales peu profondes, célèbre chez les pêcheurs sportifs pour sa vitesse et sa
+    méfiance.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags: []
+  flags: []
+- id: 27
+  key: cobia
+  name: Cobia
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie27.png
+    shadow: specie27_s.png
+  description: Grand poisson marin solitaire ou en petits groupes, souvent observé près de structures flottantes, requins
+    ou raies.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags: []
+  flags: []
+- id: 28
+  key: black_drum
+  name: Tambour noir
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie28.png
+    shadow: specie28_s.png
+  description: Poisson côtier de l’Atlantique occidental capable de produire des sons sourds grâce à sa vessie natatoire.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags: []
+  flags: []
+- id: 29
+  key: blobfish
+  name: Poisson-goutte
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie29.png
+    shadow: specie29_s.png
+  description: Poisson profond dont le corps gélatineux est adapté à la forte pression ; son aspect déformé apparaît surtout
+    lorsqu’il est remonté en surface.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred:
+    - fog
+    - storm
+    weather_avoided:
+    - clear
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - bottom_feeder
+    - scavenger
+  economy:
+    base_price: 65
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: rare
+  tags:
+  - bottom_feeder
+  - scavenger
+  flags: []
+- id: 30
+  key: pompano
+  name: Pompano
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie30.png
+    shadow: specie30_s.png
+  description: Nom donné à plusieurs carangues argentées rapides fréquentant surtout les eaux côtières chaudes.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 31
+  key: sardine
+  name: Sardine
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie31.png
+    shadow: specie31_s.png
+  description: Petit poisson pélagique grégaire vivant en bancs denses et constituant une ressource alimentaire majeure pour
+    de nombreux prédateurs.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 32
+  key: angelfish
+  name: Poisson-ange
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie32.png
+    shadow: specie32_s.png
+  description: Poisson récifal tropical au corps haut et aplati ; les espèces marines appartiennent principalement à la famille
+    des Pomacanthidés.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags: []
+  flags: []
+- id: 33
+  key: red_snapper
+  name: Vivaneau rouge
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie33.png
+    shadow: specie33_s.png
+  description: Poisson récifal de l’Atlantique occidental et du golfe du Mexique, recherché pour sa chair et reconnaissable
+    à sa coloration rouge.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags: []
+  flags: []
+- id: 34
+  key: salmon
+  name: Saumon
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie34.png
+    shadow: specie34_s.png
+  description: Poisson migrateur qui naît généralement en eau douce, grandit en mer puis retourne vers sa rivière d’origine
+    pour se reproduire.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 35
+  key: anglerfish
+  name: Baudroie
+  category: fish
+  environment: ocean
+  assets:
+    sprite: specie35.png
+    shadow: specie35_s.png
+  description: Poisson prédateur utilisant un appendice transformé en leurre pour attirer ses proies ; certaines espèces vivent
+    dans les abysses.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - night
+    weather_required: []
+    weather_preferred:
+    - fog
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - nocturnal
+    - predator
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags:
+  - nocturnal
+  - predator
+  flags: []
+- id: 36
+  key: shrimp
+  name: Crevette
+  category: crustacean
+  environment: ocean
+  assets:
+    sprite: specie36.png
+    shadow: specie36_s.png
+  description: Crustacé décapode présent dans presque tous les milieux aquatiques, important à la fois comme prédateur et
+    comme proie.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 37
+  key: squid
+  name: Calmar
+  category: cephalopod
+  environment: ocean
+  assets:
+    sprite: specie37.png
+    shadow: specie37_s.png
+  description: Céphalopode à dix appendices capable de propulsion par jet et, chez de nombreuses espèces, de changer rapidement
+    de couleur.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 38
+  key: dumbo_octopus
+  name: Pieuvre Dumbo
+  category: cephalopod
+  environment: ocean
+  assets:
+    sprite: specie38.png
+    shadow: specie38_s.png
+  description: Pieuvre profonde du genre Grimpoteuthis, reconnaissable à ses nageoires latérales rappelant de grandes oreilles.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - night
+    weather_required: []
+    weather_preferred:
+    - fog
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - nocturnal
+  economy:
+    base_price: 65
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: rare
+  tags:
+  - nocturnal
+  flags: []
+- id: 39
+  key: crab
+  name: Crabe
+  category: crustacean
+  environment: ocean
+  assets:
+    sprite: specie39.png
+    shadow: specie39_s.png
+  description: Crustacé décapode au corps large et à l’abdomen réduit, présent des littoraux jusqu’aux grandes profondeurs.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 40
+  key: lobster
+  name: Homard
+  category: crustacean
+  environment: ocean
+  assets:
+    sprite: specie40.png
+    shadow: specie40_s.png
+  description: Grand crustacé marin muni de puissantes pinces, vivant surtout sur des fonds rocheux où il se cache dans des
+    anfractuosités.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - nocturnal
+    - bottom_feeder
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: uncommon
+  tags:
+  - nocturnal
+  - bottom_feeder
+  flags: []
+- id: 41
+  key: sea_angel
+  name: Ange de mer
+  category: mollusk
+  environment: ocean
+  assets:
+    sprite: specie41.png
+    shadow: specie41_s.png
+  description: Petit gastéropode marin pélagique presque transparent dont le pied s’est transformé en deux nageoires évoquant
+    des ailes.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred:
+    - clear
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - small
+  economy:
+    base_price: 65
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: rare
+  tags:
+  - small
+  flags: []
+- id: 42
+  key: turtle
+  name: Tortue marine
+  category: reptile
+  environment: ocean
+  assets:
+    sprite: specie42.png
+    shadow: specie42_s.png
+  description: Reptile marin respirant à l’air libre et parcourant parfois des milliers de kilomètres entre zones d’alimentation
+    et sites de ponte.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 43
+  key: octopus
+  name: Poulpe
+  category: cephalopod
+  environment: ocean
+  assets:
+    sprite: specie43.png
+    shadow: specie43_s.png
+  description: Céphalopode à huit bras réputé pour son intelligence, son camouflage et sa capacité à manipuler des objets.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 44
+  key: pink_fantasia
+  name: Concombre de mer rose
+  category: creature
+  environment: ocean
+  assets:
+    sprite: specie44.png
+    shadow: specie44_s.png
+  description: Holothurie profonde translucide, aussi appelée « pink see-through fantasia », qui nage au-dessus du fond marin.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 65
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: rare
+  tags: []
+  flags: []
+- id: 45
+  key: sea_spider
+  name: Araignée de mer
+  category: arthropod
+  environment: ocean
+  assets:
+    sprite: specie45.png
+    shadow: specie45_s.png
+  description: Arthropode marin du groupe des pycnogonides, caractérisé par un petit corps entouré de longues pattes très
+    fines.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: uncommon
+  tags: []
+  flags: []
+- id: 46
+  key: jellyfish
+  name: Méduse
+  category: cnidarian
+  environment: ocean
+  assets:
+    sprite: specie46.png
+    shadow: specie46_s.png
+  description: Cnidaire gélatineux se déplaçant par contractions de son ombrelle et capturant ses proies grâce à des cellules
+    urticantes.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred:
+    - rain
+    - storm
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - opportunist
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: common
+  tags:
+  - opportunist
+  flags: []
+- id: 47
+  key: sea_cucumber
+  name: Concombre de mer
+  category: echinoderm
+  environment: ocean
+  assets:
+    sprite: specie47.png
+    shadow: specie47_s.png
+  description: Échinoderme benthique au corps allongé qui recycle les sédiments en ingérant de la matière organique déposée
+    sur le fond.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 48
+  key: christmas_tree_worm
+  name: Ver arbre de Noël
+  category: creature
+  environment: ocean
+  assets:
+    sprite: specie48.png
+    shadow: specie48_s.png
+  description: Ver marin tubicole dont les deux panaches spiralés très colorés servent à respirer et à filtrer les particules
+    alimentaires.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: uncommon
+  tags: []
+  flags: []
+- id: 49
+  key: sea_pen
+  name: Plume de mer
+  category: cnidarian
+  environment: ocean
+  assets:
+    sprite: specie49.png
+    shadow: specie49_s.png
+  description: Colonie de cnidaires ressemblant à une plume plantée dans les fonds meubles, principalement dans les eaux calmes
+    ou profondes.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: uncommon
+  tags: []
+  flags: []
+- id: 50
+  key: sea_urchin
+  name: Oursin
+  category: echinoderm
+  environment: ocean
+  assets:
+    sprite: specie50.png
+    shadow: specie50_s.png
+  description: Échinoderme couvert de piquants mobiles, souvent herbivore et important dans l’équilibre des communautés rocheuses
+    et récifales.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: uncommon
+  tags: []
+  flags: []
+- id: 51
+  key: blue_lobster
+  name: Homard bleu
+  category: crustacean
+  environment: ocean
+  assets:
+    sprite: specie51.png
+    shadow: specie51_s.png
+  description: Homard présentant une coloration bleue rare, généralement due à une variation génétique affectant les pigments
+    de sa carapace.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred:
+    - rain
+    - storm
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - bottom_feeder
+  economy:
+    base_price: 65
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: rare
+  tags:
+  - bottom_feeder
+  flags: []
+- id: 52
+  key: saltwater_snail
+  name: Escargot de mer
+  category: mollusk
+  environment: ocean
+  assets:
+    sprite: specie52.png
+    shadow: specie52_s.png
+  description: Gastéropode marin à coquille, groupe extrêmement diversifié allant des petits brouteurs littoraux aux espèces
+    prédatrices.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 53
+  key: crucian_carp
+  name: Carassin
+  category: fish
+  environment: river
+  assets:
+    sprite: specie53.png
+    shadow: specie53_s.png
+  description: Petit cyprinidé européen très résistant aux eaux pauvres en oxygène, fréquentant surtout les eaux lentes et
+    riches en végétation.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 54
+  key: bluegill
+  name: Crapet arlequin
+  category: fish
+  environment: river
+  assets:
+    sprite: specie54.png
+    shadow: specie54_s.png
+  description: Crapet nord-américain vivant dans les eaux calmes ; il se reconnaît notamment à la tache sombre située sur
+    son opercule.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 55
+  key: tilapia
+  name: Tilapia
+  category: fish
+  environment: river
+  assets:
+    sprite: specie55.png
+    shadow: specie55_s.png
+  description: Nom regroupant plusieurs cichlidés tropicaux d’eau douce, souvent omnivores et largement élevés en aquaculture.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 56
+  key: smelt
+  name: Éperlan
+  category: fish
+  environment: river
+  assets:
+    sprite: specie56.png
+    shadow: specie56_s.png
+  description: Petit poisson argenté vivant en bancs ; plusieurs espèces migrent entre mer et eau douce pour se reproduire.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 57
+  key: trout
+  name: Truite
+  category: fish
+  environment: river
+  assets:
+    sprite: specie57.png
+    shadow: specie57_s.png
+  description: Salmonidé d’eaux fraîches et bien oxygénées, prédateur d’insectes aquatiques, de crustacés et de petits poissons.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    weather_required: []
+    weather_preferred: []
+    weather_avoided:
+    - storm
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - insectivore
+    - surface_feeder
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags:
+  - insectivore
+  - surface_feeder
+  flags: []
+- id: 58
+  key: betta
+  name: Combattant
+  category: fish
+  environment: river
+  assets:
+    sprite: specie58.png
+    shadow: specie58_s.png
+  description: Petit poisson asiatique capable de respirer de l’air atmosphérique grâce à un organe spécialisé appelé labyrinthe.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags: []
+  flags: []
+- id: 59
+  key: rainbow_trout
+  name: Truite arc-en-ciel
+  category: fish
+  environment: river
+  assets:
+    sprite: specie59.png
+    shadow: specie59_s.png
+  description: Salmonidé originaire d’Amérique du Nord, reconnaissable à la bande rosée courant le long de ses flancs.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags: []
+  flags: []
+- id: 60
+  key: yellow_perch
+  name: Perche jaune
+  category: fish
+  environment: river
+  assets:
+    sprite: specie60.png
+    shadow: specie60_s.png
+  description: Poisson nord-américain jaune-verdâtre marqué de bandes verticales sombres, vivant souvent en bancs dans les
+    lacs et rivières calmes.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 61
+  key: char
+  name: Omble
+  category: fish
+  environment: river
+  assets:
+    sprite: specie61.png
+    shadow: specie61_s.png
+  description: Salmonidé des eaux froides appartenant au genre Salvelinus, souvent adapté aux lacs et rivières nordiques.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags: []
+  flags: []
+- id: 62
+  key: guppy
+  name: Guppy
+  category: fish
+  environment: river
+  assets:
+    sprite: specie62.png
+    shadow: specie62_s.png
+  description: Petit poisson vivipare tropical très prolifique, célèbre pour les couleurs spectaculaires développées par les
+    mâles.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 63
+  key: king_salmon
+  name: Saumon royal
+  category: fish
+  environment: river
+  assets:
+    sprite: specie63.png
+    shadow: specie63_s.png
+  description: Le saumon chinook est le plus grand saumon du Pacifique et effectue de longues migrations entre l’océan et
+    les rivières.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - autumn
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - predator
+    - surface_feeder
+  economy:
+    base_price: 65
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: rare
+  tags:
+  - predator
+  - surface_feeder
+  flags: []
+- id: 64
+  key: neon_tetra
+  name: Tétra néon
+  category: fish
+  environment: river
+  assets:
+    sprite: specie64.png
+    shadow: specie64_s.png
+  description: Petit poisson amazonien de banc reconnaissable à sa bande bleu électrique et à sa zone rouge brillante.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags: []
+  flags: []
+- id: 65
+  key: piranha
+  name: Piranha
+  category: fish
+  environment: river
+  assets:
+    sprite: specie65.png
+    shadow: specie65_s.png
+  description: Poisson sud-américain aux mâchoires puissantes ; selon les espèces, son régime peut être carnivore, omnivore
+    ou opportuniste.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - summer
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - predator
+  economy:
+    base_price: 65
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: rare
+  tags:
+  - predator
+  flags: []
+- id: 66
+  key: bitterling
+  name: Bouvière
+  category: fish
+  environment: river
+  assets:
+    sprite: specie66.png
+    shadow: specie66_s.png
+  description: Petit cyprinidé européen dont la reproduction dépend de moules d’eau douce, à l’intérieur desquelles la femelle
+    dépose ses œufs.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags: []
+  flags: []
+- id: 67
+  key: black_bass
+  name: Black-bass
+  category: fish
+  environment: river
+  assets:
+    sprite: specie67.png
+    shadow: specie67_s.png
+  description: Nom regroupant plusieurs poissons prédateurs nord-américains du genre Micropterus, très populaires en pêche
+    sportive.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 68
+  key: eel
+  name: Anguille
+  category: fish
+  environment: river
+  assets:
+    sprite: specie68.png
+    shadow: specie68_s.png
+  description: Poisson au corps serpentiforme ; l’anguille européenne effectue une migration océanique exceptionnelle pour
+    rejoindre sa zone de reproduction.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - nocturnal
+    - bottom_feeder
+    - worm_eater
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags:
+  - nocturnal
+  - bottom_feeder
+  - worm_eater
+  flags: []
+- id: 69
+  key: chub
+  name: Chevesne
+  category: fish
+  environment: river
+  assets:
+    sprite: specie69.png
+    shadow: specie69_s.png
+  description: Cyprinidé européen robuste et opportuniste, fréquentant les rivières et se nourrissant d’invertébrés, de végétaux
+    et de petits poissons.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 70
+  key: perch
+  name: Perche
+  category: fish
+  environment: river
+  assets:
+    sprite: specie70.png
+    shadow: specie70_s.png
+  description: Prédateur d’eau douce aux bandes verticales sombres, commun dans de nombreux lacs et cours d’eau européens.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 71
+  key: crappie
+  name: Marigane
+  category: fish
+  environment: river
+  assets:
+    sprite: specie71.png
+    shadow: specie71_s.png
+  description: Crapet nord-américain vivant dans les eaux calmes et structurées, souvent regroupé autour de végétation ou
+    de bois immergé.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 72
+  key: catfish
+  name: Poisson-chat
+  category: fish
+  environment: river
+  assets:
+    sprite: specie72.png
+    shadow: specie72_s.png
+  description: Nom regroupant de nombreux poissons munis de barbillons sensoriels autour de la bouche, évoquant les moustaches
+    d’un chat.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred:
+    - rain
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - nocturnal
+    - bottom_feeder
+    - scavenger
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags:
+  - nocturnal
+  - bottom_feeder
+  - scavenger
+  flags: []
+- id: 73
+  key: walleye
+  name: Doré jaune
+  category: fish
+  environment: river
+  assets:
+    sprite: specie73.png
+    shadow: specie73_s.png
+  description: Prédateur nord-américain adapté aux eaux peu lumineuses grâce à une couche réfléchissante dans l’œil améliorant
+    sa vision nocturne.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - nocturnal
+    - predator
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags:
+  - nocturnal
+  - predator
+  flags: []
+- id: 74
+  key: dace
+  name: Vandoise
+  category: fish
+  environment: river
+  assets:
+    sprite: specie74.png
+    shadow: specie74_s.png
+  description: Petit cyprinidé argenté des rivières bien oxygénées, vivant souvent en bancs et se nourrissant de petits invertébrés.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 75
+  key: loach
+  name: Loche
+  category: fish
+  environment: river
+  assets:
+    sprite: specie75.png
+    shadow: specie75_s.png
+  description: Nom donné à plusieurs petits poissons benthiques d’eau douce, souvent munis de barbillons et adaptés à la vie
+    près du fond.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 76
+  key: largemouth_bass
+  name: Black-bass à grande bouche
+  category: fish
+  environment: river
+  assets:
+    sprite: specie76.png
+    shadow: specie76_s.png
+  description: Grand prédateur nord-américain reconnaissable à sa bouche dépassant largement l’arrière de l’œil.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 77
+  key: water_beetle
+  name: Dytique
+  category: insect
+  environment: river
+  assets:
+    sprite: specie77.png
+    shadow: specie77_s.png
+  description: Coléoptère aquatique prédateur dont les pattes postérieures aplaties servent de puissantes rames pour nager.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 78
+  key: crayfish
+  name: Écrevisse
+  category: crustacean
+  environment: river
+  assets:
+    sprite: specie78.png
+    shadow: specie78_s.png
+  description: Crustacé d’eau douce proche du homard, vivant sur le fond et se nourrissant de végétaux, détritus et petits
+    animaux.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - nocturnal
+    - bottom_feeder
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: uncommon
+  tags:
+  - nocturnal
+  - bottom_feeder
+  flags: []
+- id: 79
+  key: snake
+  name: Serpent
+  category: reptile
+  environment: river
+  assets:
+    sprite: specie79.png
+    shadow: specie79_s.png
+  description: Certaines espèces de serpents vivent étroitement liées aux milieux aquatiques et nagent pour chasser poissons,
+    amphibiens ou invertébrés.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - predator
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: common
+  tags:
+  - predator
+  flags: []
+- id: 80
+  key: freshwater_snail
+  name: Escargot d’eau douce
+  category: mollusk
+  environment: river
+  assets:
+    sprite: specie80.png
+    shadow: specie80_s.png
+  description: Gastéropode aquatique fréquent des rivières, mares et lacs, où il broute souvent algues et matière organique.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 81
+  key: goldfish
+  name: Poisson rouge
+  category: fish
+  environment: pond
+  assets:
+    sprite: specie81.png
+    shadow: specie81_s.png
+  description: Poisson domestique issu du carassin doré, sélectionné en Chine depuis plus d’un millénaire pour ses couleurs
+    et ses formes.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 82
+  key: koi
+  name: Carpe koï
+  category: fish
+  environment: pond
+  assets:
+    sprite: specie82.png
+    shadow: specie82_s.png
+  description: Variété ornementale de carpe commune sélectionnée au Japon pour ses motifs colorés et élevée dans les bassins.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - autumn
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred:
+    - clear
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - opportunist
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags:
+  - opportunist
+  flags: []
+- id: 83
+  key: grass_carp
+  name: Carpe herbivore
+  category: fish
+  environment: pond
+  assets:
+    sprite: specie83.png
+    shadow: specie83_s.png
+  description: Grand cyprinidé d’Asie de l’Est principalement herbivore, introduit dans de nombreux pays pour contrôler la
+    végétation aquatique.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 84
+  key: fathead_minnow
+  name: Vairon à grosse tête
+  category: fish
+  environment: pond
+  assets:
+    sprite: specie84.png
+    shadow: specie84_s.png
+  description: Petit cyprinidé nord-américain très tolérant aux conditions difficiles, souvent utilisé comme poisson-appât.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 85
+  key: green_sunfish
+  name: Crapet vert
+  category: fish
+  environment: pond
+  assets:
+    sprite: specie85.png
+    shadow: specie85_s.png
+  description: Crapet nord-américain robuste, souvent présent dans les petites eaux chaudes et capable de tolérer des habitats
+    dégradés.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 86
+  key: plecostomus
+  name: Pléco
+  category: fish
+  environment: pond
+  assets:
+    sprite: specie86.png
+    shadow: specie86_s.png
+  description: Nom courant de plusieurs poissons-chats cuirassés sud-américains munis d’une bouche en ventouse adaptée au
+    broutage des surfaces.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags: []
+  flags: []
+- id: 87
+  key: red_shiner
+  name: Méné rouge
+  category: fish
+  environment: pond
+  assets:
+    sprite: specie87.png
+    shadow: specie87_s.png
+  description: Petit cyprinidé nord-américain dont les mâles prennent des teintes rouge-orangé et bleuâtres pendant la reproduction.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 88
+  key: pumpkin_seed_fish
+  name: Crapet-soleil
+  category: fish
+  environment: pond
+  assets:
+    sprite: specie88.png
+    shadow: specie88_s.png
+  description: Crapet nord-américain vivement coloré, reconnaissable à sa tache operculaire sombre bordée de rouge.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 89
+  key: goby
+  name: Gobie
+  category: fish
+  environment: pond
+  assets:
+    sprite: specie89.png
+    shadow: specie89_s.png
+  description: Nom regroupant de nombreux petits poissons vivant près du fond ; plusieurs possèdent des nageoires pelviennes
+    formant une ventouse.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 90
+  key: shubukin
+  name: Shubunkin
+  category: fish
+  environment: pond
+  assets:
+    sprite: specie90.png
+    shadow: specie90_s.png
+  description: Variété de poisson rouge à corps élancé, connue pour sa robe calico mêlant bleu, rouge, orange, noir et blanc.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags: []
+  flags: []
+- id: 91
+  key: fancy_goldfish
+  name: Poisson rouge d’ornement
+  category: fish
+  environment: pond
+  assets:
+    sprite: specie91.png
+    shadow: specie91_s.png
+  description: Ensemble de variétés de poissons rouges sélectionnées pour des caractères comme une double queue, des yeux
+    proéminents ou un corps arrondi.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags: []
+  flags: []
+- id: 92
+  key: high_fin_banded_shark
+  name: Myxocyprin asiatique
+  category: fish
+  environment: pond
+  assets:
+    sprite: specie92.png
+    shadow: specie92_s.png
+  description: Grand poisson d’eau douce chinois, malgré son nom anglais ce n’est pas un requin ; les jeunes portent de hautes
+    nageoires et des bandes contrastées.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - summer
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - bottom_feeder
+  economy:
+    base_price: 65
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: rare
+  tags:
+  - bottom_feeder
+  flags: []
+- id: 93
+  key: paradise_fish
+  name: Poisson-paradis
+  category: fish
+  environment: pond
+  assets:
+    sprite: specie93.png
+    shadow: specie93_s.png
+  description: Poisson labyrinthidé d’Asie orientale capable de respirer de l’air, historiquement parmi les premiers poissons
+    tropicaux importés en Europe.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - summer
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - surface_feeder
+    - insectivore
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags:
+  - surface_feeder
+  - insectivore
+  flags: []
+- id: 94
+  key: gizzard_shad
+  name: Alose à gésier
+  category: fish
+  environment: pond
+  assets:
+    sprite: specie94.png
+    shadow: specie94_s.png
+  description: Poisson nord-américain vivant en bancs et filtrant surtout du plancton et des particules organiques dans les
+    eaux calmes.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 95
+  key: rosette
+  name: Rosette
+  category: fish
+  environment: pond
+  assets:
+    sprite: specie95.png
+    shadow: specie95_s.png
+  description: Nom de la liste d’origine ne correspondant pas clairement à un nom commun standard d’espèce ; identification
+    exacte à confirmer à partir du sprite.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 96
+  key: golden_tench
+  name: Tanche dorée
+  category: fish
+  environment: pond
+  assets:
+    sprite: specie96.png
+    shadow: specie96_s.png
+  description: Variété dorée de la tanche, poisson robuste des eaux calmes et végétalisées capable de supporter de faibles
+    teneurs en oxygène.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - autumn
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - bottom_feeder
+    - worm_eater
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: uncommon
+  tags:
+  - bottom_feeder
+  - worm_eater
+  flags: []
+- id: 97
+  key: molly
+  name: Molly
+  category: fish
+  environment: pond
+  assets:
+    sprite: specie97.png
+    shadow: specie97_s.png
+  description: Poisson vivipare du genre Poecilia, originaire des Amériques et couramment élevé en aquarium sous de nombreuses
+    formes colorées.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: rod
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: fishdex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 98
+  key: frog
+  name: Grenouille
+  category: amphibian
+  environment: pond
+  assets:
+    sprite: specie98.png
+    shadow: specie98_s.png
+  description: Amphibien adulte généralement lié aux milieux humides, où de nombreuses espèces pondent leurs œufs dans l’eau.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred:
+    - rain
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - nocturnal
+    - insectivore
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: common
+  tags:
+  - nocturnal
+  - insectivore
+  flags: []
+- id: 99
+  key: tadpole
+  name: Têtard
+  category: amphibian
+  environment: pond
+  assets:
+    sprite: specie99.png
+    shadow: specie99_s.png
+  description: Stade larvaire aquatique des grenouilles et crapauds, qui se transforme progressivement par métamorphose en
+    adulte.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: common
+  tags: []
+  flags: []
+- id: 100
+  key: axolotl
+  name: Axolotl
+  category: amphibian
+  environment: pond
+  assets:
+    sprite: specie100.png
+    shadow: specie100_s.png
+  description: Salamandre mexicaine néoténique qui conserve à l’âge adulte ses branchies externes et plusieurs caractères
+    larvaires.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - night
+    weather_required: []
+    weather_preferred:
+    - fog
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: standard
+    hook_tags: []
+    bait_tags:
+    - nocturnal
+  economy:
+    base_price: 65
+    sellable: true
+  collection:
+    collectible: true
+    group: creaturedex
+    recordable: true
+  rarity: rare
+  tags:
+  - nocturnal
+  flags: []
+- id: 101
+  key: pink_conch
+  name: Conque rose
+  category: shell
+  environment: ocean
+  assets:
+    sprite: specie101.png
+    shadow: specie101_s.png
+  description: Grande coquille spiralée aux tons rosés, formée par un gastéropode marin.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: forage
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: shelldex
+    recordable: true
+  rarity: uncommon
+  tags:
+  - shell
+  - shore_creature
+  flags: []
+- id: 102
+  key: striped_whelk
+  name: Bulot rayé
+  category: shell
+  environment: ocean
+  assets:
+    sprite: specie102.png
+    shadow: specie102_s.png
+  description: Coquille allongée et spiralée d’un gastéropode marin vivant généralement sur ou près du fond.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: forage
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: shelldex
+    recordable: true
+  rarity: common
+  tags:
+  - shell
+  - shore_creature
+  flags: []
+- id: 103
+  key: green_turban_shell
+  name: Coquille turban verte
+  category: shell
+  environment: ocean
+  assets:
+    sprite: specie103.png
+    shadow: specie103_s.png
+  description: Coquille épaisse et spiralée rappelant un petit turban, typique de plusieurs gastéropodes marins.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: forage
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: shelldex
+    recordable: true
+  rarity: uncommon
+  tags:
+  - shell
+  - shore_creature
+  flags: []
+- id: 104
+  key: golden_scallop
+  name: Pétoncle doré
+  category: shell
+  environment: ocean
+  assets:
+    sprite: specie104.png
+    shadow: specie104_s.png
+  description: Coquille en éventail d’un mollusque bivalve apparenté aux coquilles Saint-Jacques.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: forage
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: shelldex
+    recordable: true
+  rarity: common
+  tags:
+  - shell
+  - shore_creature
+  flags: []
+- id: 105
+  key: spotted_turban_shell
+  name: Coquille turban tachetée
+  category: shell
+  environment: ocean
+  assets:
+    sprite: specie105.png
+    shadow: specie105_s.png
+  description: Coquille ronde et spiralée, robuste, appartenant au type des coquilles de turbos.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: forage
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: shelldex
+    recordable: true
+  rarity: common
+  tags:
+  - shell
+  - shore_creature
+  flags: []
+- id: 106
+  key: sun_scallop
+  name: Pétoncle solaire
+  category: shell
+  environment: ocean
+  assets:
+    sprite: specie106.png
+    shadow: specie106_s.png
+  description: Coquille bivalve nervurée en forme d’éventail, aux nuances claires et chaudes.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: forage
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: shelldex
+    recordable: true
+  rarity: uncommon
+  tags:
+  - shell
+  - shore_creature
+  flags: []
+- id: 107
+  key: amber_clam
+  name: Palourde ambrée
+  category: shell
+  environment: ocean
+  assets:
+    sprite: specie107.png
+    shadow: specie107_s.png
+  description: Coquille de bivalve aux deux valves épaisses, adaptée à la vie enfouie dans le sable ou la vase.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: forage
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: shelldex
+    recordable: true
+  rarity: common
+  tags:
+  - shell
+  - shore_creature
+  flags: []
+- id: 108
+  key: sand_clam
+  name: Telline
+  category: shell
+  environment: ocean
+  assets:
+    sprite: specie108.png
+    shadow: specie108_s.png
+  description: Petit bivalve côtier vivant souvent enfoui à faible profondeur dans les sédiments sableux.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: forage
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: shelldex
+    recordable: true
+  rarity: common
+  tags:
+  - shell
+  - shore_creature
+  flags: []
+- id: 109
+  key: limpet_shell
+  name: Patelle
+  category: shell
+  environment: ocean
+  assets:
+    sprite: specie109.png
+    shadow: specie109_s.png
+  description: Coquille conique très solide d’un gastéropode qui s’agrippe aux rochers battus par les vagues.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: forage
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: shelldex
+    recordable: true
+  rarity: common
+  tags:
+  - shell
+  - shore_creature
+  flags: []
+- id: 110
+  key: orange_turban_shell
+  name: Coquille turban orange
+  category: shell
+  environment: ocean
+  assets:
+    sprite: specie110.png
+    shadow: specie110_s.png
+  description: Coquille spiralée compacte d’un gastéropode marin, ici remarquable par ses tons orangés.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: forage
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 12
+    sellable: true
+  collection:
+    collectible: true
+    group: shelldex
+    recordable: true
+  rarity: common
+  tags:
+  - shell
+  - shore_creature
+  flags: []
+- id: 111
+  key: pearl_oyster
+  name: Huître perlière
+  category: shell
+  environment: ocean
+  assets:
+    sprite: specie111.png
+    shadow: specie111_s.png
+  description: Coquille irrégulière de bivalve ; certaines espèces proches peuvent produire de la nacre et des perles.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred:
+    - clear
+    weather_avoided:
+    - storm
+  capture:
+    method: net
+    difficulty: 1
+    behavior: forage
+    hook_tags: []
+    bait_tags:
+    - bottom_feeder
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: shelldex
+    recordable: true
+  rarity: uncommon
+  tags:
+  - shell
+  - shore_creature
+  flags: []
+- id: 112
+  key: dark_mussel
+  name: Moule sombre
+  category: shell
+  environment: ocean
+  assets:
+    sprite: specie112.png
+    shadow: specie112_s.png
+  description: Coquille allongée d’un bivalve qui vit souvent fixé en groupes denses sur les rochers et structures immergées.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: forage
+    hook_tags: []
+    bait_tags:
+    - bottom_feeder
+  economy:
+    base_price: 65
+    sellable: true
+  collection:
+    collectible: true
+    group: shelldex
+    recordable: true
+  rarity: rare
+  tags:
+  - shell
+  - shore_creature
+  flags: []
+- id: 113
+  key: sun_shell
+  name: Coquille soleil
+  category: shell
+  environment: ocean
+  assets:
+    sprite: specie113.png
+    shadow: specie113_s.png
+  description: Coquille spiralée aux tons chauds, polie par l’eau et les sédiments.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: forage
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 28
+    sellable: true
+  collection:
+    collectible: true
+    group: shelldex
+    recordable: true
+  rarity: uncommon
+  tags:
+  - shell
+  - shore_creature
+  flags: []
+- id: 114
+  key: brown_whelk
+  name: Bulot brun
+  category: shell
+  environment: ocean
+  assets:
+    sprite: specie114.png
+    shadow: specie114_s.png
+  description: Coquille spiralée trapue d’un gastéropode marin benthique.
+  biology:
+    min_length_cm: null
+    max_length_cm: null
+    min_weight_kg: null
+    max_weight_kg: null
+  availability:
+    seasons:
+    - spring
+    - summer
+    - autumn
+    - winter
+    time:
+    - dawn
+    - day
+    - dusk
+    - night
+    weather_required: []
+    weather_preferred: []
+    weather_avoided: []
+  capture:
+    method: net
+    difficulty: 1
+    behavior: forage
+    hook_tags: []
+    bait_tags: []
+  economy:
+    base_price: 65
+    sellable: true
+  collection:
+    collectible: true
+    group: shelldex
+    recordable: true
+  rarity: rare
+  tags:
+  - shell
+  - shore_creature
+  flags: []

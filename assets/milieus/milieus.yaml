@@ -1,0 +1,17 @@
+schema_version: 1
+notes:
+  design: Trois milieux alignés sur species.environment. Des spots plus précis pourront
+    s'ajouter plus tard sans changer les clés existantes.
+milieus:
+- id: 1
+  key: ocean
+  name: Océan
+  description: Eaux salées, côtes et large.
+- id: 2
+  key: river
+  name: Rivière
+  description: Cours d'eau et berges.
+- id: 3
+  key: pond
+  name: Étang
+  description: Eaux calmes et fermées.

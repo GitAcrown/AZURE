@@ -1,0 +1,75 @@
+schema_version: 1
+notes:
+  design: Valeurs de départ provisoires. L'argent est stocké en bronze.
+  world: Timezone unique pour l'instant. Saison et moment partagés ; météo par milieu,
+    déterministe (guild + milieu + palier horaire).
+money:
+  bronze_per_silver: 100
+  silver_per_gold: 100
+player:
+  energy_max: 100
+  energy_start: 100
+  money_start: 0
+  energy_regen_per_hour: 20
+  fish_carry_capacity: 5
+  non_fish_carry_capacity: 5
+fishing:
+  cast_energy_cost: 8
+  rarity_weights:
+    common: 100
+    uncommon: 40
+    rare: 12
+  weather_preferred_mult: 1.25
+  weather_avoided_mult: 0.5
+  minigame:
+    rod_wait_min_s: 3.5
+    rod_wait_max_s: 7.0
+    rod_window_s: 2.0
+    net_wait_s: 2.0
+    net_window_s: 10.0
+  specimen:
+    fallback_length_cm: [10, 50]
+    fallback_weight_kg: [0.08, 2.0]
+  waste_chance: 0.12
+  loot_chance: 0.06
+  night_weight_mult: 0.65
+  bad_weather_energy_extra: 4
+village:
+  environment_good_threshold: 50
+  skull_summon_threshold: 10
+  travel_cost: 20
+  travel_minutes: 30
+  talk_limit: 8
+  talk_warn_after: 5
+world:
+  timezone: Europe/Paris
+  weather_bucket_minutes: 60
+  time_windows:
+    dawn: [5, 8]
+    day: [8, 18]
+    dusk: [18, 21]
+    night: [21, 5]
+  seasons:
+    spring: [3, 4, 5]
+    summer: [6, 7, 8]
+    autumn: [9, 10, 11]
+    winter: [12, 1, 2]
+  weathers:
+    - key: clear
+      name: Clair
+      emoji: "☀️"
+    - key: cloudy
+      name: Nuageux
+      emoji: "☁️"
+    - key: rain
+      name: Pluie
+      emoji: "🌧️"
+    - key: storm
+      name: Tempête
+      emoji: "⛈️"
+    - key: fog
+      name: Brouillard
+      emoji: "🌫️"
+    - key: wind
+      name: Vent
+      emoji: "🌬️"
