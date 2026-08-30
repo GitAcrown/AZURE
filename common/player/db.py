@@ -101,6 +101,14 @@ CREATE TABLE IF NOT EXISTS guild_state (
     environment_score INTEGER NOT NULL DEFAULT 0
 );
 
+CREATE TABLE IF NOT EXISTS guild_milieu_catches (
+    guild_id INTEGER NOT NULL,
+    milieu_key TEXT NOT NULL,
+    bucket INTEGER NOT NULL,
+    catch_count INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (guild_id, milieu_key, bucket)
+);
+
 CREATE TABLE IF NOT EXISTS village_announcements (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     guild_id INTEGER NOT NULL,

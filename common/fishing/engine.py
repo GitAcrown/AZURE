@@ -32,6 +32,7 @@ class EncounterContext:
     hook: Item | None = None
     ignore_night_penalty: bool = False
     offseason_bonus: float = 0.0
+    env_quality_mult: float = 1.0
 
 
 @dataclass(frozen=True)
@@ -50,6 +51,7 @@ def context_from_world(
     hook: Item | None = None,
     ignore_night_penalty: bool = False,
     offseason_bonus: float = 0.0,
+    env_quality_mult: float = 1.0,
 ) -> EncounterContext:
     state = world_state(catalog.game.world, guild_id, [milieu_key])
     return EncounterContext(
@@ -62,6 +64,7 @@ def context_from_world(
         hook=hook,
         ignore_night_penalty=ignore_night_penalty,
         offseason_bonus=offseason_bonus,
+        env_quality_mult=env_quality_mult,
     )
 
 
@@ -130,6 +133,11 @@ def species_weight(
         weight *= ctx.offseason_bonus
     if ctx.time_of_day == "night" and not ctx.ignore_night_penalty:
         weight *= settings.night_weight_mult
+    if species.rarity != "common" and ctx.env_quality_mult != 1.0:
+        try:
+            weight *= float(ctx.env_quality_mult)
+        except (TypeError, ValueError):
+            pass
     return weight
 
 
@@ -221,6 +229,31 @@ def weather_energy_extra(catalog: Catalog, weather_key: str, *, ignore: bool) ->
     if weather_key == "wind":
         return max(1, extra // 2)
     return extra
+
+
+def cast_energy_parts(
+    catalog: Catalog, weather_key: str, *, ignore: bool = False
+) -> tuple[int, int]:
+    """`(coût de base, extra météo)`."""
+    base = max(0, int(catalog.game.fishing.cast_energy_cost))
+    extra = weather_energy_extra(catalog, weather_key, ignore=ignore)
+    return base, extra
+
+
+def energy_shortfall_message(
+    *,
+    energy: int,
+    base: int,
+    extra: int = 0,
+    weather_label: str = "",
+) -> str:
+    cost = base + extra
+    if extra and weather_label:
+        return (
+            f"pas assez d'énergie — {weather_label} ajoute **+{extra}** "
+            f"· il faut **{cost}**, tu as **{energy}**"
+        )
+    return f"pas assez d'énergie — il faut **{cost}**, tu as **{energy}**"
 
 
 def simulate(

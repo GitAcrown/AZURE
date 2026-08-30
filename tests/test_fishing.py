@@ -25,6 +25,7 @@ from common.fishing import (
     bite_timings,
     build_pool,
     eligible,
+    energy_shortfall_message,
     generate_specimen,
     hook_window_multiplier,
     roll,
@@ -103,6 +104,9 @@ def test_rarity_and_weather_and_bait_weights() -> None:
     ctx = _ctx()
     assert species_weight(common, ctx, settings) == 100
     assert species_weight(rare, ctx, settings) == 12
+    assert species_weight(rare, _ctx(env_quality_mult=1.4), settings) == pytest.approx(16.8)
+    assert species_weight(common, _ctx(env_quality_mult=1.4), settings) == 100
+    assert species_weight(rare, _ctx(env_quality_mult=0.6), settings) == pytest.approx(7.2)
 
     preferred = _species(weather_preferred=["clear"])
     avoided = _species(weather_avoided=["clear"])
@@ -249,3 +253,17 @@ def test_generate_specimen_fallback_and_yaml_range() -> None:
     got = generate_specimen(ranged, settings, random.Random(0))
     assert 20 <= got.length_cm <= 22
     assert 0.4 <= got.weight_kg <= 0.5
+
+
+def test_energy_shortfall_mentions_weather() -> None:
+    plain = energy_shortfall_message(energy=3, base=8)
+    assert "il faut **8**" in plain
+    assert "tu as **3**" in plain
+    assert "météo" not in plain
+    wet = energy_shortfall_message(
+        energy=10, base=8, extra=4, weather_label="🌧️ pluie"
+    )
+    assert "🌧️ pluie" in wet
+    assert "**+4**" in wet
+    assert "il faut **12**" in wet
+    assert "tu as **10**" in wet

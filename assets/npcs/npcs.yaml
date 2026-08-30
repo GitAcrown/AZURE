@@ -222,7 +222,7 @@ npcs:
     alt: portrait11.png
     good: portrait10.png
     bad: portrait11.png
-  description: Veille sur la note environnementale du serveur.
+  description: Veille sur la note environnementale du serveur. Une belle note fait venir les beaux poissons.
   hook: "(Incline un visage qui semble alien.) L'eau se souvient. Tes déchets,
     la note. Parle, ou tais-toi devant le seuil."
   hooks:
@@ -235,8 +235,10 @@ npcs:
   personality: Alien, clairement pas d'ici. Langage hyper mystérieux, presque
     étranger — fragments français mêlés à des sons inventés (kael, shur, neth).
     Phrases elliptiques, inversion, "l'eau se souvient". Jamais
-    familière, jamais claire. Elle révèle la note (display env) et les tarifs
-    des déchets (prix + points de note) comme un présage. Actions
+    familière, jamais claire. Elle révèle la note environnementale (display env)
+    et les tarifs des déchets (prix + points de note environnementale) comme un
+    présage. Une note haute fait affluer les beaux poissons ; une note basse,
+    et la surpêche, les chasse. Actions
     (Incline un visage trop lisse) (L'air tremble un instant).
 - id: 12
   key: oz

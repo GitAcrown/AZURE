@@ -17,7 +17,11 @@ from common.village import (
     apply_named_mult,
     bargain_modifier,
     build_announcement_modifier,
+    env_quality_mult,
     environment_is_good,
+    environment_is_great,
+    environment_is_poor,
+    environment_pct,
     infer_modifier_kind,
     modifier_label,
     npc_can_bargain,
@@ -227,11 +231,43 @@ def test_gaia_portraits_follow_env_score(catalog) -> None:
     gaia = catalog.get_npc("gaia")
     assert environment_is_good(catalog, 49) is False
     assert environment_is_good(catalog, 50) is True
+    assert environment_pct(catalog, 50) == 50
+    assert environment_is_great(catalog, 75) is False
+    assert environment_is_great(catalog, 76) is True
+    assert environment_is_poor(catalog, 25) is False
+    assert environment_is_poor(catalog, 24) is True
+    assert env_quality_mult(catalog, 80) == 1.4
+    assert env_quality_mult(catalog, 50) == 1.0
+    assert env_quality_mult(catalog, 10) == 0.6
     assert npc_portrait_filename(gaia, env_good=False) == "portrait11.png"
     assert npc_portrait_filename(gaia, env_good=True) == "portrait10.png"
     oz = catalog.get_npc("oz")
     assert npc_portrait_filename(oz, env_good=False) == "portrait13.png"
     assert npc_portrait_filename(oz, env_good=True) == "portrait12.png"
+
+
+def test_overfish_lowers_environment(catalog, tmp_path: Path) -> None:
+    async def body() -> None:
+        store = await open_store(tmp_path / "overfish.db", catalog)
+        try:
+            await store.get_or_create(GUILD, USER)
+            await store.set_milieu(GUILD, USER, "ocean")
+            start = await store.environment_score(GUILD)
+            assert start == 50
+            cap = catalog.game.village.overfish_per_bucket
+            for _ in range(cap):
+                await store.finish_cast(
+                    GUILD, USER, "parrot_fish", specimen=Specimen(30.0, 1.04)
+                )
+            assert await store.environment_score(GUILD) == start
+            await store.finish_cast(
+                GUILD, USER, "parrot_fish", specimen=Specimen(30.0, 1.04)
+            )
+            assert await store.environment_score(GUILD) == start - 1
+        finally:
+            await store.close()
+
+    _run(body())
 
 
 def test_sell_buy_repair_oz_and_reset(catalog, tmp_path: Path) -> None:
@@ -254,7 +290,7 @@ def test_sell_buy_repair_oz_and_reset(catalog, tmp_path: Path) -> None:
             sold, money, env_gain = await store.sell_item(GUILD, USER, "broken_bottle")
             assert sold == 1
             assert env_gain == 1
-            assert await store.environment_score(GUILD) == 1
+            assert await store.environment_score(GUILD) == 51
             assert money == 13
 
             await store.add_money(GUILD, USER, 100)

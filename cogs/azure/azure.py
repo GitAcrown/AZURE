@@ -26,6 +26,7 @@ from common.player import PlayerError, PlayerSnapshot, PlayerStore
 from common.village import (
     ANNOUNCE_KINDS,
     build_announcement_modifier,
+    env_quality_mult,
     environment_is_good,
     modifier_label,
     pick_announcer,
@@ -782,8 +783,15 @@ class Azure(commands.Cog):
         hook_key = _equipped_item_key(snap, "hook")
         if hook_key:
             hook = cat.get_item(hook_key)
+        env_score = await store.environment_score(guild.id)
         ctx = context_from_world(
-            cat, guild.id, milieu_obj.key, method, bait=bait, hook=hook
+            cat,
+            guild.id,
+            milieu_obj.key,
+            method,
+            bait=bait,
+            hook=hook,
+            env_quality_mult=env_quality_mult(cat, env_score),
         )
         try:
             counts = simulate(cat, ctx, int(n))

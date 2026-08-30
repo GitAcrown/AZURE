@@ -47,6 +47,7 @@ from common.player import (
     PlayerStore,
 )
 from common.player.db import BAIT_SLOT, GEAR_SLOTS
+from common.fishing import cast_energy_parts
 from common.player.store import carry_compartment, collect_owned_effects
 from common.village import (
     ROLE_LABELS,
@@ -54,6 +55,9 @@ from common.village import (
     VillageAnnouncement,
     announcement_remaining_label,
     environment_is_good,
+    environment_is_great,
+    environment_is_poor,
+    environment_pct,
     fossil_replicas,
     npc_portrait_filename,
     npc_role_label,
@@ -371,8 +375,18 @@ def _equip_options(catalog: Catalog, snap: PlayerSnapshot) -> list[discord.Selec
         eq = snap.equipped.get(slot)
         if eq is None:
             continue
+        item_name = ""
+        key = _equipped_key(eq)
+        if key:
+            try:
+                item_name = catalog.get_item(key).name
+            except Exception:
+                item_name = key
+        label = f"RETIRER · {SLOT_LABELS[slot]}"
+        if item_name:
+            label = f"{label} · {item_name}"
         kwargs: dict = {
-            "label": f"RETIRER · {SLOT_LABELS[slot]}",
+            "label": label[:100],
             "value": f"unequip:{slot}",
         }
         emoji = _select_emoji(_equipped_key(eq))
@@ -864,14 +878,43 @@ class CatchView(discord.ui.LayoutView):
         self.result = result
         self.catalog = catalog
         shareable = bool(result.is_new or result.personal_record or result.guild_rank or result.loot_key)
-        recast_ok = result.energy >= int(catalog.game.fishing.cast_energy_cost)
-        if not recast_ok:
-            note += " · **pas assez d'énergie**"
+        recast_ok, energy_bit = _recast_energy_note(catalog, result)
+        if energy_bit:
+            note += f" · {energy_bit}"
         buttons = [_RecastButton(disabled=not recast_ok)]
         if shareable:
             buttons.append(_ShareCatchButton())
         append_controls(children, note=note, button_row=discord.ui.ActionRow(*buttons))
         self.add_item(make_container(*children))
+
+
+def _recast_energy_note(catalog: Catalog, result: CastResult) -> tuple[bool, str]:
+    snap = result.snap
+    base = int(catalog.game.fishing.cast_energy_cost)
+    extra = 0
+    weather_bit = ""
+    if snap is not None and snap.milieu_key:
+        effects = collect_owned_effects(
+            catalog, snap.gear, snap.stacks, snap.equipped
+        )
+        weather = weather_at(
+            snap.guild_id,
+            snap.milieu_key,
+            datetime.now(timezone.utc),
+            catalog.game.world,
+        )
+        _base, extra = cast_energy_parts(
+            catalog,
+            weather.key,
+            ignore=bool(effects.get("ignore_bad_weather_fatigue_penalty")),
+        )
+        base = _base
+        if extra:
+            weather_bit = f"{weather_display(weather)} **+{extra}** · "
+    needed = base + extra
+    if result.energy >= needed:
+        return True, ""
+    return False, f"**pas assez d'énergie** · {weather_bit}il faut **{needed}**"
 
 
 async def start_cast_flow(
@@ -1711,6 +1754,17 @@ class VillageView(discord.ui.LayoutView):
             return ""
         return "**Étal**\n" + "\n".join(lines[:25])
 
+    def _asked_price(self, key: str) -> bool:
+        """Prix seulement si le joueur a demandé (display purse / intent sell)."""
+        if self.talk_intent == "sell":
+            if not self.talk_item_key or self.talk_item_key == key:
+                return True
+        if self.talk_display != "purse":
+            return False
+        if not self.talk_board_keys:
+            return True
+        return key in self.talk_board_keys or self.talk_item_key == key
+
     def _board_purse(self) -> str:
         catalog = self.catalog
         money = catalog.game.money
@@ -1723,19 +1777,18 @@ class VillageView(discord.ui.LayoutView):
                 continue
             if not species.economy.sellable:
                 continue
-            if not self._filter_keys(spec.species_key):
-                continue
-            price = specimen_price(
-                catalog, species, spec.length_cm, spec.weight_kg, modifiers=mods
-            )
-            extra = f"`{spec.length_cm} cm` · `{spec.weight_kg} kg` · {format_money(price, money)}"
+            extra = f"`{spec.length_cm} cm` · `{spec.weight_kg} kg`"
+            if self._asked_price(spec.species_key):
+                price = specimen_price(
+                    catalog, species, spec.length_cm, spec.weight_kg, modifiers=mods
+                )
+                extra += f" · {format_money(price, money)}"
             mark = ""
             if self.talk_item_key == spec.species_key:
                 mark = f" · **×{self.talk_quantity}**" if self.talk_quantity > 1 else " · **ça**"
             lines.append(
                 with_emoji(species_emoji(spec.species_key), f"{species.name} · {extra}{mark}")
             )
-        waste_lines: list[str] = []
         for stack in self.snap.stacks:
             try:
                 item = catalog.get_item(stack.item_key)
@@ -1743,30 +1796,29 @@ class VillageView(discord.ui.LayoutView):
                 continue
             if item.economy.sell_price is None:
                 continue
-            if not self._filter_keys(item.key):
-                continue
             mark = ""
             if self.talk_item_key == item.key:
                 mark = f" · **×{self.talk_quantity}**" if self.talk_quantity > 1 else " · **ça**"
+            show_price = self._asked_price(item.key)
             if item.category == "waste":
-                waste_lines.append(
-                    self._waste_rate_line(item, qty=stack.quantity, mark=mark, modifiers=mods)
+                lines.append(
+                    self._waste_rate_line(
+                        item,
+                        qty=stack.quantity,
+                        mark=mark,
+                        modifiers=mods,
+                        show_price=show_price,
+                    )
                 )
                 continue
-            price = apply_named_mult(int(item.economy.sell_price), mods, "sell_mult")
-            lines.append(
-                item_display(
-                    catalog,
-                    item.key,
-                    extra=f" ×{stack.quantity} · {format_money(price, money)}{mark}",
-                )
-            )
-        parts: list[str] = []
-        if lines:
-            parts.append("**Sur la table**\n" + "\n".join(lines[:25]))
-        if waste_lines:
-            parts.append("**Déchets**\n" + "\n".join(waste_lines[:25]))
-        return "\n\n".join(parts)
+            extra = f"×{stack.quantity}"
+            if show_price:
+                price = apply_named_mult(int(item.economy.sell_price), mods, "sell_mult")
+                extra += f" · {format_money(price, money)}"
+            lines.append(item_display(catalog, item.key, extra=f"{extra}{mark}"))
+        if not lines:
+            return "**Dans votre sac**\nRien à vendre pour l'instant."
+        return "**Dans votre sac**\n" + "\n".join(lines[:25])
 
     def _here_line(self) -> str:
         key = self.snap.milieu_key
@@ -1870,24 +1922,38 @@ class VillageView(discord.ui.LayoutView):
         qty: int | None = None,
         mark: str = "",
         modifiers: list | None = None,
+        show_price: bool = True,
     ) -> str:
         money = self.catalog.game.money
         mods = modifiers if modifiers is not None else self._mods()
-        price = waste_sell_unit(item, mods)
-        env = waste_env_points(item)
-        extra = format_money(price, money)
-        if env:
-            extra += f" · **+{env}** note"
+        bits: list[str] = []
         if qty is not None and qty > 1:
-            extra = f"×{qty} · {extra}"
-        return item_display(self.catalog, item.key, extra=f"{extra}{mark}")
+            bits.append(f"×{qty}")
+        if show_price:
+            bits.append(format_money(waste_sell_unit(item, mods), money))
+            env = waste_env_points(item)
+            if env:
+                bits.append(f"**+{env}** note environnementale")
+        extra = " · ".join(bits)
+        return item_display(self.catalog, item.key, extra=f"{extra}{mark}" if extra else mark)
 
     def _board_env(self, *, env_good: bool) -> str:
-        threshold = self.catalog.game.village.environment_good_threshold
+        village = self.catalog.game.village
+        pct = environment_pct(self.catalog, self.env_score)
         mood = "sereine" if env_good else "inquiète"
+        if environment_is_great(self.catalog, self.env_score):
+            waters = "les beaux poissons **affluent**"
+        elif environment_is_poor(self.catalog, self.env_score):
+            waters = "les beaux poissons se **raréfient**"
+        else:
+            waters = "les eaux sont **calmes**"
         lines = [
-            f"**Note du serveur** · `{self.env_score}`",
-            f"Seuil · `{threshold}` · Gaia est **{mood}**.",
+            f"**Note environnementale** · **{pct} %**",
+            f"Gaia est **{mood}** · {waters}.",
+            f"-# Au-dessus de **{village.environment_great_threshold} %**, "
+            f"tout le serveur voit plus de beaux poissons. "
+            f"En dessous de **{village.environment_poor_threshold} %**, l'inverse. "
+            f"La surpêche dans un même milieu fait baisser la note.",
         ]
         mods = self._mods()
         owned = {s.item_key: s.quantity for s in self.snap.stacks}
@@ -2045,7 +2111,7 @@ def _talk_show_options(
                 env = waste_env_points(item)
                 extra = format_money_plain(int(item.economy.sell_price), catalog.game.money)
                 if env:
-                    extra = f"{extra} · +{env} note"
+                    extra = f"{extra} · +{env} note environnementale"
             elif item.economy.sell_price is not None:
                 extra = format_money_plain(int(item.economy.sell_price), catalog.game.money)
             emoji = _select_emoji(item.key)
@@ -2283,7 +2349,7 @@ async def _apply_talk_intent(
             total, _money, env = await store.sell_item(
                 guild_id, user_id, item_key, gear_id=gear.id
             )
-        extra = f" · +{env} env." if env else ""
+        extra = f" · +{env} note environnementale" if env else ""
         qty_bit = f" ×{qty}" if qty > 1 else ""
         return (
             f"**Vendu** · {item_display(catalog, item_key)}{qty_bit} · "
@@ -2311,7 +2377,7 @@ async def _apply_talk_intent(
             money_total += price
         if sold == 0:
             raise PlayerError("rien à ramasser")
-        extra = f" · +{env_total} env." if env_total else ""
+        extra = f" · +{env_total} note environnementale" if env_total else ""
         return f"**Nettoyé** · {sold} · {format_money_plain(money_total, catalog.game.money)}{extra}"
     if intent == "repair":
         if not item_key:

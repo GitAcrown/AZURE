@@ -13,10 +13,13 @@ from typing import Any, Optional
 import aiosqlite
 
 from common.catalog import Catalog, CatalogError, Item, Npc
+from common.display import weather_display
 from common.village import (
     VillageAnnouncement,
     apply_named_mult,
     bargain_modifier,
+    clamp_environment_score,
+    env_quality_mult,
     fossil_replicas,
     infer_modifier_kind,
     npc_can_bargain,
@@ -39,7 +42,8 @@ from common.fishing import (
     roll,
     roll_loot,
     roll_waste,
-    weather_energy_extra,
+    cast_energy_parts,
+    energy_shortfall_message,
 )
 
 from .db import ACTIVE_SLOTS, BAIT_SLOT, GEAR_SLOTS, connect_db
@@ -584,16 +588,20 @@ class PlayerStore:
         weather = weather_at(
             guild_id, snap.milieu_key, datetime.now(timezone.utc), self.catalog.game.world
         )
-        extra = weather_energy_extra(
-            self.catalog,
-            weather.key,
-            ignore=bool(effects.get("ignore_bad_weather_fatigue_penalty")),
+        ignore_weather = bool(effects.get("ignore_bad_weather_fatigue_penalty"))
+        base, extra = cast_energy_parts(
+            self.catalog, weather.key, ignore=ignore_weather
         )
-        cost = int(self.catalog.game.fishing.cast_energy_cost) + extra
+        cost = base + extra
         if snap.energy < cost:
-            if extra:
-                raise PlayerError("pas assez d'énergie (mauvais temps)")
-            raise PlayerError("pas assez d'énergie")
+            raise PlayerError(
+                energy_shortfall_message(
+                    energy=snap.energy,
+                    base=base,
+                    extra=extra,
+                    weather_label=weather_display(weather) if extra else "",
+                )
+            )
 
         bait_item = None
         bait_eq = snap.equipped.get(BAIT_SLOT)
@@ -622,6 +630,7 @@ class PlayerStore:
             offseason = float(raw_off or 0)
         except (TypeError, ValueError):
             offseason = 0.0
+        env_score = await self.environment_score(guild_id)
         ctx = context_from_world(
             self.catalog,
             guild_id,
@@ -631,6 +640,7 @@ class PlayerStore:
             hook=hook_item,
             ignore_night_penalty=bool(effects.get("ignore_night_fishing_success_penalty")),
             offseason_bonus=offseason,
+            env_quality_mult=env_quality_mult(self.catalog, env_score),
         )
         pool = build_pool(self.catalog, ctx)
         try:
@@ -832,6 +842,9 @@ class PlayerStore:
             await self.add_item(guild_id, user_id, loot.key, 1)
             loot_key = loot.key
         hook_broke = await self._wear_hooked_attempt(guild_id, user_id)
+        milieu_key = snap.milieu_key if snap is not None else None
+        if milieu_key:
+            await self._record_milieu_catch(guild_id, milieu_key)
         return replace(
             result,
             catch_count=catch_count,
@@ -1276,22 +1289,58 @@ class PlayerStore:
             (guild_id,),
         ) as cur:
             row = await cur.fetchone()
-        return int(row["environment_score"]) if row is not None else 0
+        if row is None:
+            return int(self.catalog.game.village.environment_score_start)
+        return clamp_environment_score(self.catalog, int(row["environment_score"]))
 
-    async def add_environment_score(self, guild_id: int, delta: int) -> int:
-        if delta == 0:
-            return await self.environment_score(guild_id)
+    async def add_environment_score(
+        self, guild_id: int, delta: int, *, commit: bool = True
+    ) -> int:
+        current = await self.environment_score(guild_id)
+        new = clamp_environment_score(self.catalog, current + int(delta))
+        if new == current and delta == 0:
+            return current
         await self._conn.execute(
             """
             INSERT INTO guild_state (guild_id, environment_score)
             VALUES (?, ?)
             ON CONFLICT(guild_id) DO UPDATE SET
-                environment_score = guild_state.environment_score + excluded.environment_score
+                environment_score = excluded.environment_score
             """,
-            (guild_id, delta),
+            (guild_id, new),
         )
+        if commit:
+            await self._conn.commit()
+        return new
+
+    async def _record_milieu_catch(self, guild_id: int, milieu_key: str) -> None:
+        village = self.catalog.game.village
+        bucket = village_bucket(self.catalog)
+        await self._conn.execute(
+            """
+            INSERT INTO guild_milieu_catches (
+                guild_id, milieu_key, bucket, catch_count
+            )
+            VALUES (?, ?, ?, 1)
+            ON CONFLICT(guild_id, milieu_key, bucket)
+            DO UPDATE SET catch_count = catch_count + 1
+            """,
+            (guild_id, milieu_key, bucket),
+        )
+        async with self._conn.execute(
+            """
+            SELECT catch_count FROM guild_milieu_catches
+            WHERE guild_id = ? AND milieu_key = ? AND bucket = ?
+            """,
+            (guild_id, milieu_key, bucket),
+        ) as cur:
+            row = await cur.fetchone()
+        count = int(row["catch_count"]) if row is not None else 1
+        if count > int(village.overfish_per_bucket) and village.overfish_score_loss:
+            await self.add_environment_score(
+                guild_id, -int(village.overfish_score_loss), commit=False
+            )
         await self._conn.commit()
-        return await self.environment_score(guild_id)
 
     async def list_village_announcements(self, guild_id: int) -> list[VillageAnnouncement]:
         now = _now()
@@ -1459,15 +1508,7 @@ class PlayerStore:
             (new_money, guild_id, user_id),
         )
         if env_gain:
-            await self._conn.execute(
-                """
-                INSERT INTO guild_state (guild_id, environment_score)
-                VALUES (?, ?)
-                ON CONFLICT(guild_id) DO UPDATE SET
-                    environment_score = guild_state.environment_score + excluded.environment_score
-                """,
-                (guild_id, env_gain),
-            )
+            await self.add_environment_score(guild_id, env_gain, commit=False)
         await self._conn.commit()
         return total, new_money, env_gain
 

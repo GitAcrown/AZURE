@@ -64,8 +64,37 @@ def skull_score(catalog: Catalog, snap: PlayerSnapshot) -> int:
     return total
 
 
+def clamp_environment_score(catalog: Catalog, env_score: int) -> int:
+    hi = max(1, int(catalog.game.village.environment_score_max))
+    return max(0, min(hi, int(env_score)))
+
+
+def environment_pct(catalog: Catalog, env_score: int) -> int:
+    hi = max(1, int(catalog.game.village.environment_score_max))
+    return round(100 * clamp_environment_score(catalog, env_score) / hi)
+
+
 def environment_is_good(catalog: Catalog, env_score: int) -> bool:
     return env_score >= catalog.game.village.environment_good_threshold
+
+
+def environment_is_great(catalog: Catalog, env_score: int) -> bool:
+    return environment_pct(catalog, env_score) > catalog.game.village.environment_great_threshold
+
+
+def environment_is_poor(catalog: Catalog, env_score: int) -> bool:
+    return environment_pct(catalog, env_score) < catalog.game.village.environment_poor_threshold
+
+
+def env_quality_mult(catalog: Catalog, env_score: int | None) -> float:
+    """Bonus / malus des raretés non communes selon la note environnementale."""
+    if env_score is None:
+        return 1.0
+    if environment_is_great(catalog, env_score):
+        return float(catalog.game.fishing.env_great_rarity_mult)
+    if environment_is_poor(catalog, env_score):
+        return float(catalog.game.fishing.env_poor_rarity_mult)
+    return 1.0
 
 
 def npc_portrait_filename(npc: Npc, *, env_good: bool) -> str:

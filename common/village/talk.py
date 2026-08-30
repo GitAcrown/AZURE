@@ -14,6 +14,9 @@ from common.village.engine import (
     allowed_intents,
     apply_named_mult,
     cleanup_waste_items,
+    environment_is_great,
+    environment_is_poor,
+    environment_pct,
     fossil_replicas,
     modifier_label,
     npc_can_bargain,
@@ -309,7 +312,8 @@ def talk_facts(
     elif role == "shop" and npc.shop_mode == "buy":
         lines.append(
             "Tu n'as rien à vendre. Tu ACHÈTES prises sellable et déchets. "
-            "intent=sell (un type) ou cleanup (tous les déchets). display=purse."
+            "intent=sell (un type) ou cleanup (tous les déchets). display=purse. "
+            "Le jeu montre son sac ; ne cite un prix que s'il te le demande."
         )
         catch_lines: list[str] = []
         for spec in specimens or []:
@@ -339,7 +343,7 @@ def talk_facts(
                 if item.category == "waste":
                     unit = waste_sell_unit(item, mods)
                     env = waste_env_points(item)
-                    extra = f" · +{env} note" if env else ""
+                    extra = f" · +{env} note environnementale" if env else ""
                     waste_lines.append(
                         f"- {item.key} = {item.name} ×{stack.quantity} · "
                         f"{unit} {money_name}{extra}"
@@ -418,11 +422,24 @@ def talk_facts(
                 tag = f" · en route, raccourci {shortcut} {money_name}"
             lines.append(f"- {milieu.key} = {milieu.name}{tag}")
     elif role == "special":
+        village = catalog.game.village
+        pct = environment_pct(catalog, env_score)
+        if environment_is_great(catalog, env_score):
+            waters = "beaux poissons plus fréquents pour tout le serveur"
+        elif environment_is_poor(catalog, env_score):
+            waters = "beaux poissons plus rares pour tout le serveur"
+        else:
+            waters = "eaux calmes, pas de bonus ni de malus"
         lines.append(
-            f"Note du serveur : {env_score} (seuil {catalog.game.village.environment_good_threshold}). "
+            f"Note environnementale : {env_score}/{village.environment_score_max} "
+            f"({pct} %). Humeur sereine dès {village.environment_good_threshold}. "
+            f"{waters}. Au-dessus de {village.environment_great_threshold} % : "
+            f"plus de beaux poissons. En dessous de {village.environment_poor_threshold} % : "
+            f"moins. La surpêche dans un même milieu "
+            f"(plus de {village.overfish_per_bucket} prises / heure) fait baisser la note. "
             "intent=cleanup, display=env."
         )
-        lines.append(f"Tes tarifs déchets (clé = nom · prix · note) :")
+        lines.append(f"Tes tarifs déchets (clé = nom · prix · note environnementale) :")
         for it in cleanup_waste_items(catalog):
             unit = waste_sell_unit(it, mods)
             env = waste_env_points(it)
@@ -431,7 +448,8 @@ def talk_facts(
                 owned = next((s.quantity for s in snap.stacks if s.item_key == it.key), 0)
             have = f" · il en a ×{owned}" if owned else ""
             lines.append(
-                f"- {it.key} = {it.name} · {unit} {money_name} · +{env} note{have}"
+                f"- {it.key} = {it.name} · {unit} {money_name} · "
+                f"+{env} note environnementale{have}"
             )
     elif role == "summon":
         lines.append(

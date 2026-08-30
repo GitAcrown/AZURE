@@ -131,7 +131,13 @@ def test_load_real_catalog() -> None:
     assert catalog.game.player.non_fish_carry_capacity == 5
     assert catalog.game.world.timezone == "Europe/Paris"
     assert catalog.game.world.weather_bucket_minutes == 60
+    assert catalog.game.village.environment_score_start == 50
+    assert catalog.game.village.environment_score_max == 100
     assert catalog.game.village.environment_good_threshold == 50
+    assert catalog.game.village.environment_great_threshold == 75
+    assert catalog.game.village.environment_poor_threshold == 25
+    assert catalog.game.fishing.env_great_rarity_mult == 1.4
+    assert catalog.game.fishing.env_poor_rarity_mult == 0.6
     assert catalog.game.village.skull_summon_threshold == 10
     assert catalog.game.village.travel_cost == 20
     assert catalog.game.village.travel_minutes == 30

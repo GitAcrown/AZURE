@@ -14,6 +14,8 @@ from .engine import (
     species_weight,
     waste_items,
     weather_energy_extra,
+    cast_energy_parts,
+    energy_shortfall_message,
 )
 from .minigame import BiteTimings, bite_timings, hook_window_multiplier
 from .specimen import Specimen, generate_specimen
@@ -37,4 +39,6 @@ __all__ = [
     "species_weight",
     "waste_items",
     "weather_energy_extra",
+    "cast_energy_parts",
+    "energy_shortfall_message",
 ]

@@ -330,6 +330,8 @@ class FishingSettings(_ContentModel):
     loot_chance: float = 0.06
     night_weight_mult: float = 0.65
     bad_weather_energy_extra: int = 4
+    env_great_rarity_mult: float = 1.4
+    env_poor_rarity_mult: float = 0.6
 
     @model_validator(mode="after")
     def _check_fishing(self) -> FishingSettings:
@@ -350,6 +352,8 @@ class FishingSettings(_ContentModel):
             raise ValueError("night_weight_mult doit être > 0")
         if self.bad_weather_energy_extra < 0:
             raise ValueError("bad_weather_energy_extra doit être ≥ 0")
+        if self.env_great_rarity_mult <= 0 or self.env_poor_rarity_mult <= 0:
+            raise ValueError("multiplicateurs de note environnementale doivent être > 0")
         return self
 
 
@@ -378,7 +382,13 @@ class BargainSettings(_ContentModel):
 
 
 class VillageSettings(_ContentModel):
+    environment_score_start: int = 50
+    environment_score_max: int = 100
     environment_good_threshold: int = 50
+    environment_great_threshold: int = 75
+    environment_poor_threshold: int = 25
+    overfish_per_bucket: int = 8
+    overfish_score_loss: int = 1
     skull_summon_threshold: int = 10
     travel_cost: int = 20
     travel_minutes: int = 30
@@ -394,6 +404,16 @@ class VillageSettings(_ContentModel):
             raise ValueError("talk_warn_after doit être ≥ 1")
         if self.talk_warn_after > self.talk_limit:
             raise ValueError("talk_warn_after doit être ≤ talk_limit")
+        if self.environment_score_max < 1:
+            raise ValueError("environment_score_max doit être ≥ 1")
+        if not (0 <= self.environment_score_start <= self.environment_score_max):
+            raise ValueError("environment_score_start hors limites")
+        if not (0 <= self.environment_poor_threshold < self.environment_great_threshold <= 100):
+            raise ValueError("seuils environnementaux invalides")
+        if self.overfish_per_bucket < 1:
+            raise ValueError("overfish_per_bucket doit être ≥ 1")
+        if self.overfish_score_loss < 0:
+            raise ValueError("overfish_score_loss doit être ≥ 0")
         return self
 
 
