@@ -52,7 +52,6 @@ from common.village import (
     ROLE_LABELS,
     SHOP_TAB_LABELS,
     VillageAnnouncement,
-    announcement_modifiers,
     announcement_remaining_label,
     environment_is_good,
     fossil_replicas,
@@ -63,6 +62,7 @@ from common.village import (
     modifier_label,
     passeur_price,
     present_npcs,
+    price_modifiers,
     shop_stock,
     talk_intent_block,
     talk_show_keys,
@@ -1420,6 +1420,11 @@ async def load_village_view(
     if npc_key and npc_key not in present_keys:
         flash = flash or "Ce villageois n'est plus là."
         npc_key = None
+    bargain = None
+    if npc_key:
+        bargain = await store.get_village_bargain(
+            guild_id, user_id, npc_key, bucket=bucket
+        )
     explicit = bool(talk_status or talk_question or talk_response)
     if npc_key and not explicit:
         last = await store.last_village_talk(guild_id, user_id, npc_key, bucket=bucket)
@@ -1453,6 +1458,7 @@ async def load_village_view(
         talk_display=talk_display,
         talk_board_keys=talk_board_keys or [],
         talk_quantity=talk_quantity,
+        bargain=bargain,
     )
 
 
@@ -1480,6 +1486,7 @@ class VillageView(discord.ui.LayoutView):
         talk_display: str = "none",
         talk_board_keys: list[str] | None = None,
         talk_quantity: int = 1,
+        bargain: dict | None = None,
     ) -> None:
         super().__init__(timeout=300 if talk_status in {"pending", "streaming"} else 180)
         self.catalog = catalog
@@ -1499,6 +1506,7 @@ class VillageView(discord.ui.LayoutView):
         self.talk_display = talk_display if talk_display else "none"
         self.talk_board_keys = list(talk_board_keys or [])
         self.talk_quantity = max(1, int(talk_quantity))
+        self.bargain = bargain
         self.attachments: list[discord.File] = []
 
         env_good = environment_is_good(catalog, env_score)
@@ -1534,14 +1542,15 @@ class VillageView(discord.ui.LayoutView):
                 header = section_with_thumbnail(title, file)
             else:
                 header = title
+            deal = " · **prix négociés**" if self.bargain else ""
             if role and current.description:
                 subtitle = discord.ui.TextDisplay(
-                    f"-# {purse} · **{role}** · {current.description}"
+                    f"-# {purse} · **{role}** · {current.description}{deal}"
                 )
             elif role:
-                subtitle = discord.ui.TextDisplay(f"-# {purse} · **{role}**")
+                subtitle = discord.ui.TextDisplay(f"-# {purse} · **{role}**{deal}")
             else:
-                subtitle = discord.ui.TextDisplay(f"-# {purse}")
+                subtitle = discord.ui.TextDisplay(f"-# {purse}{deal}")
             board = self._display_board(current, env_good=env_good)
             talk_block = self._talk_block(current.name or current.key)
             if not talk_block:
@@ -1567,6 +1576,7 @@ class VillageView(discord.ui.LayoutView):
                     item_key=self.talk_item_key,
                     milieu_key=self.talk_milieu_key,
                     quantity=self.talk_quantity,
+                    bargain=self.bargain,
                 )
                 actions.append(
                     _VillageConfirmButton(
@@ -1682,9 +1692,12 @@ class VillageView(discord.ui.LayoutView):
         wanted = self._wanted_keys()
         return wanted is None or key in wanted
 
+    def _mods(self) -> list:
+        return price_modifiers(self.announcements, self.bargain)
+
     def _board_stock(self, npc: Npc) -> str:
         money = self.catalog.game.money
-        mods = announcement_modifiers(self.announcements)
+        mods = self._mods()
         lines: list[str] = []
         for it in shop_stock(self.catalog, npc):
             if not self._filter_keys(it.key):
@@ -1701,7 +1714,7 @@ class VillageView(discord.ui.LayoutView):
     def _board_purse(self) -> str:
         catalog = self.catalog
         money = catalog.game.money
-        mods = announcement_modifiers(self.announcements)
+        mods = self._mods()
         lines: list[str] = []
         for spec in self.specimens:
             try:
@@ -1740,7 +1753,7 @@ class VillageView(discord.ui.LayoutView):
                     self._waste_rate_line(item, qty=stack.quantity, mark=mark, modifiers=mods)
                 )
                 continue
-            price = int(item.economy.sell_price)
+            price = apply_named_mult(int(item.economy.sell_price), mods, "sell_mult")
             lines.append(
                 item_display(
                     catalog,
@@ -1788,7 +1801,7 @@ class VillageView(discord.ui.LayoutView):
 
     def _board_destinations(self) -> str:
         money = self.catalog.game.money
-        mods = announcement_modifiers(self.announcements)
+        mods = self._mods()
         dests: list[str] = []
         for milieu in self.catalog.milieus:
             if not self._filter_keys(milieu.key):
@@ -1825,7 +1838,7 @@ class VillageView(discord.ui.LayoutView):
 
     def _board_repairs(self) -> str:
         money = self.catalog.game.money
-        mods = announcement_modifiers(self.announcements)
+        mods = self._mods()
         lines: list[str] = []
         for gear in self.snap.gear:
             try:
@@ -1859,7 +1872,7 @@ class VillageView(discord.ui.LayoutView):
         modifiers: list | None = None,
     ) -> str:
         money = self.catalog.game.money
-        mods = modifiers if modifiers is not None else announcement_modifiers(self.announcements)
+        mods = modifiers if modifiers is not None else self._mods()
         price = waste_sell_unit(item, mods)
         env = waste_env_points(item)
         extra = format_money(price, money)
@@ -1876,7 +1889,7 @@ class VillageView(discord.ui.LayoutView):
             f"**Note du serveur** · `{self.env_score}`",
             f"Seuil · `{threshold}` · Gaia est **{mood}**.",
         ]
-        mods = announcement_modifiers(self.announcements)
+        mods = self._mods()
         owned = {s.item_key: s.quantity for s in self.snap.stacks}
         rates: list[str] = []
         for item in cleanup_waste_items(self.catalog):
@@ -2143,6 +2156,7 @@ class _VillageConfirmButton(discord.ui.Button):
             item_key=parent.talk_item_key,
             milieu_key=parent.talk_milieu_key,
             quantity=parent.talk_quantity,
+            bargain=parent.bargain,
         )
         if block:
             nxt = await load_village_view(

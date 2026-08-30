@@ -289,10 +289,11 @@ def talk_intent_block(
     item_key: str | None,
     milieu_key: str | None,
     quantity: int = 1,
+    bargain: dict[str, Any] | None = None,
 ) -> str | None:
     """Raison pour désactiver Confirmer, ou None si l'action est possible."""
     qty = max(1, int(quantity))
-    mods = announcement_modifiers(announcements)
+    mods = price_modifiers(announcements, bargain)
     if intent == "buy":
         if not item_key:
             return "Dis-lui quoi acheter"
@@ -455,6 +456,8 @@ ANNOUNCE_KINDS = {
 
 def infer_modifier_kind(modifier: dict[str, Any]) -> str:
     kind = str(modifier.get("kind") or "").strip()
+    if kind == "bargain":
+        return "bargain"
     if kind in ANNOUNCE_KINDS:
         return kind
     if modifier.get("travel_mult") is not None:
@@ -531,6 +534,19 @@ def modifier_label(modifier: dict[str, Any]) -> str:
         return f"réparations {_fmt_off(modifier.get('repair_mult', 0.7))}"
     if kind == "waste":
         return f"déchets ×{_fmt_factor(modifier.get('waste_mult', 2.0))}"
+    if kind == "bargain":
+        if modifier.get("buy_mult") is not None:
+            return f"négociation {_fmt_off(modifier.get('buy_mult'))}"
+        if modifier.get("travel_mult") is not None:
+            return f"négociation {_fmt_off(modifier.get('travel_mult'))}"
+        if modifier.get("repair_mult") is not None:
+            return f"négociation {_fmt_off(modifier.get('repair_mult'))}"
+        if modifier.get("waste_mult") is not None:
+            return f"négociation ×{_fmt_factor(modifier.get('waste_mult'))}"
+        if modifier.get("mult") is not None or modifier.get("sell_mult") is not None:
+            factor = modifier.get("mult", modifier.get("sell_mult"))
+            return f"négociation ×{_fmt_factor(factor)}"
+        return "négociation"
     return ANNOUNCE_KINDS.get(kind, "")
 
 
@@ -668,6 +684,43 @@ def specimen_price(
 
 def announcement_modifiers(announcements: list[VillageAnnouncement]) -> list[dict[str, Any]]:
     return [a.modifier for a in announcements if a.modifier]
+
+
+def price_modifiers(
+    announcements: list[VillageAnnouncement] | None = None,
+    bargain: dict[str, Any] | None = None,
+) -> list[dict[str, Any]]:
+    mods = announcement_modifiers(announcements or [])
+    if bargain:
+        return [*mods, bargain]
+    return mods
+
+
+def npc_can_bargain(npc: Npc) -> bool:
+    role = npc.role or ""
+    if role == "shop":
+        return True
+    return role in {"repair", "travel", "special"}
+
+
+def bargain_modifier(catalog: Catalog, npc: Npc) -> dict[str, Any]:
+    cfg = catalog.game.village.bargain
+    mod: dict[str, Any] = {"kind": "bargain"}
+    role = npc.role or ""
+    if role == "shop" and npc.shop_mode == "sell":
+        mod["buy_mult"] = float(cfg.buy_mult)
+    elif role == "shop" and npc.shop_mode == "buy":
+        mod["mult"] = float(cfg.sell_mult)
+        mod["sell_mult"] = float(cfg.sell_mult)
+        mod["waste_mult"] = float(cfg.waste_mult)
+    elif role == "travel":
+        mod["travel_mult"] = float(cfg.travel_mult)
+    elif role == "repair":
+        mod["repair_mult"] = float(cfg.repair_mult)
+    elif role == "special":
+        mod["waste_mult"] = float(cfg.waste_mult)
+        mod["sell_mult"] = float(cfg.sell_mult)
+    return mod
 
 
 def walk_time_mult(catalog: Catalog, snap: PlayerSnapshot | None = None) -> float:

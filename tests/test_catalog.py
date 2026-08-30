@@ -135,6 +135,8 @@ def test_load_real_catalog() -> None:
     assert catalog.game.village.skull_summon_threshold == 10
     assert catalog.game.village.travel_cost == 20
     assert catalog.game.village.travel_minutes == 30
+    assert catalog.game.village.bargain.buy_mult == 0.95
+    assert catalog.game.village.bargain.sell_mult == 1.05
     assert catalog.game.fishing.waste_chance == 0.12
     assert catalog.game.fishing.loot_chance == 0.06
     assert catalog.game.fishing.cast_energy_cost == 8

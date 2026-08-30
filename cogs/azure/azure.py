@@ -444,6 +444,7 @@ class Azure(commands.Cog):
             display: str = "none",
             board_keys: list[str] | None = None,
             quantity: int = 1,
+            flash: str = "",
         ) -> None:
             view = await load_village_view(
                 cat,
@@ -460,6 +461,7 @@ class Azure(commands.Cog):
                 talk_display=display,
                 talk_board_keys=board_keys,
                 talk_quantity=quantity,
+                flash=flash,
             )
             await _send_view(interaction, view)
 
@@ -474,6 +476,9 @@ class Azure(commands.Cog):
             last_edit = now
             await _show(status="streaming", response=partial)
 
+        bargain = await store.get_village_bargain(
+            guild.id, interaction.user.id, npc_key, bucket=bucket
+        )
         try:
             result = await talk_npc(
                 client,
@@ -486,6 +491,7 @@ class Azure(commands.Cog):
                 snap=snap,
                 specimens=specimens,
                 announcements=announcements,
+                bargain=bargain,
                 shown_key=shown_key,
                 on_partial=_on_partial,
             )
@@ -493,6 +499,11 @@ class Azure(commands.Cog):
             logger.exception("Dialogue village")
             await send_error(interaction, "le villageois n'a pas entendu.")
             return
+        granted = False
+        if result.get("bargain"):
+            granted = await store.set_village_bargain(
+                guild.id, interaction.user.id, npc, bucket=bucket
+            )
         await store.record_village_talk(
             guild.id,
             interaction.user.id,
@@ -507,6 +518,7 @@ class Azure(commands.Cog):
             board_keys=list(result.get("board_keys") or []),
             quantity=int(result.get("quantity") or 1),
         )
+        flash = f"**{npc.name or npc.key} cède un peu.**" if granted else ""
         await _show(
             status="done",
             response=result["reponse"],
@@ -516,6 +528,7 @@ class Azure(commands.Cog):
             display=str(result.get("display") or "none"),
             board_keys=list(result.get("board_keys") or []),
             quantity=int(result.get("quantity") or 1),
+            flash=flash,
         )
 
     @admin.command(name="catalog", description="Résumé du catalogue YAML.")

@@ -12,13 +12,14 @@ from common.village.engine import (
     _repair_cap,
     allowed_displays,
     allowed_intents,
-    announcement_modifiers,
     apply_named_mult,
     cleanup_waste_items,
     fossil_replicas,
     modifier_label,
+    npc_can_bargain,
     npc_role_label,
     passeur_price,
+    price_modifiers,
     shop_stock,
     specimen_price,
     travel_remaining_s,
@@ -77,6 +78,13 @@ NPC_TALK_SCHEMA = {
             "type": "integer",
             "description": "Nombre d'exemplaires si buy/sell (ex. 3 pains). 1 sinon.",
         },
+        "bargain": {
+            "type": "boolean",
+            "description": (
+                "true seulement si tu cèdes un tout petit peu sur TES prix "
+                "après une vraie négociation. false sinon."
+            ),
+        },
     },
     "required": [
         "reponse",
@@ -86,6 +94,7 @@ NPC_TALK_SCHEMA = {
         "display",
         "board_keys",
         "quantity",
+        "bargain",
     ],
     "additionalProperties": False,
 }
@@ -117,6 +126,12 @@ Transactions : tu PROPOSES, tu n'exécutes pas. Remplis intent + clés YAML exac
 Conversation seule : intent=none, item_key=null, milieu_key=null.
 S'il MONTRE un item, sers-t'en (item_key, display, board_keys).
 
+Négociation : s'il marchande vraiment (rabais, geste, un peu moins / un peu plus),
+tu PEUX céder UN TOUT PETIT PEU. bargain=true alors, une seule fois par visite.
+Pas au premier bonjour, pas si « déjà négocié ». Ne cite PAS un nouveau chiffre :
+le jeu ajuste les prix. Tu peux céder ET proposer une transaction.
+Oz ne marchande jamais. bargain=false par défaut.
+
 Oz (squelette) : AUCUNE parole. `reponse` = uniquement des actions entre parenthèses.
 """
 
@@ -128,7 +143,13 @@ def _actions_only(text: str, fallback: str) -> str:
     return fallback
 
 
-def sanitize_talk(raw: dict[str, Any], catalog: Catalog, npc: Npc) -> dict[str, Any]:
+def sanitize_talk(
+    raw: dict[str, Any],
+    catalog: Catalog,
+    npc: Npc,
+    *,
+    already_bargained: bool = False,
+) -> dict[str, Any]:
     allowed = allowed_intents(npc)
     intent = str(raw.get("intent") or "none")
     if intent not in allowed:
@@ -227,6 +248,9 @@ def sanitize_talk(raw: dict[str, Any], catalog: Catalog, npc: Npc) -> dict[str, 
     text = str(raw.get("reponse") or "").strip() or "…"
     if npc.key == "oz":
         text = _actions_only(text, "(Fixe le joueur, sans un mot.)")
+    bargain = bool(raw.get("bargain"))
+    if already_bargained or not npc_can_bargain(npc):
+        bargain = False
     return {
         "reponse": text,
         "intent": intent,
@@ -235,6 +259,7 @@ def sanitize_talk(raw: dict[str, Any], catalog: Catalog, npc: Npc) -> dict[str, 
         "display": display,
         "board_keys": board_keys,
         "quantity": quantity,
+        "bargain": bargain,
     }
 
 
@@ -255,9 +280,10 @@ def talk_facts(
     snap: PlayerSnapshot | None = None,
     specimens: list[CaughtSpecimen] | None = None,
     announcements: list[VillageAnnouncement] | None = None,
+    bargain: dict[str, Any] | None = None,
 ) -> str:
     """Réalité métier envoyée à GPT : stock, prix, sac — pas seulement des clés."""
-    mods = announcement_modifiers(announcements or [])
+    mods = price_modifiers(announcements, bargain)
     money_name = "bronze"
     lines = [
         f"Tu es {npc.name or npc.key}, {npc_role_label(npc).lower()}.",
@@ -319,9 +345,12 @@ def talk_facts(
                         f"{unit} {money_name}{extra}"
                     )
                 else:
+                    unit = apply_named_mult(
+                        int(item.economy.sell_price), mods, "sell_mult"
+                    )
                     item_lines.append(
                         f"- {item.key} = {item.name} ×{stack.quantity} · "
-                        f"{int(item.economy.sell_price)} {money_name}"
+                        f"{unit} {money_name}"
                     )
         if catch_lines:
             lines.append("Prises qu'il peut te vendre :")
@@ -435,6 +464,20 @@ def talk_facts(
         bonus = [b for b in bonus if b]
         if bonus:
             lines.append("Bonus en cours : " + " · ".join(bonus))
+    if npc_can_bargain(npc):
+        if bargain:
+            lines.append(
+                "Tu as DÉJÀ cédé un peu cette visite. bargain=false. "
+                "Les prix ci-dessous sont déjà négociés."
+            )
+        else:
+            lines.append(
+                "Négociation : si le joueur marchande vraiment, tu PEUX céder "
+                "un tout petit peu (bargain=true, une seule fois). "
+                "Pas au premier bonjour. Ne cite pas un nouveau chiffre."
+            )
+    else:
+        lines.append("Pas de négociation. bargain=false.")
     lines.append(
         f"Intents : {', '.join(sorted(allowed_intents(npc)))}. "
         f"Displays : {', '.join(sorted(allowed_displays(npc)))}."
@@ -451,6 +494,7 @@ def _facts_block(
     snap: PlayerSnapshot | None = None,
     specimens: list[CaughtSpecimen] | None = None,
     announcements: list[VillageAnnouncement] | None = None,
+    bargain: dict[str, Any] | None = None,
 ) -> str:
     return talk_facts(
         catalog,
@@ -460,6 +504,7 @@ def _facts_block(
         snap=snap,
         specimens=specimens,
         announcements=announcements,
+        bargain=bargain,
     )
 
 
@@ -475,6 +520,7 @@ async def talk_npc(
     snap: PlayerSnapshot | None = None,
     specimens: list[CaughtSpecimen] | None = None,
     announcements: list[VillageAnnouncement] | None = None,
+    bargain: dict[str, Any] | None = None,
     shown_key: str | None = None,
     on_partial: Optional[Callable[[str], Awaitable[None]]] = None,
 ) -> dict[str, Any]:
@@ -493,7 +539,7 @@ async def talk_npc(
                 pass
         shown_line = f"Le joueur MONTRE : {shown_key} ({shown_name}).\n\n"
     user = (
-        f"{_facts_block(catalog, npc, env_score=env_score, skulls=skulls, snap=snap, specimens=specimens, announcements=announcements)}\n\n"
+        f"{_facts_block(catalog, npc, env_score=env_score, skulls=skulls, snap=snap, specimens=specimens, announcements=announcements, bargain=bargain)}\n\n"
         f"Historique récent :\n{history_block}\n\n"
         f"{shown_line}"
         f"Le joueur dit : {question}"
@@ -510,4 +556,6 @@ async def talk_npc(
         reasoning_effort=ACTOR_REASONING_EFFORT,
         on_partial_reponse=on_partial,
     )
-    return sanitize_talk(raw, catalog, npc)
+    return sanitize_talk(
+        raw, catalog, npc, already_bargained=bargain is not None
+    )

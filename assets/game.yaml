@@ -41,6 +41,12 @@ village:
   travel_minutes: 30
   talk_limit: 8
   talk_warn_after: 5
+  bargain:
+    buy_mult: 0.95
+    sell_mult: 1.05
+    waste_mult: 1.05
+    travel_mult: 0.95
+    repair_mult: 0.95
 world:
   timezone: Europe/Paris
   weather_bucket_minutes: 60

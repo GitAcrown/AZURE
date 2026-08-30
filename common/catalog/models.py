@@ -353,6 +353,30 @@ class FishingSettings(_ContentModel):
         return self
 
 
+class BargainSettings(_ContentModel):
+    """Remise / prime après une négociation réussie (un tout petit peu)."""
+
+    buy_mult: float = 0.95
+    sell_mult: float = 1.05
+    waste_mult: float = 1.05
+    travel_mult: float = 0.95
+    repair_mult: float = 0.95
+
+    @model_validator(mode="after")
+    def _small_swing(self) -> BargainSettings:
+        if not (0.5 <= self.buy_mult <= 1.0):
+            raise ValueError("bargain.buy_mult doit être entre 0,5 et 1")
+        if not (1.0 <= self.sell_mult <= 1.5):
+            raise ValueError("bargain.sell_mult doit être entre 1 et 1,5")
+        if not (1.0 <= self.waste_mult <= 1.5):
+            raise ValueError("bargain.waste_mult doit être entre 1 et 1,5")
+        if not (0.5 <= self.travel_mult <= 1.0):
+            raise ValueError("bargain.travel_mult doit être entre 0,5 et 1")
+        if not (0.5 <= self.repair_mult <= 1.0):
+            raise ValueError("bargain.repair_mult doit être entre 0,5 et 1")
+        return self
+
+
 class VillageSettings(_ContentModel):
     environment_good_threshold: int = 50
     skull_summon_threshold: int = 10
@@ -360,6 +384,7 @@ class VillageSettings(_ContentModel):
     travel_minutes: int = 30
     talk_limit: int = 8
     talk_warn_after: int = 5
+    bargain: BargainSettings = Field(default_factory=BargainSettings)
 
     @model_validator(mode="after")
     def _talk_patience(self) -> VillageSettings:

@@ -133,6 +133,16 @@ CREATE TABLE IF NOT EXISTS village_talk (
 
 CREATE INDEX IF NOT EXISTS idx_village_talk
     ON village_talk (guild_id, user_id, npc_key, id);
+
+CREATE TABLE IF NOT EXISTS village_bargains (
+    guild_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    npc_key TEXT NOT NULL,
+    bucket INTEGER NOT NULL,
+    modifier TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    PRIMARY KEY (guild_id, user_id, npc_key, bucket)
+);
 """
 
 GEAR_SLOTS = frozenset({"tool", "hook", "objet"})

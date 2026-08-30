@@ -15,10 +15,12 @@ from common.village import (
     ANNOUNCE_KINDS,
     announcement_remaining_label,
     apply_named_mult,
+    bargain_modifier,
     build_announcement_modifier,
     environment_is_good,
     infer_modifier_kind,
     modifier_label,
+    npc_can_bargain,
     npc_portrait_filename,
     passeur_price,
     present_npcs,
@@ -26,6 +28,7 @@ from common.village import (
     specimen_price,
     travel_duration_s,
     travel_remaining_s,
+    village_bucket,
     walk_minutes,
     walk_time_mult,
 )
@@ -80,6 +83,83 @@ def test_compass_shortens_walk(catalog, tmp_path: Path) -> None:
             rem = travel_remaining_s(snap.travel_arrives_at)
             assert rem is not None
             assert 350 <= rem <= 361
+        finally:
+            await store.close()
+
+    _run(body())
+
+
+def test_bargain_modifier_and_sanitize(catalog) -> None:
+    from common.village.talk import sanitize_talk
+
+    dan = catalog.get_npc("dan")
+    agathe = catalog.get_npc("agathe")
+    oz = catalog.get_npc("oz")
+    assert npc_can_bargain(dan)
+    assert npc_can_bargain(agathe)
+    assert not npc_can_bargain(oz)
+    shop = bargain_modifier(catalog, dan)
+    assert infer_modifier_kind(shop) == "bargain"
+    assert apply_named_mult(100, [shop], "buy_mult") == 95
+    assert "négociation" in modifier_label(shop)
+    sale = bargain_modifier(catalog, agathe)
+    assert apply_named_mult(100, [sale], "sell_mult") == 105
+    species = catalog.get_species("parrot_fish")
+    base = specimen_price(catalog, species, 30.0, 1.04)
+    boosted = specimen_price(catalog, species, 30.0, 1.04, modifiers=[sale])
+    assert boosted > base
+    yes = sanitize_talk(
+        {
+            "reponse": "(Souffle.) Bon, un tout petit peu.",
+            "intent": "none",
+            "bargain": True,
+        },
+        catalog,
+        dan,
+    )
+    assert yes["bargain"] is True
+    again = sanitize_talk(
+        {"reponse": "Encore.", "intent": "none", "bargain": True},
+        catalog,
+        dan,
+        already_bargained=True,
+    )
+    assert again["bargain"] is False
+    mute = sanitize_talk(
+        {"reponse": "(Hoche.)", "intent": "none", "bargain": True},
+        catalog,
+        oz,
+    )
+    assert mute["bargain"] is False
+
+
+def test_bargain_persists_and_cuts_buy_price(catalog, tmp_path: Path) -> None:
+    async def body() -> None:
+        store = await open_store(tmp_path / "bargain.db", catalog)
+        try:
+            dan = catalog.get_npc("dan")
+            await store.get_or_create(GUILD, USER)
+            bucket = village_bucket(catalog)
+            assert (
+                await store.get_village_bargain(GUILD, USER, "dan", bucket=bucket)
+                is None
+            )
+            granted = await store.set_village_bargain(
+                GUILD, USER, dan, bucket=bucket
+            )
+            assert granted is True
+            assert await store.set_village_bargain(GUILD, USER, dan, bucket=bucket) is False
+            await store.set_village_focus(GUILD, USER, "dan", bucket)
+            fare = catalog.get_item("bread").economy.buy_price
+            assert fare is not None
+            expected = apply_named_mult(int(fare), [bargain_modifier(catalog, dan)], "buy_mult")
+            await store.add_money(GUILD, USER, expected + 5)
+            paid, money = await store.buy_item(
+                GUILD, USER, "bread", 1, seller_key="dan"
+            )
+            assert paid == expected
+            assert paid < int(fare)
+            assert money == 5
         finally:
             await store.close()
 
@@ -697,6 +777,12 @@ def test_talk_facts_include_prices(catalog) -> None:
     sold = talk_facts(catalog, dan, env_score=0, skulls=0)
     assert "bread = Pain" in sold
     assert "12" in sold
+    assert "bargain=true" in sold
+    already = talk_facts(
+        catalog, dan, env_score=0, skulls=0, bargain=bargain_modifier(catalog, dan)
+    )
+    assert "DÉJÀ cédé" in already
+    assert "bargain=false" in already
     agathe = catalog.get_npc("agathe")
     snap = PlayerSnapshot(
         guild_id=GUILD,

@@ -12,18 +12,21 @@ from typing import Any, Optional
 
 import aiosqlite
 
-from common.catalog import Catalog, CatalogError, Item
+from common.catalog import Catalog, CatalogError, Item, Npc
 from common.village import (
     VillageAnnouncement,
-    announcement_modifiers,
     apply_named_mult,
+    bargain_modifier,
     fossil_replicas,
     infer_modifier_kind,
+    npc_can_bargain,
     passeur_price,
+    price_modifiers,
     shop_stock,
     specimen_price,
     travel_duration_s,
     travel_remaining_s,
+    village_bucket,
 )
 from common.world import weather_at
 from common.fishing import (
@@ -1390,13 +1393,12 @@ class PlayerStore:
             raise PlayerError(f"espèce inconnue : {species_key!r}") from exc
         if not species.economy.sellable:
             raise PlayerError("cette prise ne se vend pas")
-        announcements = await self.list_village_announcements(guild_id)
         price = specimen_price(
             self.catalog,
             species,
             float(row["length_cm"]),
             float(row["weight_kg"]),
-            modifiers=announcement_modifiers(announcements),
+            modifiers=await self.trade_modifiers(guild_id, user_id),
         )
         deleted = await self._conn.execute(
             "DELETE FROM caught_specimens WHERE id = ? AND guild_id = ? AND user_id = ?",
@@ -1439,9 +1441,11 @@ class PlayerStore:
                 raise PlayerError("instance introuvable")
             await self._delete_gear(guild_id, user_id, gear_id, expected_key=item.key)
             total = int(sell_price)
+        mods = await self.trade_modifiers(guild_id, user_id)
         if item.category == "waste":
-            anns = await self.list_village_announcements(guild_id)
-            total = apply_named_mult(total, announcement_modifiers(anns), "waste_mult")
+            total = apply_named_mult(total, mods, "waste_mult")
+        else:
+            total = apply_named_mult(total, mods, "sell_mult")
         env_gain = 0
         raw_env = (item.effects or {}).get("environment_cleanup_score")
         if raw_env is not None:
@@ -1496,8 +1500,11 @@ class PlayerStore:
             raise PlayerError("cet item n'est pas en rayon")
         await self.get_or_create(guild_id, user_id)
         snap = await self.snapshot(guild_id, user_id)
-        anns = await self.list_village_announcements(guild_id)
-        unit = apply_named_mult(int(buy_price), announcement_modifiers(anns), "buy_mult")
+        unit = apply_named_mult(
+            int(buy_price),
+            await self.trade_modifiers(guild_id, user_id, seller_key),
+            "buy_mult",
+        )
         cost = unit * quantity
         if snap.money < cost:
             raise PlayerError("pas assez d'argent")
@@ -1543,8 +1550,11 @@ class PlayerStore:
         if snap.travel_dest == milieu.key:
             remaining = travel_remaining_s(snap.travel_arrives_at)
         cost = passeur_price(self.catalog, remaining_s=remaining, snap=snap)
-        anns = await self.list_village_announcements(guild_id)
-        cost = apply_named_mult(cost, announcement_modifiers(anns), "travel_mult")
+        cost = apply_named_mult(
+            cost,
+            await self.trade_modifiers(guild_id, user_id),
+            "travel_mult",
+        )
         if cost > 0 and snap.money < cost:
             raise PlayerError("pas assez d'argent pour le passage")
         new_money = snap.money - cost
@@ -1729,6 +1739,87 @@ class PlayerStore:
         )
         await self._conn.commit()
 
+    async def get_village_bargain(
+        self,
+        guild_id: int,
+        user_id: int,
+        npc_key: str,
+        *,
+        bucket: int | None = None,
+    ) -> dict[str, Any] | None:
+        if bucket is None:
+            bucket = village_bucket(self.catalog)
+        async with self._conn.execute(
+            """
+            SELECT modifier FROM village_bargains
+            WHERE guild_id = ? AND user_id = ? AND npc_key = ? AND bucket = ?
+            """,
+            (guild_id, user_id, npc_key, bucket),
+        ) as cur:
+            row = await cur.fetchone()
+        if row is None or not row["modifier"]:
+            return None
+        try:
+            parsed = json.loads(row["modifier"])
+        except json.JSONDecodeError:
+            return None
+        return parsed if isinstance(parsed, dict) else None
+
+    async def set_village_bargain(
+        self,
+        guild_id: int,
+        user_id: int,
+        npc: Npc,
+        *,
+        bucket: int | None = None,
+    ) -> bool:
+        if not npc_can_bargain(npc):
+            return False
+        if bucket is None:
+            bucket = village_bucket(self.catalog)
+        if await self.get_village_bargain(guild_id, user_id, npc.key, bucket=bucket):
+            return False
+        await self.get_or_create(guild_id, user_id)
+        await self._conn.execute(
+            """
+            INSERT OR IGNORE INTO village_bargains (
+                guild_id, user_id, npc_key, bucket, modifier, created_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                guild_id,
+                user_id,
+                npc.key,
+                bucket,
+                json.dumps(bargain_modifier(self.catalog, npc)),
+                _now(),
+            ),
+        )
+        await self._conn.commit()
+        return bool(
+            await self.get_village_bargain(guild_id, user_id, npc.key, bucket=bucket)
+        )
+
+    async def trade_modifiers(
+        self,
+        guild_id: int,
+        user_id: int,
+        npc_key: str | None = None,
+        *,
+        bucket: int | None = None,
+    ) -> list[dict[str, Any]]:
+        anns = await self.list_village_announcements(guild_id)
+        key = npc_key
+        if not key:
+            key, _focus_bucket = await self.village_focus(guild_id, user_id)
+        bargain = None
+        if key:
+            bargain = await self.get_village_bargain(
+                guild_id, user_id, key, bucket=bucket
+            )
+        return price_modifiers(anns, bargain)
+
     async def repair_gear(self, guild_id: int, user_id: int, gear_id: int) -> tuple[int, int]:
         """Répare une instance. Renvoie `(coût, argent)`."""
         await self.get_or_create(guild_id, user_id)
@@ -1753,8 +1844,11 @@ class PlayerStore:
         current = None if row["durability"] is None else int(row["durability"])
         if maximum is None or current is None or current >= maximum:
             raise PlayerError("déjà en bon état")
-        anns = await self.list_village_announcements(guild_id)
-        cost = apply_named_mult(int(cost), announcement_modifiers(anns), "repair_mult")
+        cost = apply_named_mult(
+            int(cost),
+            await self.trade_modifiers(guild_id, user_id),
+            "repair_mult",
+        )
         snap = await self.snapshot(guild_id, user_id)
         if snap.money < cost:
             raise PlayerError("pas assez d'argent")
