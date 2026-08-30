@@ -396,6 +396,8 @@ class Azure(commands.Cog):
         npc_key: str,
         question: str,
         shown_key: str | None = None,
+        shown_extra: str | None = None,
+        shown_catch_id: int | None = None,
     ) -> None:
         guild = interaction.guild
         if guild is None:
@@ -414,7 +416,7 @@ class Azure(commands.Cog):
         present = present_npcs(cat, guild.id, skulls=skull_score(cat, snap))
         npc = next((n for n in present if n.key == npc_key), None)
         if npc is None:
-            await send_error(interaction, "Ce villageois n'est plus là.")
+            await send_error(interaction, "Cette personne n'est plus là.")
             return
         env_score = await store.environment_score(guild.id)
         announcements = await store.list_village_announcements(guild.id)
@@ -433,6 +435,8 @@ class Azure(commands.Cog):
                     shown_label = species_display(cat, shown_key)
                 except Exception:
                     shown_label = shown_key
+            if shown_extra:
+                shown_label = f"{shown_label} · {shown_extra}"
             question = f"{shown_label} · {question}" if question else shown_label
 
         async def _show(
@@ -462,6 +466,7 @@ class Azure(commands.Cog):
                 talk_display=display,
                 talk_board_keys=board_keys,
                 talk_quantity=quantity,
+                talk_catch_id=shown_catch_id,
                 flash=flash,
             )
             await _send_view(interaction, view)
@@ -494,11 +499,12 @@ class Azure(commands.Cog):
                 announcements=announcements,
                 bargain=bargain,
                 shown_key=shown_key,
+                shown_extra=shown_extra,
                 on_partial=_on_partial,
             )
         except LLMOpenAIError:
             logger.exception("Dialogue village")
-            await send_error(interaction, "le villageois n'a pas entendu.")
+            await send_error(interaction, "Cette personne n'a pas entendu.")
             return
         granted = False
         if result.get("bargain"):
@@ -665,7 +671,7 @@ class Azure(commands.Cog):
     @admin.command(name="annonce", description="Publie un bonus temporaire. L'effet est obligatoire.")
     @app_commands.describe(
         bonus="Effet appliqué aux prix, passages ou réparations",
-        texte="Réplique du villageois dans le salon (pas l'effet)",
+        texte="Réplique dans le salon (pas l'effet)",
         heures="Durée du bonus, en heures",
     )
     @app_commands.choices(
@@ -688,7 +694,7 @@ class Azure(commands.Cog):
         bucket = weather_bucket(None, cat.game.world)
         roster = present_npcs(cat, guild.id, skulls=0, bucket=bucket)
         if not roster:
-            await send_error(interaction, "Aucun villageois présent.")
+            await send_error(interaction, "Personne n'est là pour l'instant.")
             return
         speaker = pick_announcer(roster, guild.id, bucket)
         modifier = build_announcement_modifier(bonus)

@@ -1535,7 +1535,7 @@ class PlayerStore:
             except CatalogError as exc:
                 raise PlayerError("ce marchand n'est pas là") from exc
             if seller.shop_mode != "sell":
-                raise PlayerError("ce villageois ne vend rien")
+                raise PlayerError("pas de vente ici")
         stock = {it.key for it in shop_stock(self.catalog, seller)}
         if item.key not in stock:
             raise PlayerError("cet item n'est pas en rayon")
@@ -1674,6 +1674,39 @@ class PlayerStore:
             quantity=max(1, int(row["quantity"] or 1)),
             bucket=int(row["bucket"] or 0),
         )
+
+    async def village_talk_known_keys(
+        self,
+        guild_id: int,
+        user_id: int,
+        npc_key: str,
+        *,
+        bucket: int,
+    ) -> set[str]:
+        """Clés déjà révélées chez ce PNJ pendant le palier horaire."""
+        keys: set[str] = set()
+        async with self._conn.execute(
+            """
+            SELECT item_key, milieu_key, board_keys FROM village_talk
+            WHERE guild_id = ? AND user_id = ? AND npc_key = ? AND bucket = ?
+            """,
+            (guild_id, user_id, npc_key, bucket),
+        ) as cur:
+            async for row in cur:
+                if row["item_key"]:
+                    keys.add(str(row["item_key"]))
+                if row["milieu_key"]:
+                    keys.add(str(row["milieu_key"]))
+                raw_keys = row["board_keys"]
+                if not raw_keys:
+                    continue
+                try:
+                    parsed = json.loads(raw_keys)
+                except json.JSONDecodeError:
+                    continue
+                if isinstance(parsed, list):
+                    keys.update(str(k) for k in parsed if str(k).strip())
+        return keys
 
     async def record_village_talk(
         self,

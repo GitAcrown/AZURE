@@ -565,6 +565,7 @@ async def talk_npc(
     announcements: list[VillageAnnouncement] | None = None,
     bargain: dict[str, Any] | None = None,
     shown_key: str | None = None,
+    shown_extra: str | None = None,
     on_partial: Optional[Callable[[str], Awaitable[None]]] = None,
 ) -> dict[str, Any]:
     history_block = "(aucun échange précédent)"
@@ -580,7 +581,8 @@ async def talk_npc(
                 shown_name = catalog.get_species(shown_key).name
             except Exception:
                 pass
-        shown_line = f"Le joueur MONTRE : {shown_key} ({shown_name}).\n\n"
+        extra = f" — {shown_extra}" if shown_extra else ""
+        shown_line = f"Le joueur MONTRE : {shown_key} ({shown_name}){extra}.\n\n"
     user = (
         f"{_facts_block(catalog, npc, env_score=env_score, skulls=skulls, snap=snap, specimens=specimens, announcements=announcements, bargain=bargain)}\n\n"
         f"Historique récent :\n{history_block}\n\n"

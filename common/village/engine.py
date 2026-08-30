@@ -12,19 +12,25 @@ from common.player.models import CaughtSpecimen, PlayerSnapshot
 from common.world import weather_bucket
 
 ROLE_LABELS = {
-    "shop": "Marchand",
-    "repair": "Réparateur",
-    "travel": "Passeur",
-    "special": "Gardienne",
-    "summon": "Collectionneur",
+    "shop": "Étal",
+    "repair": "Atelier",
+    "travel": "Passage",
+    "special": "Eaux",
+    "summon": "Collection",
 }
+
+
+def npc_display_name(npc: Npc | None) -> str:
+    if npc is None:
+        return ""
+    return str(npc.name or npc.key or "").strip()
 
 
 def npc_role_label(npc: Npc) -> str:
     if npc.role == "shop" and npc.shop_mode == "buy":
-        return "Acheteur"
+        return "Achats"
     if npc.role == "shop" and npc.shop_mode == "sell":
-        return "Marchand"
+        return "Étal"
     return ROLE_LABELS.get(npc.role or "", npc.role or "—")
 
 SHOP_TAB_LABELS = {
@@ -198,6 +204,27 @@ def shop_stock(catalog: Catalog, npc: Npc | None = None) -> list[Item]:
     return out
 
 
+def talk_select_description(
+    *,
+    length_cm: float | None = None,
+    weight_kg: float | None = None,
+    qty: int = 1,
+    price_plain: str = "",
+    extra: str = "",
+) -> str:
+    """Description du select Parler : taille/poids toujours, prix seulement s'il est fourni."""
+    bits: list[str] = []
+    if length_cm is not None and weight_kg is not None:
+        bits.append(f"{length_cm:g} cm · {weight_kg:g} kg")
+    elif qty > 1:
+        bits.append(f"×{qty}")
+    if extra:
+        bits.append(extra)
+    if price_plain:
+        bits.append(price_plain)
+    return " · ".join(bits)
+
+
 def talk_show_keys(
     catalog: Catalog,
     npc: Npc,
@@ -365,18 +392,19 @@ def talk_intent_block(
     """Raison pour désactiver Confirmer, ou None si l'action est possible."""
     qty = max(1, int(quantity))
     mods = price_modifiers(announcements, bargain)
+    who = npc_display_name(npc)
     if intent == "buy":
         if not item_key:
-            return "Dis-lui quoi acheter"
+            return "Dis-lui ce que tu veux lui acheter"
         try:
             item = catalog.get_item(item_key)
         except Exception:
-            return "Cet item n'existe pas"
+            return "Cet article n'existe pas"
         if item.economy.buy_price is None:
-            return "Pas en vente"
+            return f"{who} ne le vend pas" if who else "Pas en vente ici"
         stock = {it.key for it in shop_stock(catalog, npc)}
         if item.key not in stock:
-            return "Pas en rayon"
+            return "Ce n'est pas à l'étal"
         unit = apply_named_mult(int(item.economy.buy_price), mods, "buy_mult")
         if snap.money < unit * qty:
             return "Pas assez d'argent"
@@ -389,26 +417,30 @@ def talk_intent_block(
         return None
     if intent == "sell":
         if not item_key:
-            return "Dis-lui quoi vendre"
+            return "Dis-lui ce que tu veux lui vendre"
         try:
             species = catalog.get_species(item_key)
         except Exception:
             species = None
         if species is not None:
             if not species.economy.sellable:
-                return "Cette prise ne se vend pas"
+                return (
+                    f"{who} n'achète pas cette prise"
+                    if who
+                    else "Cette prise ne s'achète pas ici"
+                )
             have = sum(1 for s in specimens if s.species_key == item_key)
             if have < 1:
                 return "Tu n'as pas cette prise"
             if have < qty:
-                return f"Pas assez ({have})"
+                return f"Tu n'en as que {have}"
             return None
         try:
             item = catalog.get_item(item_key)
         except Exception:
-            return "Rien à vendre"
+            return "Rien à lui vendre"
         if item.economy.sell_price is None:
-            return "Ça ne se vend pas"
+            return f"{who} n'achète pas ça" if who else "Ça ne s'achète pas ici"
         stack_qty = next((s.quantity for s in snap.stacks if s.item_key == item_key), 0)
         gear_n = sum(1 for g in snap.gear if g.item_key == item_key)
         if stack_qty >= qty:
@@ -416,11 +448,11 @@ def talk_intent_block(
         if gear_n >= 1 and qty == 1:
             return None
         if stack_qty + gear_n < 1:
-            return "Tu n'as pas ça"
-        return f"Pas assez ({stack_qty or gear_n})"
+            return "Tu n'as pas ça sur toi"
+        return f"Tu n'en as que {stack_qty or gear_n}"
     if intent == "travel":
         if not milieu_key:
-            return "Dis-lui où aller"
+            return "Dis-lui où tu veux aller"
         if snap.milieu_key == milieu_key:
             return "Tu es déjà là"
         remaining = None
@@ -436,17 +468,17 @@ def talk_intent_block(
         return None
     if intent == "repair":
         if not item_key:
-            return "Dis-lui quoi réparer"
+            return "Dis-lui ce que tu veux faire réparer"
         gear = next((g for g in snap.gear if g.item_key == item_key), None)
         if gear is None:
-            return "Tu n'as pas cet équipement"
+            return "Tu n'as pas cet équipement sur toi"
         try:
             item = catalog.get_item(item_key)
         except Exception:
-            return "Équipement inconnu"
+            return "Cet équipement n'existe pas"
         dur = item.durability
         if dur is None or not dur.repairable or dur.repair_cost is None:
-            return "Ça ne se répare pas"
+            return f"{who} ne répare pas ça" if who else "Ça ne se répare pas ici"
         cap = _repair_cap(item)
         if cap is None or gear.durability is None or gear.durability >= cap:
             return "Déjà en bon état"
@@ -456,7 +488,7 @@ def talk_intent_block(
         return None
     if intent == "exchange":
         if "fossil_in_stone" not in snap.owned_keys():
-            return "Pas de fossile"
+            return "Tu n'as pas de fossile à lui montrer"
         return None
     if intent == "cleanup":
         for stack in snap.stacks:
@@ -470,8 +502,8 @@ def talk_intent_block(
                 continue
             if stack.quantity >= 1:
                 return None
-        return "Rien à ramasser"
-    return "Rien à confirmer"
+        return "Tu n'as pas de déchet à lui donner"
+    return "Rien à confirmer pour l'instant"
 
 
 def fossil_replicas(catalog: Catalog) -> list[Item]:

@@ -70,6 +70,7 @@ from common.village import (
     price_modifiers,
     shop_stock,
     talk_intent_block,
+    talk_select_description,
     talk_show_keys,
     waste_env_points,
     waste_sell_unit,
@@ -1434,6 +1435,7 @@ async def load_village_view(
     talk_display: str = "none",
     talk_board_keys: list[str] | None = None,
     talk_quantity: int = 1,
+    talk_catch_id: int | None = None,
     restore_focus: bool = False,
 ) -> VillageView:
     snap = await store.snapshot(guild_id, user_id)
@@ -1450,11 +1452,15 @@ async def load_village_view(
         if focus_key and focus_bucket == bucket and focus_key in present_keys:
             npc_key = focus_key
     if npc_key and npc_key not in present_keys:
-        flash = flash or "Ce villageois n'est plus là."
+        flash = flash or "Cette personne n'est plus là."
         npc_key = None
     bargain = None
+    known_keys: set[str] = set()
     if npc_key:
         bargain = await store.get_village_bargain(
+            guild_id, user_id, npc_key, bucket=bucket
+        )
+        known_keys = await store.village_talk_known_keys(
             guild_id, user_id, npc_key, bucket=bucket
         )
     explicit = bool(talk_status or talk_question or talk_response)
@@ -1491,6 +1497,8 @@ async def load_village_view(
         talk_board_keys=talk_board_keys or [],
         talk_quantity=talk_quantity,
         bargain=bargain,
+        known_keys=known_keys,
+        talk_catch_id=talk_catch_id,
     )
 
 
@@ -1519,6 +1527,8 @@ class VillageView(discord.ui.LayoutView):
         talk_board_keys: list[str] | None = None,
         talk_quantity: int = 1,
         bargain: dict | None = None,
+        known_keys: set[str] | None = None,
+        talk_catch_id: int | None = None,
     ) -> None:
         super().__init__(timeout=300 if talk_status in {"pending", "streaming"} else 180)
         self.catalog = catalog
@@ -1539,6 +1549,8 @@ class VillageView(discord.ui.LayoutView):
         self.talk_board_keys = list(talk_board_keys or [])
         self.talk_quantity = max(1, int(talk_quantity))
         self.bargain = bargain
+        self.known_keys = set(known_keys or [])
+        self.talk_catch_id = talk_catch_id
         self.attachments: list[discord.File] = []
 
         env_good = environment_is_good(catalog, env_score)
@@ -1561,7 +1573,7 @@ class VillageView(discord.ui.LayoutView):
                 name = npc.name or npc.key
                 lines.append(f"**{name}** · {npc_role_label(npc)}")
             body = "\n".join(lines) if lines else body
-            note = flash or "Approche-toi. **Parle-leur** · **montre** ce que tu as."
+            note = flash or "Approche-toi. **Parle-leur**, et **montre** ce que tu as."
         else:
             name = current.name or current.key
             role = npc_role_label(current)
@@ -1621,9 +1633,9 @@ class VillageView(discord.ui.LayoutView):
                     note = f"**{block}.**"
             button_row = discord.ui.ActionRow(*actions)
             if self.talk_status == "pending":
-                note = "**Réflexion…**"
+                note = f"**{name} réfléchit…**"
             elif self.talk_status == "streaming":
-                note = "**Réponse…**"
+                note = f"**{name} répond…**"
 
         if current is None:
             promo = self._promo_block()
@@ -1695,6 +1707,59 @@ class VillageView(discord.ui.LayoutView):
         if self.talk_milieu_key:
             keys.add(self.talk_milieu_key)
         return keys
+
+    def _select_known_keys(self) -> set[str]:
+        return self.known_keys | self._revealed_keys()
+
+    def _select_price_plain(
+        self, npc: Npc, key: str, *, specimen: CaughtSpecimen | None = None
+    ) -> str:
+        if key not in self._select_known_keys():
+            return ""
+        money = self.catalog.game.money
+        mods = self._mods()
+        if specimen is not None:
+            try:
+                species = self.catalog.get_species(specimen.species_key)
+            except Exception:
+                return ""
+            price = specimen_price(
+                self.catalog,
+                species,
+                specimen.length_cm,
+                specimen.weight_kg,
+                modifiers=mods,
+            )
+            return format_money_plain(price, money)
+        try:
+            item = self.catalog.get_item(key)
+        except Exception:
+            return ""
+        role = npc.role or ""
+        if role == "shop" and npc.shop_mode == "sell":
+            price = apply_named_mult(int(item.economy.buy_price or 0), mods, "buy_mult")
+            return format_money_plain(price, money)
+        if role == "shop" and npc.shop_mode == "buy":
+            if item.category == "waste":
+                return format_money_plain(waste_sell_unit(item, mods), money)
+            if item.economy.sell_price is None:
+                return ""
+            price = apply_named_mult(int(item.economy.sell_price), mods, "sell_mult")
+            return format_money_plain(price, money)
+        if role == "repair":
+            dur = item.durability
+            if dur is None or dur.repair_cost is None:
+                return ""
+            cost = apply_named_mult(int(dur.repair_cost), mods, "repair_mult")
+            return format_money_plain(cost, money)
+        if role == "special":
+            unit = waste_sell_unit(item, mods)
+            env = waste_env_points(item)
+            bits = [format_money_plain(unit, money)]
+            if env:
+                bits.append(f"+{env} note")
+            return " · ".join(bits)
+        return ""
 
     def _display_board(self, npc: Npc, *, env_good: bool) -> str:
         mode = self.talk_display
@@ -2062,33 +2127,67 @@ class _VillageTalkButton(discord.ui.Button):
 
 def _talk_show_label(npc: Npc) -> tuple[str, str]:
     if npc.role == "shop" and npc.shop_mode == "sell":
-        return "Montrer un article", "De son étal"
+        return "Montrer un article", "Ce que tu veux lui acheter"
     if npc.role == "shop" and npc.shop_mode == "buy":
-        return "Montrer quelque chose", "À lui vendre"
+        return "Montrer quelque chose", "Ce que tu veux lui vendre"
     if npc.role == "repair":
-        return "Montrer le matériel", "Ce qu'il peut regarder"
+        return "Montrer le matériel", "Ce que tu veux faire réparer"
     if npc.role == "special":
-        return "Montrer un déchet", "Pour la note"
+        return "Montrer un déchet", "Pour la note environnementale"
     if npc.role == "summon":
-        return "Montrer un fossile", "Ce qu'il collectionne"
-    return "Montrer", "En rapport avec lui"
+        return "Montrer un fossile", "Ce que tu veux échanger"
+    return "Montrer quelque chose", "En lien avec cette personne"
 
 
-def _talk_show_options(
-    catalog: Catalog,
-    npc: Npc,
-    snap: PlayerSnapshot,
-    specimens: list[CaughtSpecimen],
-) -> list[discord.SelectOption]:
+def _talk_show_options(parent: VillageView, npc: Npc) -> list[discord.SelectOption]:
+    catalog = parent.catalog
+    snap = parent.snap
+    specimens = parent.specimens
     options: list[discord.SelectOption] = []
+    buyer = npc.role == "shop" and npc.shop_mode == "buy"
+    if buyer:
+        for spec in specimens:
+            try:
+                species = catalog.get_species(spec.species_key)
+            except Exception:
+                continue
+            if not species.economy.sellable:
+                continue
+            extra = talk_select_description(
+                length_cm=spec.length_cm,
+                weight_kg=spec.weight_kg,
+                price_plain=parent._select_price_plain(
+                    npc, spec.species_key, specimen=spec
+                ),
+            )
+            emoji = _partial_emoji(species_emoji(spec.species_key))
+            kwargs: dict = {
+                "label": species.name[:100],
+                "value": f"catch:{spec.id}"[:100],
+            }
+            if extra:
+                kwargs["description"] = extra[:100]
+            if emoji is not None:
+                kwargs["emoji"] = emoji
+            options.append(discord.SelectOption(**kwargs))
+            if len(options) >= 25:
+                return options
     for key in talk_show_keys(catalog, npc, snap=snap, specimens=specimens):
+        if buyer:
+            try:
+                catalog.get_species(key)
+                continue
+            except Exception:
+                pass
         extra = ""
         try:
             item = catalog.get_item(key)
             label = item.name
             qty = next((s.quantity for s in snap.stacks if s.item_key == key), 0)
-            if qty > 1:
-                extra = f"×{qty}"
+            extra = talk_select_description(
+                qty=qty,
+                price_plain=parent._select_price_plain(npc, key),
+            )
             emoji = _select_emoji(item.key)
         except Exception:
             try:
@@ -2097,17 +2196,24 @@ def _talk_show_options(
                 continue
             label = species.name
             have = [s for s in specimens if s.species_key == key]
-            if have:
-                extra = f"{have[0].length_cm:g} cm"
-                if len(have) > 1:
-                    extra = f"×{len(have)}"
+            first = have[0] if have else None
+            extra = talk_select_description(
+                length_cm=first.length_cm if first else None,
+                weight_kg=first.weight_kg if first else None,
+                qty=len(have),
+                price_plain=parent._select_price_plain(
+                    npc, key, specimen=first
+                ),
+            )
             emoji = _partial_emoji(species_emoji(key))
-        kwargs: dict = {"label": label[:100], "value": key}
+        kwargs = {"label": label[:100], "value": key}
         if extra:
             kwargs["description"] = extra[:100]
         if emoji is not None:
             kwargs["emoji"] = emoji
         options.append(discord.SelectOption(**kwargs))
+        if len(options) >= 25:
+            break
     return options[:25]
 
 
@@ -2115,15 +2221,14 @@ class VillageTalkModal(discord.ui.Modal, title="Parler"):
     def __init__(self, parent: VillageView, npc: Npc) -> None:
         super().__init__()
         self.npc_key = npc.key
+        self._specimens = parent.specimens
         name = npc.name or npc.key
         self.show: discord.ui.Select | None = None
-        options = _talk_show_options(
-            parent.catalog, npc, parent.snap, parent.specimens
-        )
+        options = _talk_show_options(parent, npc)
         if options:
             title, hint = _talk_show_label(npc)
             self.show = discord.ui.Select(
-                placeholder="Rien · juste parler",
+                placeholder="Ne rien montrer — juste parler",
                 min_values=0,
                 max_values=1,
                 options=options,
@@ -2148,13 +2253,32 @@ class VillageTalkModal(discord.ui.Modal, title="Parler"):
             await edit_error(interaction, "AZURE n'est pas prêt.")
             return
         shown = None
+        shown_extra = None
+        shown_catch_id = None
         if self.show is not None and self.show.values:
             shown = self.show.values[0]
+            if shown.startswith("catch:"):
+                try:
+                    catch_id = int(shown.split(":", 1)[1])
+                except ValueError:
+                    shown = None
+                else:
+                    spec = next((s for s in self._specimens if s.id == catch_id), None)
+                    if spec is None:
+                        shown = None
+                    else:
+                        shown = spec.species_key
+                        shown_catch_id = spec.id
+                        shown_extra = (
+                            f"`{spec.length_cm:g} cm` · `{spec.weight_kg:g} kg`"
+                        )
         await handler(
             interaction,
             npc_key=self.npc_key,
             question=self.line.value.strip(),
             shown_key=shown,
+            shown_extra=shown_extra,
+            shown_catch_id=shown_catch_id,
         )
 
 
@@ -2225,6 +2349,7 @@ class _VillageConfirmButton(discord.ui.Button):
                 item_key=parent.talk_item_key,
                 milieu_key=parent.talk_milieu_key,
                 quantity=parent.talk_quantity,
+                catch_id=parent.talk_catch_id,
             )
             await store.clear_village_talk_intent(
                 guild.id, interaction.user.id, parent.npc_key
@@ -2257,10 +2382,11 @@ async def _apply_talk_intent(
     item_key: str | None,
     milieu_key: str | None,
     quantity: int = 1,
+    catch_id: int | None = None,
 ) -> str:
     if intent == "travel":
         if not milieu_key:
-            raise PlayerError("dis-lui d'abord où aller")
+            raise PlayerError("dis-lui d'abord où tu veux aller")
         before = (await store.snapshot(guild_id, user_id)).money
         changed, new_key, money = await store.travel_to(guild_id, user_id, milieu_key)
         milieu = catalog.get_milieu(new_key)
@@ -2273,7 +2399,7 @@ async def _apply_talk_intent(
         return f"**Tu es déjà à {phrase}.**"
     if intent == "buy":
         if not item_key:
-            raise PlayerError("dis-lui d'abord quoi acheter")
+            raise PlayerError("dis-lui d'abord ce que tu veux lui acheter")
         seller = npc.key if npc is not None else None
         qty = max(1, int(quantity))
         paid, _money = await store.buy_item(
@@ -2286,17 +2412,21 @@ async def _apply_talk_intent(
         )
     if intent == "sell":
         if not item_key:
-            raise PlayerError("dis-lui d'abord quoi vendre")
+            raise PlayerError("dis-lui d'abord ce que tu veux lui vendre")
         try:
             species = catalog.get_species(item_key)
         except Exception:
             species = None
         if species is not None:
             if not species.economy.sellable:
-                raise PlayerError("cette prise ne se vend pas")
+                raise PlayerError("cette prise ne s'achète pas ici")
             qty = max(1, int(quantity))
             specimens = await store.list_caught(guild_id, user_id)
             matches = [s for s in specimens if s.species_key == item_key]
+            if catch_id is not None:
+                preferred = [s for s in matches if s.id == catch_id]
+                rest = [s for s in matches if s.id != catch_id]
+                matches = preferred + rest
             if not matches:
                 raise PlayerError("tu n'as pas cette prise")
             total = 0
@@ -2355,22 +2485,22 @@ async def _apply_talk_intent(
             env_total += env
             money_total += price
         if sold == 0:
-            raise PlayerError("rien à ramasser")
+            raise PlayerError("tu n'as pas de déchet à lui donner")
         extra = f" · +{env_total} note environnementale" if env_total else ""
         return f"**Nettoyé** · {sold} · {format_money_plain(money_total, catalog.game.money)}{extra}"
     if intent == "repair":
         if not item_key:
-            raise PlayerError("dis-lui d'abord quoi réparer")
+            raise PlayerError("dis-lui d'abord ce que tu veux faire réparer")
         snap = await store.snapshot(guild_id, user_id)
         gear = next((g for g in snap.gear if g.item_key == item_key), None)
         if gear is None:
-            raise PlayerError("tu n'as pas cet équipement")
+            raise PlayerError("tu n'as pas cet équipement sur toi")
         cost, _money = await store.repair_gear(guild_id, user_id, gear.id)
         return f"**Réparé** · {item_display(catalog, item_key)} · {format_money_plain(cost, catalog.game.money)}"
     if intent == "exchange":
         replica = await store.exchange_fossil(guild_id, user_id)
         return f"**Échangé** · {item_display(catalog, replica)}"
-    raise PlayerError("rien à confirmer")
+    raise PlayerError("rien à confirmer pour l'instant")
 
 
 class VillageAnnounceView(discord.ui.LayoutView):

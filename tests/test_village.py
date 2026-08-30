@@ -29,6 +29,7 @@ from common.village import (
     npc_portrait_filename,
     passeur_price,
     present_npcs,
+    talk_select_description,
     skull_score,
     specimen_price,
     travel_duration_s,
@@ -734,9 +735,31 @@ def test_village_talk_persists_until_bucket_refresh(catalog, tmp_path: Path) -> 
             assert last.item_key == "bread"
             assert last.display == "stock"
             assert last.board_keys == ["bread"]
+            await store.record_village_talk(
+                GUILD,
+                USER,
+                "dan",
+                "Et le café ?",
+                "Oui.",
+                bucket=10,
+                intent="none",
+                item_key="coffee",
+                display="stock",
+                board_keys=["coffee"],
+            )
+            known = await store.village_talk_known_keys(
+                GUILD, USER, "dan", bucket=10
+            )
+            assert known == {"bread", "coffee"}
+            assert await store.village_talk_known_keys(
+                GUILD, USER, "dan", bucket=11
+            ) == set()
             assert await store.last_village_talk(GUILD, USER, "dan", bucket=11) is None
             hist = await store.list_village_talk(GUILD, USER, "dan", bucket=10)
-            assert hist == [("T'as du pain ?", "(Hoche la tête.) Oui.")]
+            assert hist == [
+                ("T'as du pain ?", "(Hoche la tête.) Oui."),
+                ("Et le café ?", "Oui."),
+            ]
             assert await store.list_village_talk(GUILD, USER, "dan", bucket=11) == []
             await store.set_village_focus(GUILD, USER, "dan", 10)
             assert await store.village_focus(GUILD, USER) == ("dan", 10)
@@ -792,6 +815,20 @@ def test_talk_show_keys(catalog) -> None:
     assert "lantern" in talk_show_keys(catalog, catalog.get_npc("maurice"), snap=snap)
     assert "broken_bottle" in talk_show_keys(catalog, catalog.get_npc("gaia"), snap=snap)
     assert talk_show_keys(catalog, catalog.get_npc("oz"), snap=snap) == []
+
+
+def test_talk_select_description() -> None:
+    assert talk_select_description(length_cm=20.0, weight_kg=0.4) == "20 cm · 0.4 kg"
+    assert (
+        talk_select_description(
+            length_cm=20.0, weight_kg=0.4, price_plain="8 br."
+        )
+        == "20 cm · 0.4 kg · 8 br."
+    )
+    assert talk_select_description(qty=3) == "×3"
+    assert talk_select_description(qty=3, price_plain="12 br.") == "×3 · 12 br."
+    assert talk_select_description(qty=1, price_plain="4 br.") == "4 br."
+    assert talk_select_description() == ""
 
 
 def test_focus_talk_board_never_dumps_catalog(catalog) -> None:
@@ -914,4 +951,32 @@ def test_talk_intent_block_quantity(catalog) -> None:
             intent="buy", item_key="bread", milieu_key=None, quantity=3,
         )
         == "Pas de place dans le sac"
+    )
+    assert (
+        talk_intent_block(
+            catalog, dan, snap, [], [],
+            intent="buy", item_key=None, milieu_key=None,
+        )
+        == "Dis-lui ce que tu veux lui acheter"
+    )
+    assert (
+        talk_intent_block(
+            catalog, catalog.get_npc("agathe"), snap, [], [],
+            intent="sell", item_key=None, milieu_key=None,
+        )
+        == "Dis-lui ce que tu veux lui vendre"
+    )
+    assert (
+        talk_intent_block(
+            catalog, catalog.get_npc("maurice"), snap, [], [],
+            intent="repair", item_key=None, milieu_key=None,
+        )
+        == "Dis-lui ce que tu veux faire réparer"
+    )
+    assert (
+        talk_intent_block(
+            catalog, catalog.get_npc("gabriel"), snap, [], [],
+            intent="travel", item_key=None, milieu_key=None,
+        )
+        == "Dis-lui où tu veux aller"
     )
