@@ -1,8 +1,15 @@
 .env
 logs/
+data/
 *.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
 __pycache__/
 **/__pycache__/
 *.pyc
+.pytest_cache/
 .venv/
 venv/
