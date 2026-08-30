@@ -226,6 +226,14 @@ def test_named_village_npcs() -> None:
     assert joel.shop_mode == "sell"
     assert "bread" in dan.stock
     assert "lantern" in joel.stock
+    lantern = catalog.get_item("lantern")
+    assert lantern.equipment is not None
+    assert lantern.equipment.slot == "objet"
+    assert lantern.equipment.equippable is True
+    compass = catalog.get_item("compass")
+    assert compass.equipment is not None
+    assert compass.equipment.slot == "objet"
+    assert compass.effects.get("walk_time_mult") == 0.2
     assert "bread" not in joel.stock
     repairs = catalog.npcs_by_role("repair")
     assert {n.key for n in repairs} == {"maurice", "patrick"}

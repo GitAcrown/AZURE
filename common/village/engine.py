@@ -355,7 +355,9 @@ def talk_intent_block(
         if snap.travel_dest == milieu_key:
             remaining = travel_remaining_s(snap.travel_arrives_at)
         cost = apply_named_mult(
-            passeur_price(catalog, remaining_s=remaining), mods, "travel_mult"
+            passeur_price(catalog, remaining_s=remaining, snap=snap),
+            mods,
+            "travel_mult",
         )
         if cost > 0 and snap.money < cost:
             return "Pas assez d'argent"
@@ -668,8 +670,50 @@ def announcement_modifiers(announcements: list[VillageAnnouncement]) -> list[dic
     return [a.modifier for a in announcements if a.modifier]
 
 
-def travel_duration_s(catalog: Catalog) -> int:
-    return max(60, int(catalog.game.village.travel_minutes) * 60)
+def walk_time_mult(catalog: Catalog, snap: PlayerSnapshot | None = None) -> float:
+    """1.0 par défaut. Boussole équipée : `walk_time_mult` (0.2 = −80 %)."""
+    if snap is None:
+        return 1.0
+    eq = snap.equipped.get("objet")
+    if eq is None:
+        return 1.0
+    key = eq.gear.item_key if eq.gear is not None else eq.item_key
+    if not key:
+        return 1.0
+    try:
+        item = catalog.get_item(key)
+    except Exception:
+        return 1.0
+    raw = (item.effects or {}).get("walk_time_mult")
+    if raw is None:
+        return 1.0
+    try:
+        value = float(raw)
+    except (TypeError, ValueError):
+        return 1.0
+    return min(1.0, max(0.05, value))
+
+
+def travel_duration_s(
+    catalog: Catalog,
+    *,
+    walk_mult: float | None = None,
+    snap: PlayerSnapshot | None = None,
+) -> int:
+    if walk_mult is None:
+        walk_mult = walk_time_mult(catalog, snap)
+    base = max(60, int(catalog.game.village.travel_minutes) * 60)
+    try:
+        mult = float(walk_mult)
+    except (TypeError, ValueError):
+        mult = 1.0
+    return max(60, int(round(base * min(1.0, max(0.05, mult)))))
+
+
+def walk_minutes(
+    catalog: Catalog, snap: PlayerSnapshot | None = None, *, walk_mult: float | None = None
+) -> int:
+    return max(1, travel_duration_s(catalog, walk_mult=walk_mult, snap=snap) // 60)
 
 
 def travel_remaining_s(arrives_at: str | None, now: datetime | None = None) -> float | None:
@@ -693,13 +737,19 @@ def travel_minutes_left(remaining_s: float) -> int:
     return max(1, round(remaining_s / 60.0))
 
 
-def passeur_price(catalog: Catalog, *, remaining_s: float | None) -> int:
+def passeur_price(
+    catalog: Catalog,
+    *,
+    remaining_s: float | None,
+    snap: PlayerSnapshot | None = None,
+    walk_mult: float | None = None,
+) -> int:
     """Prix du raccourci : plein tarif, ou au prorata du temps restant."""
     full = max(0, int(catalog.game.village.travel_cost))
-    total = float(travel_duration_s(catalog))
+    total = float(travel_duration_s(catalog, walk_mult=walk_mult, snap=snap))
     if remaining_s is None:
         return full
     remaining_s = max(0.0, float(remaining_s))
     if remaining_s <= 0 or full <= 0:
         return 0
-    return max(1, round(full * remaining_s / total))
+    return max(1, round(full * min(1.0, remaining_s / total)))

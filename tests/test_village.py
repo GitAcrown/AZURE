@@ -26,6 +26,8 @@ from common.village import (
     specimen_price,
     travel_duration_s,
     travel_remaining_s,
+    walk_minutes,
+    walk_time_mult,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -51,6 +53,37 @@ def test_passeur_price_prorata(catalog) -> None:
     assert passeur_price(catalog, remaining_s=0) == 0
     assert passeur_price(catalog, remaining_s=total) == full
     assert passeur_price(catalog, remaining_s=total / 2) == max(1, round(full * 0.5))
+
+
+def test_compass_shortens_walk(catalog, tmp_path: Path) -> None:
+    assert travel_duration_s(catalog) == 1800
+    assert walk_minutes(catalog) == 30
+    assert catalog.get_item("compass").effects.get("walk_time_mult") == 0.2
+
+    async def body() -> None:
+        store = await open_store(tmp_path / "compass.db", catalog)
+        try:
+            await store.get_or_create(GUILD, USER)
+            await store.set_milieu(GUILD, USER, "ocean")
+            snap = await store.snapshot(GUILD, USER)
+            assert walk_time_mult(catalog, snap) == 1.0
+            await store.add_item(GUILD, USER, "compass", 1)
+            snap = await store.snapshot(GUILD, USER)
+            compass = next(g for g in snap.gear if g.item_key == "compass")
+            await store.equip_gear(GUILD, USER, compass.id)
+            snap = await store.snapshot(GUILD, USER)
+            assert walk_time_mult(catalog, snap) == 0.2
+            assert travel_duration_s(catalog, snap=snap) == 360
+            assert walk_minutes(catalog, snap) == 6
+            await store.set_milieu(GUILD, USER, "pond")
+            snap = await store.snapshot(GUILD, USER)
+            rem = travel_remaining_s(snap.travel_arrives_at)
+            assert rem is not None
+            assert 350 <= rem <= 361
+        finally:
+            await store.close()
+
+    _run(body())
 
 
 def test_roster_roles_and_oz_threshold(catalog) -> None:

@@ -366,7 +366,7 @@ def test_cast_requires_tool_and_energy(catalog, tmp_path: Path) -> None:
             await store.get_or_create(GUILD_A, USER)
             await store.set_milieu(GUILD_A, USER, "ocean")
             await store.unequip(GUILD_A, USER, "tool")
-            with pytest.raises(PlayerError, match="/equip"):
+            with pytest.raises(PlayerError, match="/profil"):
                 await store.cast(GUILD_A, USER)
             snap = await store.snapshot(GUILD_A, USER)
             coastal = next(g for g in snap.gear if g.item_key == "coastal_rod")
@@ -668,6 +668,13 @@ def test_bucket_and_basket_carry_bonus(catalog, tmp_path: Path) -> None:
         try:
             await store.get_or_create(GUILD_A, USER)
             await store.add_item(GUILD_A, USER, "bucket", 1)
+            await store.add_item(GUILD_A, USER, "basket", 1)
+            snap = await store.snapshot(GUILD_A, USER)
+            assert snap.fish_carry_max == 5
+            assert snap.creature_carry_max == 5
+            bucket = next(g for g in snap.gear if g.item_key == "bucket")
+            basket = next(g for g in snap.gear if g.item_key == "basket")
+            await store.equip_gear(GUILD_A, USER, bucket.id)
             snap = await store.snapshot(GUILD_A, USER)
             assert snap.fish_carry_max == 8
             assert snap.creature_carry_max == 5
@@ -681,9 +688,12 @@ def test_bucket_and_basket_carry_bonus(catalog, tmp_path: Path) -> None:
                 assert result.kept is True
             assert result.carry_used == 6
             assert result.carry_max == 8
-            await store.add_item(GUILD_A, USER, "basket", 1)
+            await store.equip_gear(GUILD_A, USER, basket.id)
+            caught = await store.list_caught(GUILD_A, USER)
+            overflow = next(c for c in caught if c.species_key == "parrot_fish")
+            await store.release_caught(GUILD_A, USER, overflow.id)
             snap = await store.snapshot(GUILD_A, USER)
-            assert snap.fish_carry_max == 8
+            assert snap.fish_carry_max == 5
             assert snap.creature_carry_max == 8
             shrimp = await store.finish_cast(
                 GUILD_A, USER, "shrimp", specimen=Specimen(6.0, 0.04)
@@ -697,6 +707,7 @@ def test_bucket_and_basket_carry_bonus(catalog, tmp_path: Path) -> None:
             snap = await store.snapshot(GUILD_A, USER)
             assert snap.creature_carry == 2
             assert snap.creature_carry_max == 8
+            assert snap.fish_carry == 5
         finally:
             await store.close()
 

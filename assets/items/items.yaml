@@ -13,9 +13,8 @@ notes:
     sans durabilité, et ne s'achètent pas.
   hook_durability: Durabilité à l'utilisation (ferrage).
   passive_durability: Durabilité en jours IRL (longue), pas à l'usage.
-  passive_items_rule: Les objets passifs n'occupent pas le slot outil ; leur effet s'applique
-    tant qu'ils sont possédés (cooldown de swap plus tard). Le slot actif `objet` est
-    réservé à l'objet passif éventuellement mis en avant.
+  passive_items_rule: Un seul objet passif actif à la fois, via le slot `objet`
+    (équipé depuis /profil). Les autres restent dans le sac, sans effet.
   jack_o_lantern_ignored_for_now: true
   skull_summon_threshold: null
 items:
@@ -330,8 +329,9 @@ items:
   flags:
   - v1
   equipment:
-    equippable: false
-    mode: passive_while_owned
+    equippable: true
+    mode: active
+    slot: objet
   durability:
     max_days: 30
     unit: days
@@ -382,8 +382,9 @@ items:
   flags:
   - v1
   equipment:
-    equippable: false
-    mode: passive_while_owned
+    equippable: true
+    mode: active
+    slot: objet
   durability:
     max_days: 30
     unit: days
@@ -451,7 +452,7 @@ items:
   sprite: item18.png
   shadow: item18_s.png
   shadow_ready: true
-  description: Une boussole de navigation liée au voyage entre milieux. Son rôle précis sera affiné plus tard.
+  description: Une boussole qui raccourcit les marches entre milieux (−80 %).
   enabled: true
   sources:
   - shop
@@ -463,10 +464,10 @@ items:
     max_stack: 1
   flags:
   - v1
-  - effect_tbd
   equipment:
-    equippable: false
-    mode: passive_while_owned
+    equippable: true
+    mode: active
+    slot: objet
   durability:
     max_days: 45
     unit: days
@@ -474,7 +475,7 @@ items:
     repairable: true
     repair_cost: 60
   effects:
-    travel_effect: null
+    walk_time_mult: 0.2
 - id: 19
   key: spyglass
   name: Longue-vue
@@ -495,8 +496,9 @@ items:
   flags:
   - v1
   equipment:
-    equippable: false
-    mode: passive_while_owned
+    equippable: true
+    mode: active
+    slot: objet
   durability:
     max_days: 45
     unit: days
@@ -551,8 +553,9 @@ items:
   flags:
   - v1
   equipment:
-    equippable: false
-    mode: passive_while_owned
+    equippable: true
+    mode: active
+    slot: objet
   durability:
     max_days: 40
     unit: days
@@ -616,8 +619,9 @@ items:
   - v1
   - rare
   equipment:
-    equippable: false
-    mode: passive_while_owned
+    equippable: true
+    mode: active
+    slot: objet
   durability:
     max_days: 30
     unit: days
@@ -1030,8 +1034,9 @@ items:
   flags:
   - v1
   equipment:
-    equippable: false
-    mode: passive_while_owned
+    equippable: true
+    mode: active
+    slot: objet
   durability:
     max_days: 40
     unit: days

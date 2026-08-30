@@ -32,6 +32,8 @@ from .engine import (
     travel_minutes_left,
     travel_remaining_s,
     village_bucket,
+    walk_minutes,
+    walk_time_mult,
 )
 
 __all__ = [
@@ -66,4 +68,6 @@ __all__ = [
     "travel_minutes_left",
     "travel_remaining_s",
     "village_bucket",
+    "walk_minutes",
+    "walk_time_mult",
 ]

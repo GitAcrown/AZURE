@@ -40,7 +40,6 @@ from .views import (
     CatalogView,
     DexView,
     EmojisGalleryView,
-    EquipView,
     ItemInspectView,
     MondeView,
     NoticeView,
@@ -254,17 +253,6 @@ class Azure(commands.Cog):
         snap = await _store(self.bot).get_or_create(guild.id, interaction.user.id)
         flash = travel_arrival_flash(cat, snap)
         await _send_view(interaction, MondeView(cat, snap, flash=flash))
-
-    @app_commands.command(name="equip", description="Change outil, crochet ou appât.")
-    @app_commands.guild_only()
-    async def equip(self, interaction: discord.Interaction) -> None:
-        guild = interaction.guild
-        if guild is None:
-            await send_error(interaction, "Cette commande s'utilise sur un serveur.")
-            return
-        cat = _catalog(self.bot)
-        snap = await _store(self.bot).get_or_create(guild.id, interaction.user.id)
-        await _send_view(interaction, EquipView(cat, snap))
 
     @app_commands.command(name="manger", description="Mange un aliment du sac.")
     @app_commands.describe(item="Pain, conserve, café…")

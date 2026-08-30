@@ -108,50 +108,58 @@ def _gear_live(item: Item, durability: int | None) -> bool:
 
 
 def collect_owned_effects(
-    catalog: Catalog, gear: list[GearInstance], stacks: list[Stack]
+    catalog: Catalog,
+    gear: list[GearInstance],
+    stacks: list[Stack],
+    equipped: dict[str, EquippedSlot] | None = None,
 ) -> dict[str, Any]:
+    """Effets des pièces **équipées** uniquement (un objet passif à la fois)."""
     effects: dict[str, Any] = {}
-    for inst in gear:
+    for eq in (equipped or {}).values():
+        key = None
+        durability = None
+        if eq.gear is not None:
+            key = eq.gear.item_key
+            durability = eq.gear.durability
+        elif eq.item_key:
+            key = eq.item_key
+        if not key:
+            continue
         try:
-            item = catalog.get_item(inst.item_key)
+            item = catalog.get_item(key)
         except CatalogError:
             continue
-        if not _gear_live(item, inst.durability):
-            continue
-        effects.update(item.effects or {})
-    for stack in stacks:
-        try:
-            item = catalog.get_item(stack.item_key)
-        except CatalogError:
+        if not _gear_live(item, durability):
             continue
         effects.update(item.effects or {})
     return effects
 
 
 def carry_limits(
-    catalog: Catalog, gear: list[GearInstance], stacks: list[Stack]
+    catalog: Catalog,
+    gear: list[GearInstance],
+    stacks: list[Stack],
+    equipped: dict[str, EquippedSlot] | None = None,
 ) -> tuple[int, int]:
-    """Capacités poisson / créature : base YAML + effets des instances possédées."""
+    """Capacités : base YAML + bonus de l'objet équipé seulement."""
     player = catalog.game.player
     fish = player.fish_carry_capacity
     creature = player.non_fish_carry_capacity
-    for inst in gear:
-        try:
-            item = catalog.get_item(inst.item_key)
-        except CatalogError:
-            continue
-        if not _gear_live(item, inst.durability):
-            continue
-        fish += _effect_bonus(item, "fish_carry_capacity_bonus")
-        creature += _effect_bonus(item, "non_fish_carry_capacity_bonus")
-    for stack in stacks:
-        try:
-            item = catalog.get_item(stack.item_key)
-        except CatalogError:
-            continue
-        qty = max(1, stack.quantity)
-        fish += _effect_bonus(item, "fish_carry_capacity_bonus") * qty
-        creature += _effect_bonus(item, "non_fish_carry_capacity_bonus") * qty
+    obj = (equipped or {}).get("objet")
+    if obj is None:
+        return fish, creature
+    key = obj.gear.item_key if obj.gear is not None else obj.item_key
+    durability = obj.gear.durability if obj.gear is not None else None
+    if not key:
+        return fish, creature
+    try:
+        item = catalog.get_item(key)
+    except CatalogError:
+        return fish, creature
+    if not _gear_live(item, durability):
+        return fish, creature
+    fish += _effect_bonus(item, "fish_carry_capacity_bonus")
+    creature += _effect_bonus(item, "non_fish_carry_capacity_bonus")
     return fish, creature
 
 
@@ -274,7 +282,7 @@ class PlayerStore:
                 dex_found = int(dex_row["n"])
         dex_total = sum(1 for s in self.catalog.species if s.collection.collectible)
         fish_n, creature_n = await self._count_caught_by_compartment(guild_id, user_id)
-        fish_max, creature_max = carry_limits(self.catalog, gear, stacks)
+        fish_max, creature_max = carry_limits(self.catalog, gear, stacks, equipped)
         return PlayerSnapshot(
             guild_id=guild_id,
             user_id=user_id,
@@ -391,7 +399,9 @@ class PlayerStore:
             )
             await self._conn.commit()
             return True, milieu.key
-        arrives = datetime.now(timezone.utc) + timedelta(seconds=travel_duration_s(self.catalog))
+        arrives = datetime.now(timezone.utc) + timedelta(
+            seconds=travel_duration_s(self.catalog, snap=snap)
+        )
         await self._conn.execute(
             """
             UPDATE players
@@ -560,12 +570,14 @@ class PlayerStore:
         if tool_eq is not None:
             tool_key = tool_eq.gear.item_key if tool_eq.gear is not None else tool_eq.item_key
         if not tool_key:
-            raise PlayerError("équipe un outil avec /equip")
+            raise PlayerError("équipe un outil avec /profil")
         tool = self._item(tool_key)
         method = tool.equipment.capture_method if tool.equipment else None
         if not method:
             raise PlayerError("cet outil n'a pas de méthode de capture")
-        effects = collect_owned_effects(self.catalog, snap.gear, snap.stacks)
+        effects = collect_owned_effects(
+            self.catalog, snap.gear, snap.stacks, snap.equipped
+        )
         weather = weather_at(
             guild_id, snap.milieu_key, datetime.now(timezone.utc), self.catalog.game.world
         )
@@ -1131,6 +1143,31 @@ class PlayerStore:
                 )
         return gear, stacks
 
+    async def _load_equipped(
+        self,
+        guild_id: int,
+        user_id: int,
+        gear_by_id: dict[int, GearInstance],
+    ) -> dict[str, EquippedSlot]:
+        equipped: dict[str, EquippedSlot] = {}
+        async with self._conn.execute(
+            """
+            SELECT slot, gear_id, item_key FROM equipped
+            WHERE guild_id = ? AND user_id = ?
+            """,
+            (guild_id, user_id),
+        ) as cur:
+            async for r in cur:
+                slot = r["slot"]
+                gear_id = int(r["gear_id"]) if r["gear_id"] is not None else None
+                equipped[slot] = EquippedSlot(
+                    slot=slot,
+                    gear_id=gear_id,
+                    item_key=r["item_key"],
+                    gear=gear_by_id.get(gear_id) if gear_id is not None else None,
+                )
+        return equipped
+
     async def _count_caught_by_compartment(
         self, guild_id: int, user_id: int
     ) -> tuple[int, int]:
@@ -1151,7 +1188,8 @@ class PlayerStore:
         self, guild_id: int, user_id: int, species_key: str
     ) -> tuple[int, int]:
         gear, stacks = await self._load_gear_and_stacks(guild_id, user_id)
-        fish_max, creature_max = carry_limits(self.catalog, gear, stacks)
+        equipped = await self._load_equipped(guild_id, user_id, {g.id: g for g in gear})
+        fish_max, creature_max = carry_limits(self.catalog, gear, stacks, equipped)
         fish_n, creature_n = await self._count_caught_by_compartment(guild_id, user_id)
         if carry_compartment(self.catalog, species_key) == "fish":
             return fish_n, fish_max
@@ -1463,7 +1501,9 @@ class PlayerStore:
         cost = unit * quantity
         if snap.money < cost:
             raise PlayerError("pas assez d'argent")
-        added = await self.add_item(guild_id, user_id, item.key, quantity, commit=False)
+        added = await self.add_item(
+            guild_id, user_id, item.key, quantity, auto_equip=True, commit=False
+        )
         if added < 1:
             raise PlayerError("pas de place dans le sac")
         paid = unit * added
@@ -1502,7 +1542,7 @@ class PlayerStore:
         remaining = None
         if snap.travel_dest == milieu.key:
             remaining = travel_remaining_s(snap.travel_arrives_at)
-        cost = passeur_price(self.catalog, remaining_s=remaining)
+        cost = passeur_price(self.catalog, remaining_s=remaining, snap=snap)
         anns = await self.list_village_announcements(guild_id)
         cost = apply_named_mult(cost, announcement_modifiers(anns), "travel_mult")
         if cost > 0 and snap.money < cost:

@@ -73,6 +73,7 @@ from common.village import (
     travel_minutes_left,
     travel_remaining_s,
     village_bucket,
+    walk_minutes,
 )
 from common.world import (
     milieu_at_phrase,
@@ -90,7 +91,7 @@ SLOT_LABELS = {
     "objet": "Objet",
 }
 
-DISPLAY_SLOTS = ("tool", "hook", "bait")
+DISPLAY_SLOTS = ("tool", "hook", "bait", "objet")
 
 CATEGORY_LABELS = {
     "tool": "Outil",
@@ -272,13 +273,13 @@ def _onboarding_lines(snap: PlayerSnapshot) -> str:
     if snap.milieu_key:
         return (
             "**Cannes** et **filet** déjà dans le sac.\n"
-            "**/pecher** pour lancer · **/village** pour vendre."
+            "**/pecher** pour lancer · **/village** pour vendre · **/profil** pour équiper."
         )
     return (
         "**Premier pas**\n"
         "1. Choisis un milieu avec **/monde** (premier aller **immédiat**)\n"
         "2. **/pecher** pour lancer — **Relancer** après une prise\n"
-        "3. **/village** pour vendre et voir les **bonus**"
+        "3. **/village** pour vendre · **/profil** pour l'**objet** actif"
     )
 
 
@@ -304,11 +305,19 @@ def _milieu_profile_line(catalog: Catalog, snap: PlayerSnapshot) -> str:
 
 
 class ProfilView(discord.ui.LayoutView):
-    def __init__(self, catalog: Catalog, snap: PlayerSnapshot, display_name: str) -> None:
-        super().__init__(timeout=120)
+    def __init__(
+        self,
+        catalog: Catalog,
+        snap: PlayerSnapshot,
+        display_name: str,
+        *,
+        flash: str = "",
+    ) -> None:
+        super().__init__(timeout=180)
+        self.catalog = catalog
+        self.display_name = display_name
 
         milieu = _milieu_profile_line(catalog, snap)
-
         equipped_lines = _equipped_lines(catalog, snap)
 
         subtitle = f"-# {display_name}"
@@ -342,6 +351,17 @@ class ProfilView(discord.ui.LayoutView):
         arrived = travel_arrival_flash(catalog, snap)
         if arrived:
             children += [discord.ui.Separator(), discord.ui.TextDisplay(arrived)]
+        options = _equip_options(catalog, snap)
+        note = flash or (
+            "Rien d'autre à équiper."
+            if not options
+            else "Un seul **objet** actif. Change canne, crochet, appât ou objet."
+        )
+        append_controls(
+            children,
+            note=note,
+            select_row=discord.ui.ActionRow(_EquipSelect(options)) if options else None,
+        )
         self.add_item(make_container(*children))
 
 
@@ -403,25 +423,6 @@ def _equip_options(catalog: Catalog, snap: PlayerSnapshot) -> list[discord.Selec
     return options[:25]
 
 
-class EquipView(discord.ui.LayoutView):
-    def __init__(self, catalog: Catalog, snap: PlayerSnapshot, *, flash: str = "") -> None:
-        super().__init__(timeout=180)
-        equipped_lines = _equipped_lines(catalog, snap)
-        children: list = [
-            discord.ui.TextDisplay("## Équiper"),
-            discord.ui.Separator(),
-            discord.ui.TextDisplay("\n".join(equipped_lines)),
-        ]
-        options = _equip_options(catalog, snap)
-        note = flash or ("Rien d'autre à équiper." if not options else "Choisis une pièce ci-dessous.")
-        append_controls(
-            children,
-            note=note,
-            select_row=discord.ui.ActionRow(_EquipSelect(options)) if options else None,
-        )
-        self.add_item(make_container(*children))
-
-
 class _EquipSelect(discord.ui.Select):
     def __init__(self, options: list[discord.SelectOption]) -> None:
         super().__init__(
@@ -465,11 +466,20 @@ class _EquipSelect(discord.ui.Select):
         except (PlayerError, ValueError) as exc:
             snap = await store.snapshot(guild.id, interaction.user.id)
             await interaction.response.edit_message(
-                view=EquipView(catalog, snap, flash=f"**{str(exc).rstrip('.')}.**")
+                view=ProfilView(
+                    catalog,
+                    snap,
+                    interaction.user.display_name,
+                    flash=f"**{str(exc).rstrip('.')}.**",
+                )
             )
             return
         snap = await store.snapshot(guild.id, interaction.user.id)
-        await interaction.response.edit_message(view=EquipView(catalog, snap, flash=flash))
+        await interaction.response.edit_message(
+            view=ProfilView(
+                catalog, snap, interaction.user.display_name, flash=flash
+            )
+        )
 
 
 class MondeView(discord.ui.LayoutView):
@@ -496,7 +506,7 @@ class MondeView(discord.ui.LayoutView):
             f"**Moment** · {time_label(state.time_of_day)} · `{clock}`",
         ]
         walk_mins = travel_minutes_left(remaining) if walking and remaining is not None else 0
-        effects = collect_owned_effects(catalog, snap.gear, snap.stacks)
+        effects = collect_owned_effects(catalog, snap.gear, snap.stacks, snap.equipped)
         forecast = bool(effects.get("destination_weather_forecast_minutes"))
         milieu_lines: list[str] = []
         for milieu in catalog.milieus:
@@ -512,7 +522,7 @@ class MondeView(discord.ui.LayoutView):
                 )
                 bit += f" · puis {weather_display(nxt_weather)}"
             milieu_lines.append(bit)
-        minutes = catalog.game.village.travel_minutes
+        minutes = walk_minutes(catalog, snap)
         children: list = [
             discord.ui.TextDisplay("## Monde"),
             discord.ui.TextDisplay(
@@ -891,7 +901,12 @@ async def start_cast_flow(
         if "outil" in msg.lower() or "équipe" in msg.lower():
             await _apply_view(
                 interaction,
-                EquipView(catalog, snap, flash="**Équipe un outil** pour pêcher."),
+                ProfilView(
+                    catalog,
+                    snap,
+                    interaction.user.display_name,
+                    flash="**Équipe un outil** pour pêcher.",
+                ),
             )
             return
         await _apply_view(
@@ -1774,28 +1789,39 @@ class VillageView(discord.ui.LayoutView):
     def _board_destinations(self) -> str:
         money = self.catalog.game.money
         mods = announcement_modifiers(self.announcements)
-        minutes = int(self.catalog.game.village.travel_minutes)
-        lines = [self._here_line(), f"Marche · {minutes} min · **gratuite**"]
+        dests: list[str] = []
         for milieu in self.catalog.milieus:
             if not self._filter_keys(milieu.key):
                 continue
-            here = self.snap.milieu_key == milieu.key
-            if here:
-                desc = "**déjà là**"
-            elif self.snap.travel_dest == milieu.key:
+            if self.snap.milieu_key == milieu.key:
+                continue
+            mark = " · **ça**" if self.talk_milieu_key == milieu.key else ""
+            if self.snap.travel_dest == milieu.key:
                 rem = travel_remaining_s(self.snap.travel_arrives_at)
                 price = apply_named_mult(
-                    passeur_price(self.catalog, remaining_s=rem), mods, "travel_mult"
+                    passeur_price(self.catalog, remaining_s=rem, snap=self.snap),
+                    mods,
+                    "travel_mult",
                 )
-                desc = f"{format_money_plain(price, money)} · raccourci" if price else "arrivée"
+                fare = format_money(price, money) if price else "arrivée"
+                dests.append(f"**{milieu.name}** · {fare} · raccourci{mark}")
             else:
                 price = apply_named_mult(
-                    passeur_price(self.catalog, remaining_s=None), mods, "travel_mult"
+                    passeur_price(self.catalog, remaining_s=None, snap=self.snap),
+                    mods,
+                    "travel_mult",
                 )
-                desc = f"{format_money_plain(price, money)} · immédiat"
-            mark = " · **ça**" if self.talk_milieu_key == milieu.key else ""
-            lines.append(f"**{milieu.name}** · {desc}{mark}")
-        return "**Trajets**\n" + "\n".join(lines)
+                dests.append(
+                    f"**{milieu.name}** · {format_money(price, money)}{mark}"
+                )
+        parts = [self._here_line()]
+        if dests:
+            parts.append("**Passage**\n" + "\n".join(dests))
+        parts.append(
+            f"-# Marche · **{walk_minutes(self.catalog, self.snap)} min** · "
+            f"**gratuite** · /monde"
+        )
+        return "\n\n".join(parts)
 
     def _board_repairs(self) -> str:
         money = self.catalog.game.money

@@ -24,6 +24,7 @@ from common.village.engine import (
     travel_remaining_s,
     waste_env_points,
     waste_sell_unit,
+    walk_minutes,
 )
 
 MODEL_MAIN = "gpt-5.6-luna"
@@ -364,9 +365,9 @@ def talk_facts(
             lines.append("Rien à réparer chez lui.")
     elif role == "travel":
         fare = apply_named_mult(
-            passeur_price(catalog, remaining_s=None), mods, "travel_mult"
+            passeur_price(catalog, remaining_s=None, snap=snap), mods, "travel_mult"
         )
-        minutes = catalog.game.village.travel_minutes
+        minutes = walk_minutes(catalog, snap)
         lines.append(
             f"Tu emmènes partout. intent=travel, display=destinations. "
             f"Passage immédiat : {fare} {money_name}. Marche à pied : gratuite, {minutes} min."
@@ -381,7 +382,9 @@ def talk_facts(
                 tag = " · déjà là"
             elif dest == milieu.key and rem:
                 shortcut = apply_named_mult(
-                    passeur_price(catalog, remaining_s=rem), mods, "travel_mult"
+                    passeur_price(catalog, remaining_s=rem, snap=snap),
+                    mods,
+                    "travel_mult",
                 )
                 tag = f" · en route, raccourci {shortcut} {money_name}"
             lines.append(f"- {milieu.key} = {milieu.name}{tag}")
