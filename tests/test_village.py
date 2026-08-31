@@ -28,6 +28,7 @@ from common.village import (
     modifier_label,
     npc_can_bargain,
     npc_portrait_filename,
+    npc_role_label,
     passeur_price,
     present_npcs,
     talk_select_description,
@@ -837,6 +838,16 @@ def test_npc_personalities(catalog) -> None:
     assert catalog.get_npc("joel").hook
     hedwig = catalog.get_npc("hedwig")
     assert hedwig.hook_for("night") != hedwig.hook_for("dawn")
+
+
+def test_npc_role_labels_are_plain(catalog) -> None:
+    assert npc_role_label(catalog.get_npc("esmer")) == "Identification"
+    assert npc_role_label(catalog.get_npc("gaia")) == "Note environnementale"
+    assert npc_role_label(catalog.get_npc("gabriel")) == "Passeur"
+    assert npc_role_label(catalog.get_npc("maurice")) == "Réparations"
+    assert npc_role_label(catalog.get_npc("agathe")) == "Rachat"
+    assert npc_role_label(catalog.get_npc("dan")) == "Vendeur"
+    assert npc_role_label(catalog.get_npc("oz")) == "Fossiles"
 
 
 def test_talk_show_keys(catalog) -> None:

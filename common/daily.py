@@ -52,9 +52,9 @@ def daily_place_block(catalog: Catalog, status: DailyStatus) -> str:
     phrase = daily_milieu_phrase(catalog, status.milieu_key)
     target = status.target
     if status.done:
-        return f"**Quête du jour**\n- {target} prises à {phrase} · **faite**"
+        return f"**Quête du jour**\n{target} prises à {phrase} · **faite**"
     return (
-        f"**Quête du jour**\n- {target} prises à {phrase} · "
+        f"**Quête du jour**\n{target} prises à {phrase} · "
         f"**{status.count}/{target}**"
     )
 

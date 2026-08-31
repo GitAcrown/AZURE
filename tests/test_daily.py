@@ -64,6 +64,7 @@ def test_place_block_progress_and_done() -> None:
     assert text.startswith("**Quête du jour**")
     assert "2/3" in text
     assert "faite" not in text
+    assert "- " not in text
     done = DailyStatus(
         day_key="2026-08-31",
         milieu_key=key,

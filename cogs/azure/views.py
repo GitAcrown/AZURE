@@ -2138,7 +2138,7 @@ class VillageView(discord.ui.LayoutView):
             lines: list[str] = []
             for npc in present:
                 name = npc.name or npc.key
-                lines.append(f"- **{name}** · {npc_role_label(npc)}")
+                lines.append(f"**{name}** · {npc_role_label(npc)}")
             body = "\n".join(lines) if lines else body
             note = flash or "Approche-toi. **Parle-leur**, et **montre** ce que tu as."
         else:
@@ -2204,19 +2204,22 @@ class VillageView(discord.ui.LayoutView):
             elif self.talk_status == "streaming":
                 note = f"**{name} répond…**"
 
+        children: list = [header, subtitle]
         if current is None:
+            if self.daily_line:
+                children += [
+                    discord.ui.Separator(),
+                    discord.ui.TextDisplay(self.daily_line),
+                ]
             promo = self._promo_block()
-            chunks = [part for part in (self.daily_line, promo, body) if part]
-            body = "\n\n".join(chunks) if chunks else body
-        children: list = [header, subtitle, discord.ui.Separator()]
+            if promo:
+                children += [discord.ui.Separator(), discord.ui.TextDisplay(promo)]
         if body:
-            children.append(discord.ui.TextDisplay(body))
+            children += [discord.ui.Separator(), discord.ui.TextDisplay(body)]
         elif not board:
-            children.append(discord.ui.TextDisplay("…"))
+            children += [discord.ui.Separator(), discord.ui.TextDisplay("…")]
         if board:
-            if body:
-                children.append(discord.ui.Separator())
-            children.append(discord.ui.TextDisplay(board))
+            children += [discord.ui.Separator(), discord.ui.TextDisplay(board)]
         if present:
             prepend_tabs(
                 children,
@@ -2241,7 +2244,7 @@ class VillageView(discord.ui.LayoutView):
             bit = f"**{name}** · {effect}"
             if left:
                 bit += f" · {left}"
-            lines.append(f"- {bit}")
+            lines.append(bit)
         if len(lines) == 1:
             return ""
         return "\n".join(lines)

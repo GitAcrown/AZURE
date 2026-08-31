@@ -13,12 +13,12 @@ from common.player.models import CaughtSpecimen, PlayerSnapshot
 from common.world import time_of_day_at, weather_bucket
 
 ROLE_LABELS = {
-    "shop": "Étal",
-    "repair": "Atelier",
-    "travel": "Passage",
-    "special": "Eaux",
-    "summon": "Collection",
-    "lore": "Archives",
+    "shop": "Vendeur",
+    "repair": "Réparations",
+    "travel": "Passeur",
+    "special": "Note environnementale",
+    "summon": "Fossiles",
+    "lore": "Identification",
 }
 
 
@@ -30,9 +30,9 @@ def npc_display_name(npc: Npc | None) -> str:
 
 def npc_role_label(npc: Npc) -> str:
     if npc.role == "shop" and npc.shop_mode == "buy":
-        return "Achats"
+        return "Rachat"
     if npc.role == "shop" and npc.shop_mode == "sell":
-        return "Étal"
+        return "Vendeur"
     return ROLE_LABELS.get(npc.role or "", npc.role or "—")
 
 SHOP_TAB_LABELS = {
