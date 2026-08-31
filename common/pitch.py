@@ -31,14 +31,14 @@ def pitch_blocks(catalog: Catalog) -> list[str]:
         ),
         (
             "**Ce qui continue sans toi**\n"
-            "Le **jour** et la **nuit** ne pêchent pas pareil. La **Place** "
-            "tourne avec l'heure. Une **quête du jour** pour tout le serveur. "
+            "Le **jour** et la **nuit** ne donnent pas les mêmes prises. Les PNJ de la **Place du village** "
+            "changent avec les heures qui passent. Une **quête du jour** pour tout le serveur. "
             "Le **Dex** retient ce que tu as vu ; **/records** montre les plus "
             "belles prises."
         ),
         (
-            "L'outil et l'hameçon s'équipent dans **/profil**. "
-            "Le premier trajet est **immédiat** — tape **/monde** pour y aller."
+            "Commence par **/profil** ! "
+            "**Bonne pêche !**	"
         ),
     ]
 
