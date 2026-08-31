@@ -17,7 +17,7 @@ species:
   assets:
     sprite: specie1.png
     shadow: specie1_s.png
-  description: Un bec de pierre pour râcler le corail.
+  description: "Son bec fusionné racle les algues du corail, et les récifs qu'il broute restent plus nets derrière lui."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -61,7 +61,7 @@ species:
   assets:
     sprite: specie2.png
     shadow: specie2_s.png
-  description: Dos rayé, vite, souvent en bande.
+  description: "Le dos zébré, il file en bande près de la surface, trop vite pour qu'on le suive longtemps du regard."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -105,7 +105,7 @@ species:
   assets:
     sprite: specie3.png
     shadow: specie3_s.png
-  description: Petit, vif, collé à son anémone.
+  description: "Petit et vif, il ne s'éloigne presque jamais de son anémone, qui le protège autant qu'il la défend."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -149,7 +149,7 @@ species:
   assets:
     sprite: specie4.png
     shadow: specie4_s.png
-  description: Plat, posé dans le sable, les deux yeux du même côté.
+  description: "Couchée dans le sable, la plie a les deux yeux du même côté : on la confond avec le fond jusqu'au dernier instant."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -193,7 +193,7 @@ species:
   assets:
     sprite: specie5.png
     shadow: specie5_s.png
-  description: Le corps s'argente avant la grande traversée.
+  description: "Quand l'anguille s'argente, c'est qu'elle quitte la rivière pour la grande traversée vers la mer des Sargasses."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -243,7 +243,7 @@ species:
   assets:
     sprite: specie6.png
     shadow: specie6_s.png
-  description: Tête de cheval, poche d'œufs côté père.
+  description: "Il nage debout, la tête penchée comme un cheval miniature, et c'est le père qui porte les œufs dans une poche."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -287,7 +287,7 @@ species:
   assets:
     sprite: specie7.png
     shadow: specie7_s.png
-  description: Belles épines. Trop belles. Elles piquent.
+  description: "Ses nageoires en éventail sont superbes, et venimeuses : on les admire de loin, on ne les serre pas."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -332,7 +332,7 @@ species:
   assets:
     sprite: specie8.png
     shadow: specie8_s.png
-  description: Coffré, un peu cornu, trop rigide pour filer.
+  description: "Coffré dans une carapace un peu cornue, il avance sans se presser : trop rigide pour filer, trop bizarre pour passer inaperçu."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -376,7 +376,7 @@ species:
   assets:
     sprite: specie9.png
     shadow: specie9_s.png
-  description: Grand, chaud, il n'arrête pas de nager.
+  description: "Grand voyageur au sang chaud, le thon nage sans jamais s'arrêter, et la mer entière semble trop petite pour lui."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -423,7 +423,7 @@ species:
   assets:
     sprite: specie10.png
     shadow: specie10_s.png
-  description: Haut, comprimé, près des coraux.
+  description: "Comprimé comme une pièce, zébré de bandes sombres, il glisse entre les coraux sans jamais s'en éloigner longtemps."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -467,7 +467,7 @@ species:
   assets:
     sprite: specie11.png
     shadow: specie11_s.png
-  description: Prédateur côtier. Rochers, estuaires, gueule nette.
+  description: "Le bar chasse le long des rochers et des estuaires, gueule nette, souvent à l'affût dès que l'eau s'agite."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -511,7 +511,7 @@ species:
   assets:
     sprite: specie12.png
     shadow: specie12_s.png
-  description: Bleu franc, une épine près de la queue.
+  description: "D'un bleu franc qui tranche sur le récif, il porte près de la queue une épine dont les chirurgiens ont pris le nom."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -555,7 +555,7 @@ species:
   assets:
     sprite: specie13.png
     shadow: specie13_s.png
-  description: Chair pâle, côtes du nord qui cognent.
+  description: "Le lieu noir fréquente les côtes froides du nord : chair pâle, bancs denses, et une longue histoire de filets."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -599,7 +599,7 @@ species:
   assets:
     sprite: specie14.png
     shadow: specie14_s.png
-  description: Couleurs changeantes, fonds de pierre.
+  description: "La vieille change de couleurs selon l'âge et le sexe, et passe sa vie à fouiller les fonds de pierre."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -643,7 +643,7 @@ species:
   assets:
     sprite: specie15.png
     shadow: specie15_s.png
-  description: Enfoui. Les épines du dos, on s'en souvient.
+  description: "Enfouie dans le sable jusqu'aux yeux, la vive laisse dépasser des épines dorsales dont on se souvient longtemps."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -687,7 +687,7 @@ species:
   assets:
     sprite: specie16.png
     shadow: specie16_s.png
-  description: Corps haut, argent. Elle rase les côtes.
+  description: "La daurade a le corps haut, l'argent facile, et rase les côtes dès que l'eau se réchauffe un peu."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -731,7 +731,7 @@ species:
   assets:
     sprite: specie17.png
     shadow: specie17_s.png
-  description: Il gonfle. Mieux vaut le laisser.
+  description: "Menacé, il se gonfle d'eau jusqu'à devenir une boule d'épines : autant le relâcher avant qu'il ne le fasse."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -775,7 +775,7 @@ species:
   assets:
     sprite: specie18.png
     shadow: specie18_s.png
-  description: Gros fond, vieille histoire de filets.
+  description: "La morue a fait les fonds froids et les légendes de pêche : un gros poisson, une vieille histoire de filets trop pleins."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -819,7 +819,7 @@ species:
   assets:
     sprite: specie19.png
     shadow: specie19_s.png
-  description: Petite plie des sables européens.
+  description: "Plus petite que la plie, la limande se plaque sur les sables européens et disparaît dès qu'on détourne le regard."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -863,7 +863,7 @@ species:
   assets:
     sprite: specie20.png
     shadow: specie20_s.png
-  description: Posé sur le fond. On le marche presque dessus.
+  description: "Le flet se pose si à plat sur le fond qu'on le marche presque dessus avant de le voir s'enfuir."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -907,7 +907,7 @@ species:
   assets:
     sprite: specie21.png
     shadow: specie21_s.png
-  description: Élancé, chair pâle, il chasse petit.
+  description: "Élancé, à la chair très pâle, le merlan chasse petit et se tient souvent un peu au-dessus du sable."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -951,7 +951,7 @@ species:
   assets:
     sprite: specie22.png
     shadow: specie22_s.png
-  description: Énorme plat des eaux froides.
+  description: "Le flétan est un plat immense des eaux froides : un seul spécimen peut occuper tout le fond d'un bac."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -995,7 +995,7 @@ species:
   assets:
     sprite: specie23.png
     shadow: specie23_s.png
-  description: Des bancs si denses que l'eau en argent.
+  description: "Les harengs voyagent en bancs si denses que l'eau elle-même semble faite d'argent."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1042,7 +1042,7 @@ species:
   assets:
     sprite: specie24.png
     shadow: specie24_s.png
-  description: Aplatie. L'aiguillon, sous la queue.
+  description: "Aplatie comme une aile, la pastenague cache sous la queue un aiguillon qu'il vaut mieux ne pas chercher."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1084,7 +1084,7 @@ species:
   assets:
     sprite: specie25.png
     shadow: specie25_s.png
-  description: Mâchoires de broyeur, eaux froides.
+  description: "Le loup de mer broie crabes et oursins avec des mâchoires trop larges pour un poisson des eaux froides."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1128,7 +1128,7 @@ species:
   assets:
     sprite: specie26.png
     shadow: specie26_s.png
-  description: Argent, trop vite pour les tropiques peu profonds.
+  description: "L'albule est tout argent et nerfs : dans les tropiques peu profonds, elle part plus vite qu'on ne lève la canne."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1172,7 +1172,7 @@ species:
   assets:
     sprite: specie27.png
     shadow: specie27_s.png
-  description: Solitaire, souvent à l'ombre d'autre chose.
+  description: "Solitaire, le cobia se colle souvent à l'ombre d'une tortue ou d'une bouée, comme s'il préférait voyager accompagné."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1216,7 +1216,7 @@ species:
   assets:
     sprite: specie28.png
     shadow: specie28_s.png
-  description: Il grogne. La vessie fait le bruit.
+  description: "Quand le tambour noir grogne, c'est sa vessie qui fait le bruit : un rumble sourd, presque trop grave pour un poisson."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1260,7 +1260,7 @@ species:
   assets:
     sprite: specie29.png
     shadow: specie29_s.png
-  description: Mou dès qu'on le sort. Le fond lui allait mieux.
+  description: "Au fond, il a une vraie gueule. Sorti de l'eau, il s'affaisse : la pression lui allait infiniment mieux."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1311,7 +1311,7 @@ species:
   assets:
     sprite: specie30.png
     shadow: specie30_s.png
-  description: Carangue rapide le long des plages chaudes.
+  description: "Cette carangue rase les plages chaudes, le flanc argenté, toujours un peu trop rapide pour les pieds dans l'eau."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1355,7 +1355,7 @@ species:
   assets:
     sprite: specie31.png
     shadow: specie31_s.png
-  description: Petite, en masse, tout le monde en vit.
+  description: "Petite, serrée contre les autres, la sardine nourrit à peu près tout ce qui nage plus grand qu'elle."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1399,7 +1399,7 @@ species:
   assets:
     sprite: specie32.png
     shadow: specie32_s.png
-  description: Haut, aplati, récif.
+  description: "Haut et comprimé, le poisson-ange glisse le long du récif comme s'il n'avait pas d'épaisseur."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1443,7 +1443,7 @@ species:
   assets:
     sprite: specie33.png
     shadow: specie33_s.png
-  description: Rouge, recherché, golfe et tropiques.
+  description: "Rouge franc, recherché des tropiques au golfe, le vivaneau se tient souvent un peu au-dessus du fond."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1487,7 +1487,7 @@ species:
   assets:
     sprite: specie34.png
     shadow: specie34_s.png
-  description: Né à la rivière, grandi en mer, et le retour.
+  description: "Né en rivière, grandi en mer, le saumon remonte un jour le courant pour pondre là où tout a commencé."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1531,7 +1531,7 @@ species:
   assets:
     sprite: specie35.png
     shadow: specie35_s.png
-  description: Un leurre au bout du nez. La proie s'approche.
+  description: "Un leurre lumineux lui pend au-dessus de la gueule : la proie s'approche, et c'est déjà trop tard."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1577,7 +1577,7 @@ species:
   assets:
     sprite: specie36.png
     shadow: specie36_s.png
-  description: Petite, partout, proie et prise.
+  description: "La crevette est partout à la fois : proie, prise, et parfois le seul mouvement qu'on distingue dans les herbes."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1621,7 +1621,7 @@ species:
   assets:
     sprite: specie37.png
     shadow: specie37_s.png
-  description: Dix bras, un jet, et il n'est plus là.
+  description: "Dix bras, un jet d'eau, un nuage d'encre : le calmar n'est plus là dès qu'on croit l'avoir."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1665,7 +1665,7 @@ species:
   assets:
     sprite: specie38.png
     shadow: specie38_s.png
-  description: Des nageoires comme des oreilles, trop profond.
+  description: "Ses nageoires en oreilles battent au-dessus des abysses, trop profond pour qu'on s'attende à quelque chose d'aussi doux."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1709,7 +1709,7 @@ species:
   assets:
     sprite: specie39.png
     shadow: specie39_s.png
-  description: Large, à reculons, pinces en avant.
+  description: "Large, à reculons, pinces en avant : le crabe ne fuit jamais tout à fait dans le sens qu'on croit."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1753,7 +1753,7 @@ species:
   assets:
     sprite: specie40.png
     shadow: specie40_s.png
-  description: Grosses pinces, cachette de roche.
+  description: "Le homard se loge dans les anfractuosités de roche et n'en sort les grosses pinces que lorsqu'il n'a plus le choix."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1799,7 +1799,7 @@ species:
   assets:
     sprite: specie41.png
     shadow: specie41_s.png
-  description: Transparent, deux ailes, presque rien.
+  description: "Presque transparent, l'ange de mer nage en battant deux ailes minuscules, comme s'il n'était fait que d'eau."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1843,7 +1843,7 @@ species:
   assets:
     sprite: specie42.png
     shadow: specie42_s.png
-  description: Elle reprend l'air. Les traversées, très loin.
+  description: "Elle remonte reprendre l'air, puis reprend des traversées trop longues pour tenir dans une journée."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1887,7 +1887,7 @@ species:
   assets:
     sprite: specie43.png
     shadow: specie43_s.png
-  description: Huit bras, trop intelligent pour le seau.
+  description: "Huit bras et une mémoire trop vive : le poulpe trouve toujours une faille, y compris celle du seau."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1931,7 +1931,7 @@ species:
   assets:
     sprite: specie44.png
     shadow: specie44_s.png
-  description: Concombre rose qui nage au-dessus du fond.
+  description: "Ce concombre de mer rose nage au-dessus du fond, le corps translucide, comme un rêve un peu trop réel."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1975,7 +1975,7 @@ species:
   assets:
     sprite: specie45.png
     shadow: specie45_s.png
-  description: Tout en pattes, presque pas de corps.
+  description: "L'araignée de mer n'est presque que des pattes : le corps tient dans un dé, le reste rampe sur la pierre."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2019,7 +2019,7 @@ species:
   assets:
     sprite: specie46.png
     shadow: specie46_s.png
-  description: Ombrelle, filaments, mieux vaut ne pas serrer.
+  description: "Sous l'ombrelle pendent des filaments qu'il vaut mieux ne pas serrer, même quand elle a l'air d'une cloche inoffensive."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2067,7 +2067,7 @@ species:
   assets:
     sprite: specie47.png
     shadow: specie47_s.png
-  description: Il avale le fond et le rend plus loin.
+  description: "Il avale le sédiment, en retire ce qu'il peut, et rend plus loin un fond un peu plus propre."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2111,7 +2111,7 @@ species:
   assets:
     sprite: specie48.png
     shadow: specie48_s.png
-  description: Deux panaches en spirale, plantés dans le tube.
+  description: "Deux panaches en spirale dépassent du corail : le ver lui-même reste caché dans son tube, prêt à rentrer d'un coup."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2155,7 +2155,7 @@ species:
   assets:
     sprite: specie49.png
     shadow: specie49_s.png
-  description: On dirait une plume fichée dans la vase.
+  description: "Plantée dans la vase, elle ressemble à une plume qu'on aurait fichée là pour marquer le fond."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2199,7 +2199,7 @@ species:
   assets:
     sprite: specie50.png
     shadow: specie50_s.png
-  description: Piquants. Il broute la pierre.
+  description: "Couvert de piquants, l'oursin broute la pierre et les algues, lentement, comme s'il avait tout son temps."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2243,7 +2243,7 @@ species:
   assets:
     sprite: specie51.png
     shadow: specie51_s.png
-  description: Le même, plus rare, bleu.
+  description: "Un homard comme les autres, sauf cette robe bleu profond que presque personne ne ramène deux fois."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2291,7 +2291,7 @@ species:
   assets:
     sprite: specie52.png
     shadow: specie52_s.png
-  description: Coquille, pied, lent. La mer en est pleine.
+  description: "Coquille sur le dos, pied collé à la roche, l'escargot de mer avance si lentement que la mer en est pleine."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2335,7 +2335,7 @@ species:
   assets:
     sprite: specie53.png
     shadow: specie53_s.png
-  description: Petit, costaud, l'eau pauvre ne l'arrête pas.
+  description: "Petit et costaud, le carassin s'accommode d'une eau pauvre où d'autres poissons auraient déjà renoncé."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2379,7 +2379,7 @@ species:
   assets:
     sprite: specie54.png
     shadow: specie54_s.png
-  description: Tache sombre sur l'opercule. Eaux calmes.
+  description: "Une tache sombre barre son opercule : le crapet arlequin aime les eaux calmes, et s'y tient souvent en bande."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2423,7 +2423,7 @@ species:
   assets:
     sprite: specie55.png
     shadow: specie55_s.png
-  description: Trop à l'aise partout. Les étangs le connaissent.
+  description: "Trop à l'aise partout, le tilapia s'installe dès que l'eau se réchauffe, étangs compris."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2467,7 +2467,7 @@ species:
   assets:
     sprite: specie56.png
     shadow: specie56_s.png
-  description: Argenté, en bande, parfois entre mer et rivière.
+  description: "Argenté et léger, l'éperlan voyage en bande et passe parfois de la mer à la rivière sans en faire un drame."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2511,7 +2511,7 @@ species:
   assets:
     sprite: specie57.png
     shadow: specie57_s.png
-  description: Eau froide, claire. Insectes, puis plus gros.
+  description: "Elle aime l'eau froide et claire, commence par les insectes, puis s'attaque à plus gros dès qu'elle en a la taille."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2558,7 +2558,7 @@ species:
   assets:
     sprite: specie58.png
     shadow: specie58_s.png
-  description: Il prend l'air. Les couleurs, surtout les mâles.
+  description: "Le combattant vient reprendre l'air à la surface ; chez les mâles, les couleurs dépassent presque le raisonnable."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2602,7 +2602,7 @@ species:
   assets:
     sprite: specie59.png
     shadow: specie59_s.png
-  description: Bande rosée le long du flanc.
+  description: "Une bande rosée lui court le long du flanc, comme si on lui avait passé un trait de lumière."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2646,7 +2646,7 @@ species:
   assets:
     sprite: specie60.png
     shadow: specie60_s.png
-  description: Jaune-vert, barres sombres, souvent en bande.
+  description: "Jaune-vert zébré de barres sombres, la perche jaune chasse souvent en bande dans les herbes."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2690,7 +2690,7 @@ species:
   assets:
     sprite: specie61.png
     shadow: specie61_s.png
-  description: Eaux froides, lacs du nord. Proche de la truite, plus secret.
+  description: "L'omble reste dans les lacs froids du nord, proche de la truite, un peu plus secret, un peu plus rare."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2734,7 +2734,7 @@ species:
   assets:
     sprite: specie62.png
     shadow: specie62_s.png
-  description: Minuscule, trop de couleurs, trop de petits.
+  description: "Minuscule, trop coloré, et les petits s'enchaînent : le guppy n'a jamais vraiment fini de peupler une mare."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2778,7 +2778,7 @@ species:
   assets:
     sprite: specie63.png
     shadow: specie63_s.png
-  description: Le plus grand saumon du Pacifique.
+  description: "C'est le plus grand des saumons du Pacifique : quand il remonte, la rivière a l'air trop étroite."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2823,7 +2823,7 @@ species:
   assets:
     sprite: specie64.png
     shadow: specie64_s.png
-  description: Bande bleu électrique, ventre rouge.
+  description: "Une bande bleu électrique lui traverse le flanc, le ventre rouge : à plusieurs, ils allument l'eau."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2867,7 +2867,7 @@ species:
   assets:
     sprite: specie65.png
     shadow: specie65_s.png
-  description: Gueule nette. Selon l'espèce, ça change tout.
+  description: "La gueule est nette, les dents aussi. Selon l'espèce, on a affaire à un chasseur ou à un malentendu."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2910,7 +2910,7 @@ species:
   assets:
     sprite: specie66.png
     shadow: specie66_s.png
-  description: Elle pond dans une moule. La moule n'a pas demandé.
+  description: "La bouvière pond dans une moule d'eau douce, qui n'a rien demandé et se retrouve nourrice malgré elle."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2954,7 +2954,7 @@ species:
   assets:
     sprite: specie67.png
     shadow: specie67_s.png
-  description: Grosse bouche, ombre, frappe.
+  description: "Grosse bouche, à l'ombre d'un bois noyé : le black-bass attend, puis frappe trop vite pour qu'on ait le temps de dire le mot."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2998,7 +2998,7 @@ species:
   assets:
     sprite: specie68.png
     shadow: specie68_s.png
-  description: Serpent d'eau. Un jour, l'océan.
+  description: "On la prend pour un serpent d'eau. Un jour, elle partira vers l'océan, et on ne la reverra plus."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3046,7 +3046,7 @@ species:
   assets:
     sprite: specie69.png
     shadow: specie69_s.png
-  description: Robuste, il mange ce qui passe.
+  description: "Le chevesne est robuste et peu difficile : il mange ce qui passe, insecte, pain ou autre poisson."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3090,7 +3090,7 @@ species:
   assets:
     sprite: specie70.png
     shadow: specie70_s.png
-  description: Bandes verticales. Tout le monde la connaît.
+  description: "Ses bandes verticales se lisent de loin : tout le monde connaît la perche, même ceux qui ne pêchent pas."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3134,7 +3134,7 @@ species:
   assets:
     sprite: specie71.png
     shadow: specie71_s.png
-  description: Crapet des structures, eaux calmes.
+  description: "La marigane se tient près des branches noyées, dans les eaux calmes, et se laisse souvent trop facilement prendre."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3178,7 +3178,7 @@ species:
   assets:
     sprite: specie72.png
     shadow: specie72_s.png
-  description: Barbillons en avant. Il goûte la vase.
+  description: "Les barbillons en avant, le poisson-chat goûte la vase avant de mordre, comme s'il lisait le fond avec la bouche."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3227,7 +3227,7 @@ species:
   assets:
     sprite: specie73.png
     shadow: specie73_s.png
-  description: Œil qui brille dans l'eau sombre.
+  description: "L'œil du doré jaune brille dans l'eau sombre : il chasse surtout quand la lumière baisse."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3273,7 +3273,7 @@ species:
   assets:
     sprite: specie74.png
     shadow: specie74_s.png
-  description: Petit argent des courants vifs.
+  description: "Petite et argentée, la vandoise aime les courants vifs et reste collée à la veine d'eau."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3317,7 +3317,7 @@ species:
   assets:
     sprite: specie75.png
     shadow: specie75_s.png
-  description: Collé au fond, moustaches dans la vase.
+  description: "Collée au fond, moustaches dans la vase, la loche fouille plus qu'elle ne nage."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3361,7 +3361,7 @@ species:
   assets:
     sprite: specie76.png
     shadow: specie76_s.png
-  description: La bouche dépasse l'œil. Assez dit.
+  description: "Sa bouche dépasse l'œil, assez large pour avaler ce qui passe à sa portée, y compris un leurre trop confiant."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3405,7 +3405,7 @@ species:
   assets:
     sprite: specie77.png
     shadow: specie77_s.png
-  description: Pattes en rames. Il chasse sous la surface.
+  description: "Le dytique rame sous la surface avec des pattes aplaties, chasseur autant que nageur."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3449,7 +3449,7 @@ species:
   assets:
     sprite: specie78.png
     shadow: specie78_s.png
-  description: Petit homard d'eau douce, sous la pierre.
+  description: "Petit homard d'eau douce, l'écrevisse se tient sous la pierre et n'en sort que pinces levées."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3494,7 +3494,7 @@ species:
   assets:
     sprite: specie79.png
     shadow: specie79_s.png
-  description: Il nage quand il veut. Poisson, grenouille, suite.
+  description: "Il nage quand il veut, tête hors de l'eau, et le repas suivant est souvent un poisson ou une grenouille."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3538,7 +3538,7 @@ species:
   assets:
     sprite: specie80.png
     shadow: specie80_s.png
-  description: Il broute les algues des rives.
+  description: "Lentement, l'escargot d'eau douce broute les algues des rives, coquille un peu trop lourde pour son pas."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3582,7 +3582,7 @@ species:
   assets:
     sprite: specie81.png
     shadow: specie81_s.png
-  description: Trop vu en bassin. Ici, il a encore des écailles.
+  description: "Trop vu en bassin, le poisson rouge a encore, ici, des écailles et une vraie nageoire de poisson libre."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3626,7 +3626,7 @@ species:
   assets:
     sprite: specie82.png
     shadow: specie82_s.png
-  description: Grande robe, motifs, l'étang se la montre.
+  description: "Grande robe, motifs de feu et de neige : la carpe koï se montre, et l'étang tout entier a l'air d'un jardin."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3671,7 +3671,7 @@ species:
   assets:
     sprite: specie83.png
     shadow: specie83_s.png
-  description: Elle mange les herbes. Après, plus d'herbes.
+  description: "Elle broute les herbes jusqu'à plus soif. Après son passage, l'étang a souvent l'air un peu trop nu."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3715,7 +3715,7 @@ species:
   assets:
     sprite: specie84.png
     shadow: specie84_s.png
-  description: Petit, costaud, souvent jeté comme appât.
+  description: "Petit, costaud, le vairon à grosse tête a trop souvent servi d'appât pour qu'on le regarde pour lui-même."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3759,7 +3759,7 @@ species:
   assets:
     sprite: specie85.png
     shadow: specie85_s.png
-  description: Crapet des petites eaux chaudes.
+  description: "Ce crapet des petites eaux chaudes défend son coin comme un poisson bien plus grand que lui."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3803,7 +3803,7 @@ species:
   assets:
     sprite: specie86.png
     shadow: specie86_s.png
-  description: Ventouse au ventre. Il racle les parois.
+  description: "Une ventouse sous le ventre, le pléco racle les parois et les bois noyés jusqu'à ce qu'ils brillent."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3847,7 +3847,7 @@ species:
   assets:
     sprite: specie87.png
     shadow: specie87_s.png
-  description: Les mâles se peignent rouge et bleu au printemps.
+  description: "Au printemps, les mâles se peignent de rouge et de bleu, trop voyants pour des poissons si petits."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3891,7 +3891,7 @@ species:
   assets:
     sprite: specie88.png
     shadow: specie88_s.png
-  description: Tache d'opercule bordée de rouge.
+  description: "Le crapet-soleil porte sur l'opercule une tache bordée de rouge, comme une graine oubliée sur le flanc."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3935,7 +3935,7 @@ species:
   assets:
     sprite: specie89.png
     shadow: specie89_s.png
-  description: Minuscule, fond. Parfois une ventouse sous le ventre.
+  description: "Minuscule, collé au fond, le gobie a parfois sous le ventre une ventouse qui le retient au courant."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3979,7 +3979,7 @@ species:
   assets:
     sprite: specie90.png
     shadow: specie90_s.png
-  description: Poisson rouge calico, queue un peu trop longue.
+  description: "C'est un poisson rouge calico, la queue un peu trop longue, comme s'il n'avait jamais fini de se déployer."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4023,7 +4023,7 @@ species:
   assets:
     sprite: specie91.png
     shadow: specie91_s.png
-  description: Sélectionné pour la forme. L'étang n'a pas voté.
+  description: "On l'a sélectionné pour la forme, pas pour nager. L'étang n'a pas voté, mais il s'y débrouille encore."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4067,7 +4067,7 @@ species:
   assets:
     sprite: specie92.png
     shadow: specie92_s.png
-  description: Grand, rayé, nageoires hautes. Pas un requin.
+  description: "Grand, rayé, nageoires hautes : on l'appelle requin, et ce n'en est pas un. Juste un beau poisson d'eau douce."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4110,7 +4110,7 @@ species:
   assets:
     sprite: specie93.png
     shadow: specie93_s.png
-  description: Il prend l'air. Un des plus anciens dans les bassins.
+  description: "Il vient reprendre l'air à la surface. C'est l'un des plus anciens poissons de bassin, et il s'en souvient."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4155,7 +4155,7 @@ species:
   assets:
     sprite: specie94.png
     shadow: specie94_s.png
-  description: Filtre l'eau, en bande, ventre un peu trop rond.
+  description: "L'alose à gésier filtre l'eau en bande, le ventre un peu trop rond, toujours en mouvement."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4199,7 +4199,7 @@ species:
   assets:
     sprite: specie95.png
     shadow: specie95_s.png
-  description: Petite robe tachetée. Trop jolie pour l'eau trouble.
+  description: "Petite loche tachetée de rose, elle file en groupe dans les herbes, trop jolie pour l'eau trouble."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4243,7 +4243,7 @@ species:
   assets:
     sprite: specie96.png
     shadow: specie96_s.png
-  description: Tanche, mais dorée. L'eau calme lui va.
+  description: "C'est une tanche, mais dorée : elle aime la vase, l'eau calme, et ne se presse jamais."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4288,7 +4288,7 @@ species:
   assets:
     sprite: specie97.png
     shadow: specie97_s.png
-  description: Vivipare, mille robes, d'abord les Amériques.
+  description: "Vivipare, aux robes innombrables, le molly vient d'abord des eaux douces et saumâtres des Amériques."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4332,7 +4332,7 @@ species:
   assets:
     sprite: specie98.png
     shadow: specie98_s.png
-  description: Adulte au bord. Les œufs, dans l'eau.
+  description: "L'adulte reste au bord, à l'affût. Les œufs, eux, sont déjà dans l'eau, en chapelets visqueux."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4379,7 +4379,7 @@ species:
   assets:
     sprite: specie99.png
     shadow: specie99_s.png
-  description: Pas encore grenouille. Queue, puis plus.
+  description: "Pas encore grenouille : une queue, une tête ronde, et déjà l'habitude de fuir dès que l'eau tremble."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4423,7 +4423,7 @@ species:
   assets:
     sprite: specie100.png
     shadow: specie100_s.png
-  description: Il garde ses branchies. Il n'a pas fini de grandir.
+  description: "Il garde ses branchies toute sa vie, comme s'il avait décidé de ne jamais tout à fait grandir."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4467,7 +4467,7 @@ species:
   assets:
     sprite: specie101.png
     shadow: specie101_s.png
-  description: Grande spirale rose, trop belle pour rester au fond.
+  description: "Grande spirale rose, trop belle pour rester au fond : on la reconnaît avant même de la soulever."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4513,7 +4513,7 @@ species:
   assets:
     sprite: specie102.png
     shadow: specie102_s.png
-  description: Bulot rayé, lourd dans la main.
+  description: "Le bulot rayé pèse dans la main, strié comme s'il avait gardé toutes les marées sur la coquille."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4559,7 +4559,7 @@ species:
   assets:
     sprite: specie103.png
     shadow: specie103_s.png
-  description: Turban vert, comme une pierre polie.
+  description: "Le turban vert a l'air d'une pierre polie, jusqu'à ce qu'on la retourne et qu'on voie la spirale."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4605,7 +4605,7 @@ species:
   assets:
     sprite: specie104.png
     shadow: specie104_s.png
-  description: Pétoncle doré. Il claque encore un peu.
+  description: "Le pétoncle doré claque encore un peu entre les doigts, comme s'il n'avait pas fini de nager."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4651,7 +4651,7 @@ species:
   assets:
     sprite: specie105.png
     shadow: specie105_s.png
-  description: Turban tacheté, ramassé trop facilement.
+  description: "Tacheté, un peu trop facile à ramasser : on le voit de loin sur le galet, et on le prend quand même."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4697,7 +4697,7 @@ species:
   assets:
     sprite: specie106.png
     shadow: specie106_s.png
-  description: Pétoncle clair, comme une pièce de soleil.
+  description: "Clair comme une pièce de soleil, ce pétoncle tient dans la paume et chauffe un peu trop vite."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4743,7 +4743,7 @@ species:
   assets:
     sprite: specie107.png
     shadow: specie107_s.png
-  description: Palourde ambrée, fermée, sage.
+  description: "La palourde ambrée reste fermée, sage, et ne dit rien de ce qu'elle garde entre les deux valves."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4789,7 +4789,7 @@ species:
   assets:
     sprite: specie108.png
     shadow: specie108_s.png
-  description: Telline du sable. Un rien la recouvre.
+  description: "La telline se cache d'un rien de sable. Un pas de trop, et elle n'est plus là."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4835,7 +4835,7 @@ species:
   assets:
     sprite: specie109.png
     shadow: specie109_s.png
-  description: Patelle collée à la roche. Il faut la décoller.
+  description: "La patelle se colle à la roche si fort qu'il faut vraiment le vouloir pour la décoller."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4881,7 +4881,7 @@ species:
   assets:
     sprite: specie110.png
     shadow: specie110_s.png
-  description: Turban orange, trop voyant sur le galet.
+  description: "Le turban orange est trop voyant sur le galet : on ne le cherche pas, on le trouve."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4927,7 +4927,7 @@ species:
   assets:
     sprite: specie111.png
     shadow: specie111_s.png
-  description: Huître. Parfois, autre chose à l'intérieur.
+  description: "C'est une huître. Parfois, entre les deux valves, il y a autre chose que de l'eau de mer."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4976,7 +4976,7 @@ species:
   assets:
     sprite: specie112.png
     shadow: specie112_s.png
-  description: Moule sombre, en grappe, au bas de l'eau.
+  description: "La moule sombre s'accroche en grappe au bas de l'eau, noire, serrée, déjà trop nombreuse pour les compter."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -5021,7 +5021,7 @@ species:
   assets:
     sprite: specie113.png
     shadow: specie113_s.png
-  description: Coquille soleil, fine, déjà chaude dans la paume.
+  description: "Fine, déjà chaude dans la paume, la coquille soleil a l'air d'avoir séché avant même la marée."
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -5067,7 +5067,7 @@ species:
   assets:
     sprite: specie114.png
     shadow: specie114_s.png
-  description: Bulot brun, banal, et pourtant on le garde.
+  description: "Un bulot brun, banal, du genre qu'on garde quand même parce qu'il tient bien dans la poche."
   biology:
     min_length_cm: null
     max_length_cm: null

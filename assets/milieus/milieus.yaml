@@ -6,12 +6,12 @@ milieus:
 - id: 1
   key: ocean
   name: Océan
-  description: Eaux salées, côtes et large.
+  description: "Eaux salées, de la côte jusqu'au large, où le temps change plus vite que le fond."
 - id: 2
   key: river
   name: Rivière
-  description: Cours d'eau et berges.
+  description: "Le courant, les berges, et tout ce qui remonte ou descend avec l'eau."
 - id: 3
   key: pond
   name: Étang
-  description: Eaux calmes et fermées.
+  description: "Une eau calme, presque fermée, où l'on pêche sans jamais tout à fait voir le fond."

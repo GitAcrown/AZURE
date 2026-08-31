@@ -25,7 +25,7 @@ items:
   sprite: item1.png
   shadow: item1_s.png
   shadow_ready: true
-  description: Une canne en bois légère et fiable, pensée pour la pêche depuis les berges, quais et côtes calmes.
+  description: "Une canne en bois, légère et fiable, pour pêcher depuis une berge, un quai ou une côte sans se battre avec la mer."
   enabled: true
   sources:
   - starter
@@ -51,7 +51,7 @@ items:
   sprite: item2.png
   shadow: item2_s.png
   shadow_ready: true
-  description: Une canne plus robuste conçue pour les eaux ouvertes et les prises plus puissantes.
+  description: "Plus nerveuse que la canne côtière, elle tient mieux quand l'eau s'ouvre et que la prise tire vraiment."
   enabled: true
   sources:
   - starter
@@ -77,7 +77,7 @@ items:
   sprite: item3.png
   shadow: item3_s.png
   shadow_ready: true
-  description: Un morceau de pain simple et bon marché. De quoi reprendre un peu d'énergie entre deux sorties.
+  description: "Un morceau de pain simple, un peu sec. De quoi tenir entre deux sorties, sans se poser plus de questions."
   enabled: true
   sources:
   - shop
@@ -100,7 +100,7 @@ items:
   sprite: item4.png
   shadow: item4_s.png
   shadow_ready: true
-  description: Une conserve pratique, parfois repêchée intacte. Elle rend une quantité correcte d'énergie.
+  description: "Une conserve encore close, parfois ramenée par l'eau. Ça n'a pas de goût de fête, mais ça remet d'aplomb."
   enabled: true
   sources:
   - shop
@@ -124,7 +124,7 @@ items:
   sprite: item5.png
   shadow: item5_s.png
   shadow_ready: true
-  description: Un café bien serré qui augmente temporairement le maximum d'énergie.
+  description: "Un café bien serré, trop chaud pour être savouré. Pendant un moment, on se sent capable d'en faire plus."
   enabled: true
   sources:
   - shop
@@ -148,7 +148,7 @@ items:
   sprite: item6.png
   shadow: item6_s.png
   shadow_ready: false
-  description: Une pierre rouge lumineuse. Badge rare — les belles prises te trouvent plus facilement.
+  description: "Une pierre rouge, presque trop vive. On dit que les belles prises s'approchent de qui la porte."
   enabled: true
   sources:
   - exceptional_loot
@@ -172,7 +172,7 @@ items:
   sprite: item7.png
   shadow: item7_s.png
   shadow_ready: false
-  description: Une gemme chaude et translucide. Un badge. L'eau te doit un peu plus.
+  description: "Chaude et translucide, elle garde un peu de soleil même sous l'eau. La chance, paraît-il, aime cette couleur."
   enabled: true
   sources:
   - exceptional_loot
@@ -196,7 +196,7 @@ items:
   sprite: item8.png
   shadow: item8_s.png
   shadow_ready: false
-  description: Une pierre verte aux reflets profonds. Badge. Les poissons rares s'approchent.
+  description: "Une pierre aux reflets de fond d'étang. Les poissons rares, dit-on, la remarquent avant toi."
   enabled: true
   sources:
   - exceptional_loot
@@ -220,7 +220,7 @@ items:
   sprite: item9.png
   shadow: item9_s.png
   shadow_ready: false
-  description: Une gemme claire aux tons de lagune. Un badge exceptionnel.
+  description: "Claire comme une lagune par grand beau. On la croirait vide, jusqu'à ce qu'elle prenne la lumière."
   enabled: true
   sources:
   - exceptional_loot
@@ -244,7 +244,7 @@ items:
   sprite: item10.png
   shadow: item10_s.png
   shadow_ready: false
-  description: Une pierre sombre comme le large. Badge. L'eau te reconnaît.
+  description: "Sombre comme le large après le couchant. L'eau, autour, a l'air de la reconnaître."
   enabled: true
   sources:
   - exceptional_loot
@@ -268,7 +268,7 @@ items:
   sprite: item11.png
   shadow: item11_s.png
   shadow_ready: false
-  description: Un cristal trop pur. Le plus rare des badges.
+  description: "Un cristal trop pur, trop dur pour ce qu'on ramène d'habitude. Le plus rare, et le plus silencieux."
   enabled: true
   sources:
   - exceptional_loot
@@ -292,7 +292,7 @@ items:
   sprite: item12.png
   shadow: item12_s.png
   shadow_ready: false
-  description: Une pierre aux couleurs changeantes. Badge. Rien n'est figé.
+  description: "Ses couleurs glissent dès qu'on la tourne. Rien n'y reste figé, pas même le reflet."
   enabled: true
   sources:
   - exceptional_loot
@@ -316,7 +316,7 @@ items:
   sprite: item13.png
   shadow: item13_s.png
   shadow_ready: true
-  description: Un parapluie solide qui annule la fatigue supplémentaire par mauvais temps.
+  description: "Un parapluie solide, un peu trop sérieux. Sous la pluie ou le vent, on se fatigue moins à lancer."
   enabled: true
   sources:
   - shop
@@ -347,7 +347,7 @@ items:
   sprite: item14.png
   shadow: item14_s.png
   shadow_ready: true
-  description: Des débris de verre rejetés par l'eau. Les retirer du milieu contribue à son nettoyage.
+  description: "Des éclats de verre que la mer n'a pas demandés. Les sortir de l'eau, c'est déjà lui rendre un peu d'air."
   enabled: true
   sources:
   - fishing_loot
@@ -369,7 +369,7 @@ items:
   sprite: item15.png
   shadow: item15_s.png
   shadow_ready: true
-  description: Une lanterne utile pour pêcher de nuit sans subir le malus normal de réussite.
+  description: "Une lanterne qui tient à la main. La nuit, elle empêche l'eau de tout reprendre d'un coup."
   enabled: true
   sources:
   - shop
@@ -400,7 +400,7 @@ items:
   sprite: item16.png
   shadow: item16_s.png
   shadow_ready: true
-  description: Un fût trop lourd pour l'eau. Le sortir de là, c'est déjà beaucoup.
+  description: "Un fût bien trop lourd pour flotter. Le sortir de là ne répare rien, mais ça évite le pire."
   enabled: true
   sources:
   - very_rare_fishing_loot
@@ -425,7 +425,7 @@ items:
   sprite: item17.png
   shadow: item17_s.png
   shadow_ready: true
-  description: Un baril qui ne devrait pas flotter. L'eau s'en souvient.
+  description: "Un baril qui n'aurait jamais dû toucher l'eau. Elle s'en souvient, longtemps après qu'on l'a retiré."
   enabled: true
   sources:
   - very_rare_fishing_loot
@@ -450,7 +450,7 @@ items:
   sprite: item18.png
   shadow: item18_s.png
   shadow_ready: true
-  description: Elle trouve le chemin plus vite que tes pieds.
+  description: "L'aiguille trouve le chemin plus vite que les pieds. La marche, soudain, a l'air moins longue."
   enabled: true
   sources:
   - shop
@@ -481,7 +481,7 @@ items:
   sprite: item19.png
   shadow: item19_s.png
   shadow_ready: true
-  description: Elle montre le temps, plus loin, avant de marcher.
+  description: "Elle montre le temps là-bas, avant qu'on ait commencé à marcher. Utile, quand on hésite encore."
   enabled: true
   sources:
   - shop
@@ -512,7 +512,7 @@ items:
   sprite: item20.png
   shadow: item20_s.png
   shadow_ready: true
-  description: Un filet destiné aux petites créatures, coquillages et autres prises non capturées à la canne.
+  description: "Un filet pour ce que la canne ne prend pas : petites créatures, coquillages, tout ce qui se glisse entre les mailles."
   enabled: true
   sources:
   - starter
@@ -538,7 +538,7 @@ items:
   sprite: item21.png
   shadow: item21_s.png
   shadow_ready: true
-  description: Un panier tressé permettant de ramener davantage de créatures et coquillages.
+  description: "Un panier tressé, déjà un peu salé. Il laisse ramener plus de créatures et de coquillages qu'à mains nues."
   enabled: true
   sources:
   - shop
@@ -569,7 +569,7 @@ items:
   sprite: item22.png
   shadow: item22_s.png
   shadow_ready: true
-  description: Un appât trop beau. La prochaine prise veut battre un souvenir.
+  description: "Un appât trop beau pour être honnête. La prochaine prise, souvent, veut dépasser un souvenir."
   enabled: true
   sources:
   - rare_npc
@@ -601,7 +601,7 @@ items:
   sprite: item23.png
   shadow: item23_s.png
   shadow_ready: true
-  description: Un petit instrument dont les mélodies semblent attirer des espèces hors saison.
+  description: "Un petit instrument de terre. Ses airs, dit-on, font venir des espèces qui n'étaient pas de saison."
   enabled: true
   sources:
   - rare_npc
@@ -634,7 +634,7 @@ items:
   sprite: item24.png
   shadow: item24_s.png
   shadow_ready: true
-  description: Un morceau de circuit rongé par le sel. Ça n'a rien à faire dans l'eau.
+  description: "Un morceau de circuit rongé par le sel. Ça n'a rien à faire dans l'eau, et ça se voit."
   enabled: true
   sources:
   - rare_fishing_loot
@@ -659,7 +659,7 @@ items:
   sprite: item25.png
   shadow: item25_s.png
   shadow_ready: true
-  description: Des planches charriées par les courants. Déchet courant.
+  description: "Des planches charriées par les courants, encore clouées à une histoire qu'on ne racontera pas."
   enabled: true
   sources:
   - fishing_loot
@@ -681,7 +681,7 @@ items:
   sprite: item26.png
   shadow: item26_s.png
   shadow_ready: true
-  description: Des branches flottées qui finissent régulièrement dans les lignes et les filets.
+  description: "Des branches flottées, déjà trop loin de l'arbre. Elles s'accrochent aux lignes comme si elles n'avaient plus que ça."
   enabled: true
   sources:
   - fishing_loot
@@ -703,7 +703,7 @@ items:
   sprite: item27.png
   shadow: item27_s.png
   shadow_ready: true
-  description: Une citrouille trouée. Pas encore la saison, ou déjà trop tard.
+  description: "Une citrouille trouée, un peu trop tôt ou un peu trop tard pour la saison. Elle rit encore, mollement."
   enabled: false
   sources:
   - halloween_event
@@ -724,7 +724,7 @@ items:
   sprite: item28.png
   shadow: item28_s.png
   shadow_ready: true
-  description: Un hameçon imposant qui favorise légèrement les grosses prises.
+  description: "Un hameçon imposant, un peu brutal. Les grosses prises le remarquent plus vite que les petites."
   enabled: true
   sources:
   - shop
@@ -761,7 +761,7 @@ items:
   sprite: item29.png
   shadow: item29_s.png
   shadow_ready: true
-  description: Un hameçon discret plus à l'aise sur les petites prises.
+  description: "Fin, discret, il convient mieux aux petites bouches qu'aux gueules qui tirent vraiment."
   enabled: true
   sources:
   - shop
@@ -797,7 +797,7 @@ items:
   sprite: item30.png
   shadow: item30_s.png
   shadow_ready: true
-  description: Un montage à plusieurs pointes, utile sur les espèces agressives mais un peu plus exigeant au ferrage.
+  description: "Plusieurs pointes sur le même fer : utile contre les espèces agressives, un peu moins tendre au ferrage."
   enabled: true
   sources:
   - shop
@@ -833,7 +833,7 @@ items:
   sprite: item31.png
   shadow: item31_s.png
   shadow_ready: true
-  description: Un hameçon orné d'une perle attirant légèrement les espèces curieuses ou sensibles à l'éclat.
+  description: "Une perle orne le fer. Les espèces curieuses, ou sensibles à l'éclat, s'en approchent plus volontiers."
   enabled: true
   sources:
   - shop
@@ -867,7 +867,7 @@ items:
   sprite: item32.png
   shadow: item32_s.png
   shadow_ready: true
-  description: Un hameçon bien conçu et équilibré, offrant un léger confort de mini-jeu sans forte spécialisation.
+  description: "Bien équilibré, sans caprice. Il n'avantage personne beaucoup, mais il ne trahit pas non plus."
   enabled: true
   sources:
   - shop
@@ -902,7 +902,7 @@ items:
   sprite: item33.png
   shadow: item33_s.png
   shadow_ready: true
-  description: Une bouée. On la jette, on remonte.
+  description: "Une bouée orange, encore un peu trop propre. On la jette, on remonte, et parfois c'est tout ce qu'il fallait."
   enabled: false
   sources:
   - starter
@@ -925,7 +925,7 @@ items:
   sprite: item34.png
   shadow: item34_s.png
   shadow_ready: true
-  description: Des palmes. Plus loin, plus vite, sous la surface.
+  description: "Des palmes qui allongent chaque impulsion. Sous la surface, on va plus loin avant d'avoir besoin de l'air."
   enabled: false
   sources:
   - starter
@@ -948,7 +948,7 @@ items:
   sprite: item35.png
   shadow: item35_s.png
   shadow_ready: true
-  description: Un masque. Voir ce qui se passe en dessous.
+  description: "Le verre coupe l'eau du regard. En dessous, tout ce qui se passait sans toi devient net."
   enabled: false
   sources:
   - starter
@@ -971,7 +971,7 @@ items:
   sprite: item36.png
   shadow: item36_s.png
   shadow_ready: true
-  description: De l'air emporté avec soi.
+  description: "De l'air emporté sur le dos, pour rester un peu plus longtemps là où on ne respire pas."
   enabled: false
   sources:
   - starter
@@ -994,7 +994,7 @@ items:
   sprite: item37.png
   shadow: item37_s.png
   shadow_ready: true
-  description: Un os encore pris dans la roche. Oz le regarderait longtemps.
+  description: "Un os encore pris dans la roche, trop ancien pour dater. Oz le regarderait longtemps, sans un mot."
   enabled: true
   sources:
   - rare_fishing_loot
@@ -1020,7 +1020,7 @@ items:
   sprite: item38.png
   shadow: item38_s.png
   shadow_ready: true
-  description: Un seau. Plus de poissons, pas plus de coquillages.
+  description: "Un seau cabossé, déjà marqué par le sel. Il laisse ramener plus de poissons, pas plus de coquillages."
   enabled: true
   sources:
   - shop
@@ -1051,7 +1051,7 @@ items:
   sprite: item39.png
   shadow: item39_s.png
   shadow_ready: true
-  description: Un crâne. Oz s'approche quand il y en a assez.
+  description: "Un crâne, simplement. Oz s'approche quand il y en a assez, comme s'il les comptait sans les toucher."
   enabled: true
   sources:
   - rare_loot
@@ -1077,7 +1077,7 @@ items:
   sprite: item40.png
   shadow: item40_s.png
   shadow_ready: true
-  description: Un crâne doré. Il compte plus que les autres, aux yeux d'Oz.
+  description: "Doré, trop lourd pour un souvenir. Aux yeux d'Oz, il compte bien plus que les autres."
   enabled: true
   sources:
   - very_rare_loot
@@ -1104,7 +1104,7 @@ items:
   sprite: item41.png
   shadow: item41_s.png
   shadow_ready: true
-  description: Un appât carné attirant légèrement davantage les espèces prédatrices et charognardes.
+  description: "Un morceau de queue, encore un peu ferme. Les chasseurs et les charognards le sentent de loin."
   enabled: true
   sources:
   - shop
@@ -1135,7 +1135,7 @@ items:
   sprite: item42.png
   shadow: item42_s.png
   shadow_ready: true
-  description: Un appât naturel polyvalent intéressant pour les poissons fouillant près du fond.
+  description: "Un ver de terre, le plus honnête des appâts. Les poissons qui fouillent le fond le prennent sans se poser de questions."
   enabled: true
   sources:
   - shop
@@ -1165,7 +1165,7 @@ items:
   sprite: item43.png
   shadow: item43_s.png
   shadow_ready: true
-  description: Un appât tendre apprécié par diverses espèces opportunistes et insectivores.
+  description: "Une larve tendre, presque trop facile. Les petits et les insectivores n'y résistent pas longtemps."
   enabled: true
   sources:
   - shop
@@ -1196,7 +1196,7 @@ items:
   sprite: item44.png
   shadow: item44_s.png
   shadow_ready: true
-  description: Un appât plus particulier qui favorise légèrement certaines espèces opportunistes ou nocturnes.
+  description: "Une blatte, un appât qu'on n'avoue pas toujours. Les nocturnes et les peu difficiles s'en accommodent très bien."
   enabled: true
   sources:
   - shop
@@ -1226,7 +1226,7 @@ items:
   sprite: item45.png
   shadow: item45_s.png
   shadow_ready: true
-  description: Un petit appât de surface apprécié par de nombreuses espèces se nourrissant près de l'eau libre.
+  description: "Une mouche légère, à peine une bouchée. Près de la surface, beaucoup de poissons lèvent la tête pour elle."
   enabled: true
   sources:
   - shop
@@ -1256,7 +1256,7 @@ items:
   sprite: item46.png
   shadow: item46_s.png
   shadow_ready: true
-  description: Une réplique en plâtre. Cinq pièces font un set, un point d'archéologie.
+  description: "Une vertèbre moulée dans le plâtre, trop nette pour un vrai os. La première d'une série que Oz reconnaît au toucher."
   enabled: true
   sources:
   - skeleton_collector
@@ -1280,7 +1280,7 @@ items:
   sprite: item47.png
   shadow: item47_s.png
   shadow_ready: true
-  description: Une réplique en plâtre. Cinq pièces font un set, un point d'archéologie.
+  description: "Une côte de plâtre, froide et légère. Seule, elle n'est rien ; avec les autres, elle recommence un animal."
   enabled: true
   sources:
   - skeleton_collector
@@ -1304,7 +1304,7 @@ items:
   sprite: item48.png
   shadow: item48_s.png
   shadow_ready: true
-  description: Une réplique en plâtre. Cinq pièces font un set, un point d'archéologie.
+  description: "Un fragment de mâchoire en plâtre. On dirait qu'il manque encore les dents, et c'est tant mieux."
   enabled: true
   sources:
   - skeleton_collector
@@ -1328,7 +1328,7 @@ items:
   sprite: item49.png
   shadow: item49_s.png
   shadow_ready: true
-  description: Une réplique en plâtre. Cinq pièces font un set, un point d'archéologie.
+  description: "L'empreinte d'une nageoire, figée. On voit le geste, plus l'eau."
   enabled: true
   sources:
   - skeleton_collector
@@ -1352,7 +1352,7 @@ items:
   sprite: item50.png
   shadow: item50_s.png
   shadow_ready: true
-  description: Une réplique en plâtre. Cinq pièces font un set, un point d'archéologie.
+  description: "Un crâne de plâtre, plus soigné que les autres pièces. C'est souvent celle qu'on pose au centre."
   enabled: true
   sources:
   - skeleton_collector

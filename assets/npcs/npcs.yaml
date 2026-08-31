@@ -19,7 +19,7 @@ npcs:
   portraits:
     default: portrait1.png
     alt: null
-  description: T'emmène où tu veux, si tu payes.
+  description: "Il t'emmène où tu veux, pourvu que tu paies et que tu dises où, tout de suite."
   hook: "(Saute sur place.) Hé ! Moi je t'emmène où tu veux. L'océan, la rivière,
     l'étang. Tu payes, on y va. Attends, tu dis où !"
   hooks:
@@ -41,7 +41,7 @@ npcs:
   portraits:
     default: portrait2.png
     alt: null
-  description: Connaît des chemins. Chuuut.
+  description: "Elle connaît des chemins, à condition de parler bas et de ne pas trop poser de questions."
   hook: "(Cligne de l'œil.) Chuuut. Je connais des chemins. L'eau qui pique, ou
     l'eau toute plate ? Dis-moi, on file."
   hooks:
@@ -62,7 +62,7 @@ npcs:
   portraits:
     default: portrait3.png
     alt: null
-  description: Répare le matériel usé.
+  description: "Il répare le matériel usé, sans chaleur, et te dit le prix avant de te demander si tu restes."
   hook: "(Croise les bras.) Atelier. Canne, lanterne, hameçon usé : je répare.
     Tu montres, je dis le prix."
   hooks:
@@ -82,7 +82,7 @@ npcs:
   portraits:
     default: portrait4.png
     alt: null
-  description: Répare. Prix. Oui ou non.
+  description: "Il répare, il donne le prix, et c'est à toi de dire oui ou non."
   hook: "(Fronce les sourcils.) Cassé ? Pose. Je répare. Prix. Oui ou non."
   hooks:
     dawn: "(Fronce les sourcils.) Déjà. Cassé ? Pose. Prix. Oui ou non."
@@ -100,7 +100,7 @@ npcs:
   portraits:
     default: portrait5.png
     alt: null
-  description: Archives. Montrez un objet.
+  description: "Il tient les archives. Montrez-lui un objet, il vous dira exactement ce que c'est."
   hook: "(Incline légèrement la tête.) Permettez. Je tiens les archives. Montrez-moi
     ce que vous tenez, et je vous dirai ce que c'est — exactement."
   hooks:
@@ -139,7 +139,7 @@ npcs:
   portraits:
     default: portrait6.png
     alt: null
-  description: Pain, café, appâts.
+  description: "Pain, café, appâts : de quoi tenir, dit-il, et le reste se discute ensuite."
   hook: "(Hoche la tête lentement.) Entre. Pain, café, appâts. Ce qu'il faut pour
     tenir. Tu veux quelque chose, tu le dis."
   hooks:
@@ -163,7 +163,7 @@ npcs:
   portraits:
     default: portrait7.png
     alt: null
-  description: Achète prises, objets et déchets.
+  description: "Elle pèse tes prises, tes objets et tes déchets, et elle achète si ça vaut le coup."
   hook: "(Lève un sourcil.) Tes prises. Tes déchets. Je pèse, j'achète. Sors le
     sac, ou passe ton chemin."
   hooks:
@@ -197,7 +197,7 @@ npcs:
   portraits:
     default: portrait8.png
     alt: null
-  description: Hameçons, lanterne, parapluie.
+  description: "Hameçons, lanterne, parapluie : c'est son tas, et il n'aime pas qu'on le touche sans demander."
   hook: "(Renifle l'étal.) Gruik. Ici c'est mon tas. Hameçons, lanterne, parapluie.
     Tu veux, tu parles. Groin."
   hooks:
@@ -217,7 +217,7 @@ npcs:
   portraits:
     default: portrait9.png
     alt: null
-  description: T'y pose, pécaïre, contre quelques pièces.
+  description: "Elle t'y dépose où tu veux, contre quelques pièces, avec un air de déjà chanter la route."
   hook: "(Déploie une aile.) Allé, voyageur. Océan, rivière, étang — je t'y pose,
     pécaïre, contre quelques pièces. Tu chantes ta destination."
   hooks:
@@ -242,7 +242,7 @@ npcs:
     alt: portrait11.png
     good: portrait10.png
     bad: portrait11.png
-  description: L'eau se souvient. La note aussi.
+  description: "L'eau se souvient de ce qu'on y jette, et la note avec."
   hook: "(Incline un visage qui semble alien.) L'eau se souvient. Tes déchets,
     la note. Parle, ou tais-toi devant le seuil."
   hooks:
@@ -270,7 +270,7 @@ npcs:
     alt: portrait13.png
     good: portrait12.png
     bad: portrait13.png
-  description: Fossiles. Il ne parle pas.
+  description: "Il ne dit jamais un mot. Les fossiles, lui, il les connaît."
   hook: "(Fixe le joueur.) (Tends une paume d'os vers les fossiles.)"
   hooks:
     dawn: "(Fixe le joueur.) (Tends une paume d'os, plus lente.)"
