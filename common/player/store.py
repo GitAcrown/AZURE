@@ -735,25 +735,37 @@ class PlayerStore:
         bait_item = None
         bait_eq = snap.equipped.get(BAIT_SLOT)
         bait_key = bait_eq.item_key if bait_eq is not None else None
-        if bait_key:
-            bait_item = self._item(bait_key)
-            owned = next((s.quantity for s in snap.stacks if s.item_key == bait_key), 0)
-            if owned < 1:
-                await self._conn.execute(
-                    "DELETE FROM equipped WHERE guild_id = ? AND user_id = ? AND slot = ?",
-                    (guild_id, user_id, BAIT_SLOT),
-                )
-                bait_item = None
-                bait_key = None
-
         hook_item = None
         hook_eq = snap.equipped.get("hook")
         hook_key = None
         if hook_eq is not None:
             hook_key = hook_eq.gear.item_key if hook_eq.gear is not None else hook_eq.item_key
-        if not hook_key:
-            raise PlayerError("équipe un hameçon avec /profil")
-        hook_item = self._item(hook_key)
+        if method != "net":
+            if bait_key:
+                bait_item = self._item(bait_key)
+                owned = next((s.quantity for s in snap.stacks if s.item_key == bait_key), 0)
+                if owned < 1:
+                    await self._conn.execute(
+                        "DELETE FROM equipped WHERE guild_id = ? AND user_id = ? AND slot = ?",
+                        (guild_id, user_id, BAIT_SLOT),
+                    )
+                    bait_item = None
+                    bait_key = None
+            if not hook_key:
+                raise PlayerError("équipe un hameçon avec /profil")
+            hook_item = self._item(hook_key)
+        else:
+            bait_item = None
+            bait_key = None
+            hook_item = None
+            hook_key = None
+
+        objet_eq = snap.equipped.get("objet")
+        objet_key = None
+        if objet_eq is not None:
+            objet_key = (
+                objet_eq.gear.item_key if objet_eq.gear is not None else objet_eq.item_key
+            )
 
         raw_off = effects.get("offseason_species_chance_bonus")
         try:
@@ -826,6 +838,8 @@ class PlayerStore:
             tool_key=tool_key,
             hook_key=hook_key,
             bait_key=bait_key,
+            objet_key=objet_key,
+            snap=fresh,
         )
         self._active_casts[self._cast_key(guild_id, user_id)] = pending
         return pending
@@ -2525,6 +2539,17 @@ class PlayerStore:
 
     async def _wear_hooked_attempt(self, guild_id: int, user_id: int) -> bool:
         snap = await self.snapshot(guild_id, user_id)
+        tool_eq = snap.equipped.get("tool")
+        tool_key = None
+        if tool_eq is not None:
+            tool_key = tool_eq.gear.item_key if tool_eq.gear is not None else tool_eq.item_key
+        if tool_key:
+            try:
+                tool = self.catalog.get_item(tool_key)
+            except CatalogError:
+                tool = None
+            if tool is not None and tool.equipment and tool.equipment.capture_method == "net":
+                return False
         hook = snap.equipped.get("hook")
         if hook is None or hook.gear is None:
             return False

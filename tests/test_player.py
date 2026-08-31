@@ -462,6 +462,52 @@ def test_cast_requires_tool_and_energy(catalog, tmp_path: Path) -> None:
     _run(body())
 
 
+def test_net_cast_skips_hook_and_bait(catalog, tmp_path: Path) -> None:
+    async def body() -> None:
+        store = await open_store(tmp_path / "net.db", catalog)
+        try:
+            await store.get_or_create(GUILD_A, USER)
+            await store.set_milieu(GUILD_A, USER, "ocean")
+            snap = await store.snapshot(GUILD_A, USER)
+            net = next(g for g in snap.gear if g.item_key == "net")
+            await store.equip_gear(GUILD_A, USER, net.id)
+            await store.unequip(GUILD_A, USER, "hook")
+            await store.add_item(GUILD_A, USER, "umbrella", 1)
+            umb = next(
+                g
+                for g in (await store.snapshot(GUILD_A, USER)).gear
+                if g.item_key == "umbrella"
+            )
+            await store.equip_gear(GUILD_A, USER, umb.id)
+            pending = await store.begin_cast(GUILD_A, USER, rng=random.Random(1))
+            assert pending.method == "net"
+            assert pending.hook_key is None
+            assert pending.bait_key is None
+            assert pending.objet_key == "umbrella"
+            assert pending.snap is not None
+            from cogs.azure.views import BiteView, _equipped_lines
+
+            gear = "\n".join(_equipped_lines(catalog, pending.snap))
+            assert "Hameçon" not in gear
+            assert "Appât" not in gear
+            assert "Objet" in gear
+            assert "usages" in gear or "j" in gear
+            view = BiteView(catalog, pending)
+            texts = [
+                getattr(item, "content", "")
+                for item in view.walk_children()
+                if getattr(item, "content", None)
+            ]
+            blob = "\n".join(texts)
+            assert "Objet" in blob
+            assert "Hameçon" not in blob
+            assert "Appât" not in blob
+        finally:
+            await store.close()
+
+    _run(body())
+
+
 def test_begin_cast_does_not_write_dex_until_finish(catalog, tmp_path: Path) -> None:
     async def body() -> None:
         store = await open_store(tmp_path / "a.db", catalog)
@@ -954,7 +1000,12 @@ def test_fossil_set_grants_archaeology_point(catalog, tmp_path: Path) -> None:
 
 
 def test_equip_select_and_catch_status_display(catalog, tmp_path: Path) -> None:
-    from cogs.azure.views import _catch_status_lines, _equip_options, _recast_note
+    from cogs.azure.views import (
+        _catch_status_lines,
+        _equip_options,
+        _equipped_lines,
+        _recast_note,
+    )
     from common.player.models import CastResult
 
     async def body() -> None:
@@ -966,12 +1017,49 @@ def test_equip_select_and_catch_status_display(catalog, tmp_path: Path) -> None:
             for opt in options:
                 assert "`" not in opt.label
                 assert "`" not in (opt.description or "")
+            unequip = [o for o in options if (o.description or "").startswith("RETIRER")]
+            assert unequip
+            assert all("Retirer" not in (o.description or "") for o in options)
+            ranks = []
+            for opt in options:
+                desc = opt.description or ""
+                for i, slot in enumerate(("tool", "hook", "bait", "objet")):
+                    label = {"tool": "Outil", "hook": "Hameçon", "bait": "Appât", "objet": "Objet"}[
+                        slot
+                    ]
+                    if label in desc:
+                        ranks.append(i)
+                        break
+            assert ranks
+            assert ranks == sorted(ranks)
             hook_opts = [
                 o for o in options if o.description and "Hameçon" in o.description
             ]
             assert hook_opts
             labels = {o.label for o in hook_opts}
             assert any("hameçon" in name.lower() for name in labels)
+            net = next(g for g in snap.gear if g.item_key == "net")
+            await store.equip_gear(GUILD_A, USER, net.id)
+            await store.add_item(GUILD_A, USER, "umbrella", 1)
+            umb = next(
+                g
+                for g in (await store.snapshot(GUILD_A, USER)).gear
+                if g.item_key == "umbrella"
+            )
+            await store.equip_gear(GUILD_A, USER, umb.id)
+            net_snap = await store.snapshot(GUILD_A, USER)
+            equipped = "\n".join(_equipped_lines(catalog, net_snap))
+            assert "Hameçon" not in equipped
+            assert "Appât" not in equipped
+            assert "Outil" in equipped
+            assert "Objet" in equipped
+            assert "j" in equipped
+            net_opts = _equip_options(catalog, net_snap)
+            assert not any(
+                o.description and "Hameçon" in o.description for o in net_opts
+            )
+            assert not any(o.description and "Appât" in o.description for o in net_opts)
+            assert any(o.description and "Objet" in o.description for o in net_opts)
             result = CastResult(
                 species_key="unused",
                 catch_count=1,
@@ -1009,7 +1097,7 @@ def test_equip_select_and_catch_status_display(catalog, tmp_path: Path) -> None:
             )
             ok_missing, warn_missing = _recast_note(catalog, missing)
             assert not ok_missing
-            assert "hameçon" in warn_missing.lower()
+            assert "outil" in warn_missing.lower()
         finally:
             await store.close()
 

@@ -113,6 +113,7 @@ SLOT_LABELS = {
 }
 
 DISPLAY_SLOTS = ("tool", "hook", "bait", "objet")
+ROD_ONLY_SLOTS = frozenset({"hook", "bait"})
 
 CATEGORY_LABELS = {
     "tool": "Outil",
@@ -184,6 +185,24 @@ def _equipped_key(eq) -> str | None:
     if eq.gear is not None:
         return eq.gear.item_key
     return eq.item_key
+
+
+def _tool_method(catalog: Catalog, snap: PlayerSnapshot) -> str | None:
+    key = _equipped_key(snap.equipped.get("tool"))
+    if not key:
+        return None
+    try:
+        item = catalog.get_item(key)
+    except Exception:
+        return None
+    eq = item.equipment
+    return eq.capture_method if eq is not None else None
+
+
+def _display_slots_for(catalog: Catalog, snap: PlayerSnapshot) -> tuple[str, ...]:
+    if _tool_method(catalog, snap) == "net":
+        return tuple(s for s in DISPLAY_SLOTS if s not in ROD_ONLY_SLOTS)
+    return DISPLAY_SLOTS
 
 
 def _select_emoji(item_key: str | None) -> discord.PartialEmoji | None:
@@ -348,7 +367,7 @@ def _collection_block(catalog: Catalog, snap: PlayerSnapshot) -> str:
 
 def _equipped_lines(catalog: Catalog, snap: PlayerSnapshot) -> list[str]:
     lines: list[str] = []
-    for slot in DISPLAY_SLOTS:
+    for slot in _display_slots_for(catalog, snap):
         label = SLOT_LABELS[slot]
         eq = snap.equipped.get(slot)
         key = _equipped_key(eq)
@@ -358,7 +377,9 @@ def _equipped_lines(catalog: Catalog, snap: PlayerSnapshot) -> list[str]:
         extra = ""
         try:
             item = catalog.get_item(key)
-            extra = _durability_label(item, eq.gear.durability if eq and eq.gear else None)
+            extra = _durability_label(
+                item, eq.gear.durability if eq and eq.gear else None
+            )
         except Exception:
             pass
         lines.append(f"**{label}** · {item_display(catalog, key, extra=extra)}")
@@ -595,7 +616,10 @@ class ProfilView(discord.ui.LayoutView):
         elif options and eat:
             note = "Un seul **objet** actif. **Manger** recharge l'énergie."
         elif options:
-            note = "Un seul **objet** actif. Change canne, hameçon, appât ou objet."
+            if _tool_method(catalog, snap) == "net":
+                note = "Un seul **objet** actif. Le filet n'utilise pas d'hameçon ni d'appât."
+            else:
+                note = "Un seul **objet** actif. Change canne, hameçon, appât ou objet."
         elif eat:
             note = "**Manger** pour récupérer de l'énergie."
         else:
@@ -611,7 +635,15 @@ class ProfilView(discord.ui.LayoutView):
 
 
 def _equip_options(catalog: Catalog, snap: PlayerSnapshot) -> list[discord.SelectOption]:
-    options: list[discord.SelectOption] = []
+    visible = set(_display_slots_for(catalog, snap))
+    slot_rank = {slot: i for i, slot in enumerate(DISPLAY_SLOTS)}
+    rows: list[tuple[int, int, discord.SelectOption]] = []
+
+    def add(slot: str, equipped: bool, option: discord.SelectOption) -> None:
+        if slot not in visible:
+            return
+        rows.append((slot_rank.get(slot, 99), 0 if equipped else 1, option))
+
     for slot in DISPLAY_SLOTS:
         eq = snap.equipped.get(slot)
         if eq is None:
@@ -623,7 +655,7 @@ def _equip_options(catalog: Catalog, snap: PlayerSnapshot) -> list[discord.Selec
                 item_name = catalog.get_item(key).name
             except Exception:
                 item_name = key
-        desc_parts = ["Retirer", SLOT_LABELS[slot]]
+        desc_parts = ["RETIRER", SLOT_LABELS[slot]]
         if eq is not None and eq.gear is not None:
             try:
                 item = catalog.get_item(eq.gear.item_key)
@@ -640,7 +672,7 @@ def _equip_options(catalog: Catalog, snap: PlayerSnapshot) -> list[discord.Selec
         emoji = _select_emoji(_equipped_key(eq))
         if emoji is not None:
             kwargs["emoji"] = emoji
-        options.append(discord.SelectOption(**kwargs))
+        add(slot, True, discord.SelectOption(**kwargs))
     equipped_ids = {eq.gear_id for eq in snap.equipped.values() if eq.gear_id is not None}
     current_bait = snap.equipped.get("bait")
     current_bait_key = current_bait.item_key if current_bait else None
@@ -654,7 +686,8 @@ def _equip_options(catalog: Catalog, snap: PlayerSnapshot) -> list[discord.Selec
         eq = item.equipment
         if eq is None or not eq.equippable or eq.slot not in GEAR_SLOTS:
             continue
-        slot_label = SLOT_LABELS.get(eq.slot or "", eq.slot or "?")
+        slot = eq.slot or ""
+        slot_label = SLOT_LABELS.get(slot, slot or "?")
         plain = _durability_plain(item, gear.durability)
         desc = slot_label if not plain else f"{slot_label} · {plain}"
         kwargs = {
@@ -665,7 +698,7 @@ def _equip_options(catalog: Catalog, snap: PlayerSnapshot) -> list[discord.Selec
         emoji = _select_emoji(item.key)
         if emoji is not None:
             kwargs["emoji"] = emoji
-        options.append(discord.SelectOption(**kwargs))
+        add(slot, False, discord.SelectOption(**kwargs))
     for stack in snap.stacks:
         if stack.item_key == current_bait_key:
             continue
@@ -684,8 +717,9 @@ def _equip_options(catalog: Catalog, snap: PlayerSnapshot) -> list[discord.Selec
         emoji = _select_emoji(item.key)
         if emoji is not None:
             kwargs["emoji"] = emoji
-        options.append(discord.SelectOption(**kwargs))
-    return options[:SELECT_MAX]
+        add("bait", False, discord.SelectOption(**kwargs))
+    rows.sort(key=lambda row: (row[0], row[1]))
+    return [row[2] for row in rows][:SELECT_MAX]
 
 
 class _EquipSelect(discord.ui.Select):
@@ -1184,14 +1218,19 @@ class BiteView(discord.ui.LayoutView):
         except Exception:
             milieu_name = pending.milieu_key or "—"
         weather_bit = weather_display(weather_of(catalog, pending.weather_key))
-        gear = "\n".join(
-            _slot_item_line(catalog, slot, key)
-            for slot, key in (
-                ("tool", pending.tool_key),
-                ("hook", pending.hook_key),
-                ("bait", pending.bait_key),
+        if pending.snap is not None:
+            gear = "\n".join(_equipped_lines(catalog, pending.snap))
+        else:
+            keys = {
+                "tool": pending.tool_key,
+                "hook": pending.hook_key,
+                "bait": pending.bait_key,
+                "objet": pending.objet_key,
+            }
+            slots = DISPLAY_SLOTS if pending.method != "net" else tuple(
+                s for s in DISPLAY_SLOTS if s not in ROD_ONLY_SLOTS
             )
-        )
+            gear = "\n".join(_slot_item_line(catalog, slot, keys.get(slot)) for slot in slots)
         children: list = [
             discord.ui.TextDisplay(f"## {title}"),
             discord.ui.TextDisplay(f"-# {milieu_name} · {weather_bit}"),
@@ -1430,7 +1469,11 @@ def _catch_status_lines(catalog: Catalog, result: CastResult) -> list[str]:
 
 def _recast_note(catalog: Catalog, result: CastResult) -> tuple[bool, str]:
     snap = result.snap
-    if snap is None or not _equipped_key(snap.equipped.get("hook")):
+    if snap is None or not _equipped_key(snap.equipped.get("tool")):
+        return False, "**Équipe un outil**"
+    if _tool_method(catalog, snap) != "net" and not _equipped_key(
+        snap.equipped.get("hook")
+    ):
         return False, "**Équipe un hameçon**"
     return _recast_energy_note(catalog, result)
 

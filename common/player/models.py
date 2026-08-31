@@ -117,6 +117,8 @@ class PendingCast:
     tool_key: str = ""
     hook_key: str | None = None
     bait_key: str | None = None
+    objet_key: str | None = None
+    snap: PlayerSnapshot | None = None
     resolved: bool = False
     preview: CastResult | None = None
     catch_view: object | None = None
