@@ -51,6 +51,7 @@ from common.inspect import (
 )
 from common.money import format_money, format_money_plain
 from common.onboarding import slide_at, slide_count
+from common.pitch import pitch_blocks, pitch_tagline, pitch_title
 from common.daily import daily_place_block
 from common.player import (
     CaughtSpecimen,
@@ -478,6 +479,20 @@ class OnboardingView(discord.ui.LayoutView):
         else:
             buttons.append(_OnboardNavButton(delta=1, disabled=False))
         append_controls(children, button_row=discord.ui.ActionRow(*buttons))
+        self.add_item(make_container(*children))
+
+
+class PubView(discord.ui.LayoutView):
+    """Présentation publique : une carte, pour ceux qui ne jouent pas encore."""
+
+    def __init__(self, catalog: Catalog) -> None:
+        super().__init__(timeout=None)
+        children: list = [
+            discord.ui.TextDisplay(pitch_title()),
+            discord.ui.TextDisplay(pitch_tagline()),
+        ]
+        for block in pitch_blocks(catalog):
+            children += [discord.ui.Separator(), discord.ui.TextDisplay(block)]
         self.add_item(make_container(*children))
 
 

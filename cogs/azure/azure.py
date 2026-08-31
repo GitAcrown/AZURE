@@ -43,6 +43,7 @@ from .views import (
     MondeView,
     NoticeView,
     OnboardingView,
+    PubView,
     RecordsView,
     VillageAnnounceView,
     load_player_hub,
@@ -671,6 +672,37 @@ class Azure(commands.Cog):
                 f"{speaker.name or speaker.key} · jusqu'à {posted.ends_at}",
                 note=note,
             ),
+            ephemeral=True,
+        )
+
+    @admin.command(name="pub", description="Poste la présentation du jeu dans un salon.")
+    @app_commands.describe(salon="Salon où poster (celui-ci par défaut)")
+    async def admin_pub(
+        self,
+        interaction: discord.Interaction,
+        salon: Optional[discord.TextChannel] = None,
+    ) -> None:
+        guild = interaction.guild
+        assert guild is not None
+        channel = salon or interaction.channel
+        if channel is None or not hasattr(channel, "send"):
+            await send_error(interaction, "Impossible de poster ici.")
+            return
+        if not await ack(interaction, ephemeral=True):
+            return
+        view = PubView(_catalog(self.bot))
+        files = getattr(view, "attachments", None) or None
+        kwargs: dict = {"view": view}
+        if files:
+            kwargs["files"] = files
+        try:
+            await channel.send(**kwargs)
+        except discord.HTTPException:
+            await send_error(interaction, "Le salon n'accepte pas le message.")
+            return
+        mention = getattr(channel, "mention", None) or str(channel)
+        await interaction.followup.send(
+            view=NoticeView("Pub", f"Présentation postée dans {mention}."),
             ephemeral=True,
         )
 
