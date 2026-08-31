@@ -273,3 +273,42 @@ def test_energy_shortfall_mentions_weather() -> None:
     assert "**+4** énergie" in wet
     assert "il faut **12** énergie" in wet
     assert "tu as **10**" in wet
+
+
+def test_catalog_specimen_ranges_differ() -> None:
+    from common.catalog import load_catalog
+
+    catalog = load_catalog(ROOT / "assets")
+    guppy = generate_specimen(
+        catalog.get_species("guppy"), catalog.game.fishing.specimen, random.Random(0)
+    )
+    tuna = generate_specimen(
+        catalog.get_species("tuna"), catalog.game.fishing.specimen, random.Random(0)
+    )
+    assert guppy.length_cm <= 5.5
+    assert tuna.length_cm >= 50
+    assert guppy.weight_kg < tuna.weight_kg
+
+
+def test_pools_stay_open_year_round() -> None:
+    from common.catalog import load_catalog
+
+    catalog = load_catalog(ROOT / "assets")
+    combos = [
+        ("ocean", "rod"),
+        ("ocean", "net"),
+        ("river", "rod"),
+        ("pond", "rod"),
+    ]
+    for milieu, method in combos:
+        for season in ("spring", "summer", "autumn", "winter"):
+            for tod in ("dawn", "day", "dusk", "night"):
+                ctx = EncounterContext(
+                    milieu_key=milieu,
+                    method=method,
+                    season=season,
+                    time_of_day=tod,
+                    weather_key="clear",
+                )
+                pool = build_pool(catalog, ctx)
+                assert pool, f"{milieu} {method} {season} {tod}"

@@ -134,6 +134,80 @@ def _tag(key: str) -> str:
     return TAG_LABELS.get(key, key.replace("_", " "))
 
 
+def _weather(catalog: Catalog, key: str) -> str:
+    for kind in catalog.game.world.weathers:
+        if kind.key == key:
+            return kind.name.lower()
+    return key.replace("_", " ")
+
+
+ALL_SEASONS = ("spring", "summer", "autumn", "winter")
+ALL_TIMES = ("dawn", "day", "dusk", "night")
+
+
+def _window_phrase(
+    values: list[str],
+    all_keys: tuple[str, ...],
+    labels: dict[str, str],
+) -> str | None:
+    """Fenêtre utile : omise si tout est ouvert, « sauf X » s'il n'en manque qu'un."""
+    if not values:
+        return None
+    known = set(all_keys)
+    present = [k for k in all_keys if k in values]
+    extras = [k for k in values if k not in known]
+    if len(present) == len(all_keys) and not extras:
+        return None
+    missing = [k for k in all_keys if k not in values]
+    if len(missing) == 1 and not extras:
+        return "sauf " + labels.get(missing[0], missing[0])
+    shown = present + extras
+    return ", ".join(labels.get(k, k) for k in shown)
+
+
+def species_context_bits(catalog: Catalog, species: Species) -> list[str]:
+    """Où et quand l'espèce se trouve, sans spoiler les fenêtres toujours ouvertes."""
+    try:
+        milieu = catalog.get_milieu(species.environment).name
+    except Exception:
+        milieu = species.environment
+    bits = [milieu]
+    av = species.availability
+    season = _window_phrase(list(av.seasons), ALL_SEASONS, SEASON_LABELS)
+    if season:
+        bits.append(season)
+    moment = _window_phrase(list(av.time), ALL_TIMES, TIME_LABELS)
+    if moment:
+        bits.append(moment)
+    if av.weather_required:
+        bits.append(
+            "seulement " + ", ".join(_weather(catalog, k) for k in av.weather_required)
+        )
+    if av.weather_preferred:
+        bits.append(
+            "préfère " + ", ".join(_weather(catalog, k) for k in av.weather_preferred)
+        )
+    if av.weather_avoided:
+        bits.append(
+            "évite " + ", ".join(_weather(catalog, k) for k in av.weather_avoided)
+        )
+    return bits
+
+
+def species_context_line(catalog: Catalog, species: Species) -> str:
+    return " · ".join(species_context_bits(catalog, species))
+
+
+def species_where_text(catalog: Catalog, species: Species) -> str:
+    bits = species_context_bits(catalog, species)
+    if not bits:
+        return ""
+    head = f"**Où** · **{bits[0]}**"
+    if len(bits) == 1:
+        return head
+    return f"{head}\n{' · '.join(bits[1:])}"
+
+
 def _format_scalar(key: str, value: Any) -> str | None:
     if value is None:
         return None
@@ -349,11 +423,11 @@ def inspect_species_lines(
         )
     weather_bits: list[str] = []
     if av.weather_preferred:
-        weather_bits.append("préfère " + ", ".join(av.weather_preferred))
+        weather_bits.append("préfère " + ", ".join(_weather(catalog, k) for k in av.weather_preferred))
     if av.weather_avoided:
-        weather_bits.append("évite " + ", ".join(av.weather_avoided))
+        weather_bits.append("évite " + ", ".join(_weather(catalog, k) for k in av.weather_avoided))
     if av.weather_required:
-        weather_bits.append("exige " + ", ".join(av.weather_required))
+        weather_bits.append("exige " + ", ".join(_weather(catalog, k) for k in av.weather_required))
     if weather_bits:
         lines.append(_line("Météo", " · ".join(weather_bits), markdown=markdown))
     if species.economy.sellable and species.economy.base_price is not None:

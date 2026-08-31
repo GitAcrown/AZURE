@@ -2,8 +2,8 @@ schema_version: 2
 balance_status: provisional
 notes:
   species_count: 114
-  design: Les conditions, prix, raretés, tailles, poids, tags d'appât et comportements sont prévus dans le schéma mais restent
-    équilibrables.
+  design: Saisons, heures, météo, tags d'appât, tailles et poids sont remplis par
+    espèce. L'équilibrage reste ouvert.
   capture_methods:
     rod: poissons
     net: créatures/coquillages
@@ -19,30 +19,31 @@ species:
     shadow: specie1_s.png
   description: "Son bec fusionné racle les algues du corail, et les récifs qu'il broute restent plus nets derrière lui."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 18
+    max_length_cm: 55
+    min_weight_kg: 0.2
+    max_weight_kg: 3.5
   availability:
     seasons:
     - spring
     - summer
     - autumn
-    - winter
     time:
-    - dawn
     - day
-    - dusk
-    - night
     weather_required: []
-    weather_preferred: []
-    weather_avoided: []
+    weather_preferred:
+    - clear
+    weather_avoided:
+    - storm
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - herbivore
+    - small
+    - curious
   economy:
     base_price: 12
     sellable: true
@@ -51,7 +52,10 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - herbivore
+  - small
+  - curious
   flags: []
 - id: 2
   key: mackerel
@@ -63,10 +67,10 @@ species:
     shadow: specie2_s.png
   description: "Le dos zébré, il file en bande près de la surface, trop vite pour qu'on le suive longtemps du regard."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 18
+    max_length_cm: 45
+    min_weight_kg: 0.12
+    max_weight_kg: 1.2
   availability:
     seasons:
     - spring
@@ -79,14 +83,20 @@ species:
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
-    weather_avoided: []
+    weather_preferred:
+    - wind
+    - cloudy
+    weather_avoided:
+    - fog
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - schooling
+    - predator
+    - surface_feeder
   economy:
     base_price: 12
     sellable: true
@@ -95,7 +105,10 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - schooling
+  - predator
+  - surface_feeder
   flags: []
 - id: 3
   key: clown_fish
@@ -107,30 +120,30 @@ species:
     shadow: specie3_s.png
   description: "Petit et vif, il ne s'éloigne presque jamais de son anémone, qui le protège autant qu'il la défend."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 4
+    max_length_cm: 11
+    min_weight_kg: 0.008
+    max_weight_kg: 0.045
   availability:
     seasons:
     - spring
     - summer
     - autumn
-    - winter
     time:
-    - dawn
     - day
-    - dusk
-    - night
     weather_required: []
-    weather_preferred: []
-    weather_avoided: []
+    weather_preferred:
+    - clear
+    weather_avoided:
+    - storm
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - curious
   economy:
     base_price: 12
     sellable: true
@@ -139,7 +152,9 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - small
+  - curious
   flags: []
 - id: 4
   key: plaice
@@ -151,10 +166,10 @@ species:
     shadow: specie4_s.png
   description: "Couchée dans le sable, la plie a les deux yeux du même côté : on la confond avec le fond jusqu'au dernier instant."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 18
+    max_length_cm: 70
+    min_weight_kg: 0.2
+    max_weight_kg: 3.2
   availability:
     seasons:
     - spring
@@ -167,14 +182,18 @@ species:
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
-    weather_avoided: []
+    weather_preferred:
+    - cloudy
+    weather_avoided:
+    - storm
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - bottom_feeder
+    - worm_eater
   economy:
     base_price: 12
     sellable: true
@@ -183,7 +202,9 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - bottom_feeder
+  - worm_eater
   flags: []
 - id: 5
   key: silver_eel
@@ -195,10 +216,10 @@ species:
     shadow: specie5_s.png
   description: "Quand l'anguille s'argente, c'est qu'elle quitte la rivière pour la grande traversée vers la mer des Sargasses."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 35
+    max_length_cm: 90
+    min_weight_kg: 0.25
+    max_weight_kg: 2.4
   availability:
     seasons:
     - spring
@@ -245,30 +266,34 @@ species:
     shadow: specie6_s.png
   description: "Il nage debout, la tête penchée comme un cheval miniature, et c'est le père qui porte les œufs dans une poche."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 7
+    max_length_cm: 18
+    min_weight_kg: 0.006
+    max_weight_kg: 0.035
   availability:
     seasons:
     - spring
     - summer
     - autumn
-    - winter
     time:
     - dawn
     - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
-    weather_avoided: []
+    weather_preferred:
+    - clear
+    weather_avoided:
+    - storm
+    - wind
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - curious
   economy:
     base_price: 12
     sellable: true
@@ -277,7 +302,9 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - small
+  - curious
   flags: []
 - id: 7
   key: lionfish
@@ -289,10 +316,10 @@ species:
     shadow: specie7_s.png
   description: "Ses nageoires en éventail sont superbes, et venimeuses : on les admire de loin, on ne les serre pas."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 15
+    max_length_cm: 38
+    min_weight_kg: 0.12
+    max_weight_kg: 1.1
   availability:
     seasons:
     - spring
@@ -334,30 +361,33 @@ species:
     shadow: specie8_s.png
   description: "Coffré dans une carapace un peu cornue, il avance sans se presser : trop rigide pour filer, trop bizarre pour passer inaperçu."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 10
+    max_length_cm: 40
+    min_weight_kg: 0.08
+    max_weight_kg: 1.4
   availability:
     seasons:
     - spring
     - summer
     - autumn
-    - winter
     time:
     - dawn
     - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
-    weather_avoided: []
+    weather_preferred:
+    - clear
+    weather_avoided:
+    - storm
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - curious
   economy:
     base_price: 28
     sellable: true
@@ -366,7 +396,9 @@ species:
     group: fishdex
     recordable: true
   rarity: uncommon
-  tags: []
+  tags:
+  - small
+  - curious
   flags: []
 - id: 9
   key: tuna
@@ -378,10 +410,10 @@ species:
     shadow: specie9_s.png
   description: "Grand voyageur au sang chaud, le thon nage sans jamais s'arrêter, et la mer entière semble trop petite pour lui."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 50
+    max_length_cm: 160
+    min_weight_kg: 3.5
+    max_weight_kg: 70
   availability:
     seasons:
     - summer
@@ -425,30 +457,31 @@ species:
     shadow: specie10_s.png
   description: "Comprimé comme une pièce, zébré de bandes sombres, il glisse entre les coraux sans jamais s'en éloigner longtemps."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 8
+    max_length_cm: 16
+    min_weight_kg: 0.02
+    max_weight_kg: 0.12
   availability:
     seasons:
     - spring
     - summer
     - autumn
-    - winter
     time:
-    - dawn
     - day
-    - dusk
-    - night
     weather_required: []
-    weather_preferred: []
-    weather_avoided: []
+    weather_preferred:
+    - clear
+    weather_avoided:
+    - storm
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - herbivore
+    - curious
   economy:
     base_price: 12
     sellable: true
@@ -457,7 +490,10 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - small
+  - herbivore
+  - curious
   flags: []
 - id: 11
   key: atlantic_bass
@@ -469,10 +505,10 @@ species:
     shadow: specie11_s.png
   description: "Le bar chasse le long des rochers et des estuaires, gueule nette, souvent à l'affût dès que l'eau s'agite."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 28
+    max_length_cm: 80
+    min_weight_kg: 0.35
+    max_weight_kg: 6
   availability:
     seasons:
     - spring
@@ -481,18 +517,21 @@ species:
     - winter
     time:
     - dawn
-    - day
     - dusk
-    - night
     weather_required: []
-    weather_preferred: []
-    weather_avoided: []
+    weather_preferred:
+    - cloudy
+    - wind
+    weather_avoided:
+    - storm
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - predator
+    - opportunist
   economy:
     base_price: 12
     sellable: true
@@ -501,7 +540,9 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - predator
+  - opportunist
   flags: []
 - id: 12
   key: blue_tang
@@ -513,30 +554,30 @@ species:
     shadow: specie12_s.png
   description: "D'un bleu franc qui tranche sur le récif, il porte près de la queue une épine dont les chirurgiens ont pris le nom."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 8
+    max_length_cm: 25
+    min_weight_kg: 0.03
+    max_weight_kg: 0.35
   availability:
     seasons:
     - spring
     - summer
     - autumn
-    - winter
     time:
-    - dawn
     - day
-    - dusk
-    - night
     weather_required: []
-    weather_preferred: []
-    weather_avoided: []
+    weather_preferred:
+    - clear
+    weather_avoided:
+    - storm
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - herbivore
   economy:
     base_price: 28
     sellable: true
@@ -545,7 +586,9 @@ species:
     group: fishdex
     recordable: true
   rarity: uncommon
-  tags: []
+  tags:
+  - small
+  - herbivore
   flags: []
 - id: 13
   key: pollock
@@ -557,30 +600,34 @@ species:
     shadow: specie13_s.png
   description: "Le lieu noir fréquente les côtes froides du nord : chair pâle, bancs denses, et une longue histoire de filets."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 25
+    max_length_cm: 90
+    min_weight_kg: 0.3
+    max_weight_kg: 8
   availability:
     seasons:
-    - spring
-    - summer
     - autumn
     - winter
+    - spring
     time:
     - dawn
     - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
-    weather_avoided: []
+    weather_preferred:
+    - cloudy
+    - wind
+    weather_avoided:
+    - clear
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - schooling
+    - opportunist
   economy:
     base_price: 12
     sellable: true
@@ -589,7 +636,9 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - schooling
+  - opportunist
   flags: []
 - id: 14
   key: ballan_wrasse
@@ -601,10 +650,10 @@ species:
     shadow: specie14_s.png
   description: "La vieille change de couleurs selon l'âge et le sexe, et passe sa vie à fouiller les fonds de pierre."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 18
+    max_length_cm: 50
+    min_weight_kg: 0.25
+    max_weight_kg: 2.4
   availability:
     seasons:
     - spring
@@ -615,16 +664,18 @@ species:
     - dawn
     - day
     - dusk
-    - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - opportunist
+    - curious
   economy:
     base_price: 28
     sellable: true
@@ -633,7 +684,9 @@ species:
     group: fishdex
     recordable: true
   rarity: uncommon
-  tags: []
+  tags:
+  - opportunist
+  - curious
   flags: []
 - id: 15
   key: weaver_fish
@@ -645,10 +698,10 @@ species:
     shadow: specie15_s.png
   description: "Enfouie dans le sable jusqu'aux yeux, la vive laisse dépasser des épines dorsales dont on se souvient longtemps."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 10
+    max_length_cm: 38
+    min_weight_kg: 0.04
+    max_weight_kg: 0.55
   availability:
     seasons:
     - spring
@@ -656,19 +709,20 @@ species:
     - autumn
     - winter
     time:
-    - dawn
     - day
-    - dusk
-    - night
     weather_required: []
-    weather_preferred: []
-    weather_avoided: []
+    weather_preferred:
+    - clear
+    weather_avoided:
+    - storm
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - bottom_feeder
+    - aggressive
   economy:
     base_price: 12
     sellable: true
@@ -677,7 +731,9 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - bottom_feeder
+  - aggressive
   flags: []
 - id: 16
   key: bream
@@ -689,10 +745,10 @@ species:
     shadow: specie16_s.png
   description: "La daurade a le corps haut, l'argent facile, et rase les côtes dès que l'eau se réchauffe un peu."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 18
+    max_length_cm: 60
+    min_weight_kg: 0.25
+    max_weight_kg: 3.8
   availability:
     seasons:
     - spring
@@ -705,14 +761,18 @@ species:
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
-    weather_avoided: []
+    weather_preferred:
+    - clear
+    weather_avoided:
+    - storm
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - opportunist
+    - surface_feeder
   economy:
     base_price: 12
     sellable: true
@@ -721,7 +781,9 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - opportunist
+  - surface_feeder
   flags: []
 - id: 17
   key: pufferfish
@@ -733,30 +795,33 @@ species:
     shadow: specie17_s.png
   description: "Menacé, il se gonfle d'eau jusqu'à devenir une boule d'épines : autant le relâcher avant qu'il ne le fasse."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 10
+    max_length_cm: 40
+    min_weight_kg: 0.08
+    max_weight_kg: 1.4
   availability:
     seasons:
     - spring
     - summer
     - autumn
-    - winter
     time:
     - dawn
     - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
-    weather_avoided: []
+    weather_preferred:
+    - clear
+    weather_avoided:
+    - storm
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - curious
+    - small
   economy:
     base_price: 28
     sellable: true
@@ -765,7 +830,9 @@ species:
     group: fishdex
     recordable: true
   rarity: uncommon
-  tags: []
+  tags:
+  - curious
+  - small
   flags: []
 - id: 18
   key: cod
@@ -777,30 +844,35 @@ species:
     shadow: specie18_s.png
   description: "La morue a fait les fonds froids et les légendes de pêche : un gros poisson, une vieille histoire de filets trop pleins."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 35
+    max_length_cm: 120
+    min_weight_kg: 0.6
+    max_weight_kg: 18
   availability:
     seasons:
-    - spring
-    - summer
     - autumn
     - winter
+    - spring
     time:
     - dawn
     - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
-    weather_avoided: []
+    weather_preferred:
+    - cloudy
+    - fog
+    weather_avoided:
+    - clear
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - large
+    - opportunist
+    - bottom_feeder
   economy:
     base_price: 12
     sellable: true
@@ -809,7 +881,10 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - large
+  - opportunist
+  - bottom_feeder
   flags: []
 - id: 19
   key: dab
@@ -821,10 +896,10 @@ species:
     shadow: specie19_s.png
   description: "Plus petite que la plie, la limande se plaque sur les sables européens et disparaît dès qu'on détourne le regard."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 14
+    max_length_cm: 35
+    min_weight_kg: 0.06
+    max_weight_kg: 0.55
   availability:
     seasons:
     - spring
@@ -837,14 +912,18 @@ species:
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - cloudy
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - bottom_feeder
+    - worm_eater
   economy:
     base_price: 12
     sellable: true
@@ -853,7 +932,10 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - small
+  - bottom_feeder
+  - worm_eater
   flags: []
 - id: 20
   key: flounder
@@ -863,12 +945,12 @@ species:
   assets:
     sprite: specie20.png
     shadow: specie20_s.png
-  description: "Le flet se pose si à plat sur le fond qu'on le marche presque dessus avant de le voir s'enfuir."
+  description: "Le flet se pose si à plat sur le fond qu'on lui marche presque dessus avant de le voir s'enfuir."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 15
+    max_length_cm: 45
+    min_weight_kg: 0.08
+    max_weight_kg: 1.4
   availability:
     seasons:
     - spring
@@ -881,14 +963,18 @@ species:
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - cloudy
+    - fog
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - bottom_feeder
+    - worm_eater
   economy:
     base_price: 12
     sellable: true
@@ -897,7 +983,9 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - bottom_feeder
+  - worm_eater
   flags: []
 - id: 21
   key: whiting
@@ -909,10 +997,10 @@ species:
     shadow: specie21_s.png
   description: "Élancé, à la chair très pâle, le merlan chasse petit et se tient souvent un peu au-dessus du sable."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 18
+    max_length_cm: 50
+    min_weight_kg: 0.12
+    max_weight_kg: 1.1
   availability:
     seasons:
     - spring
@@ -925,14 +1013,18 @@ species:
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - cloudy
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - predator
+    - schooling
   economy:
     base_price: 12
     sellable: true
@@ -941,7 +1033,10 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - small
+  - predator
+  - schooling
   flags: []
 - id: 22
   key: halibut
@@ -953,30 +1048,33 @@ species:
     shadow: specie22_s.png
   description: "Le flétan est un plat immense des eaux froides : un seul spécimen peut occuper tout le fond d'un bac."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 50
+    max_length_cm: 180
+    min_weight_kg: 3
+    max_weight_kg: 70
   availability:
     seasons:
-    - spring
-    - summer
     - autumn
     - winter
+    - spring
     time:
     - dawn
     - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - cloudy
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - large
+    - bottom_feeder
+    - predator
   economy:
     base_price: 28
     sellable: true
@@ -985,7 +1083,10 @@ species:
     group: fishdex
     recordable: true
   rarity: uncommon
-  tags: []
+  tags:
+  - large
+  - bottom_feeder
+  - predator
   flags: []
 - id: 23
   key: herring
@@ -997,10 +1098,10 @@ species:
     shadow: specie23_s.png
   description: "Les harengs voyagent en bancs si denses que l'eau elle-même semble faite d'argent."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 14
+    max_length_cm: 35
+    min_weight_kg: 0.06
+    max_weight_kg: 0.4
   availability:
     seasons:
     - autumn
@@ -1044,10 +1145,10 @@ species:
     shadow: specie24_s.png
   description: "Aplatie comme une aile, la pastenague cache sous la queue un aiguillon qu'il vaut mieux ne pas chercher."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 40
+    max_length_cm: 120
+    min_weight_kg: 2
+    max_weight_kg: 35
   availability:
     seasons:
     - spring
@@ -1086,30 +1187,33 @@ species:
     shadow: specie25_s.png
   description: "Le loup de mer broie crabes et oursins avec des mâchoires trop larges pour un poisson des eaux froides."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 45
+    max_length_cm: 120
+    min_weight_kg: 1.8
+    max_weight_kg: 14
   availability:
     seasons:
-    - spring
-    - summer
     - autumn
     - winter
+    - spring
     time:
     - dawn
     - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - cloudy
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - large
+    - predator
+    - aggressive
   economy:
     base_price: 28
     sellable: true
@@ -1118,7 +1222,10 @@ species:
     group: fishdex
     recordable: true
   rarity: uncommon
-  tags: []
+  tags:
+  - large
+  - predator
+  - aggressive
   flags: []
 - id: 26
   key: bonefish
@@ -1130,30 +1237,29 @@ species:
     shadow: specie26_s.png
   description: "L'albule est tout argent et nerfs : dans les tropiques peu profonds, elle part plus vite qu'on ne lève la canne."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 30
+    max_length_cm: 70
+    min_weight_kg: 0.45
+    max_weight_kg: 5.5
   availability:
     seasons:
     - spring
     - summer
-    - autumn
-    - winter
     time:
-    - dawn
     - day
-    - dusk
-    - night
     weather_required: []
-    weather_preferred: []
-    weather_avoided: []
+    weather_preferred:
+    - clear
+    weather_avoided:
+    - storm
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - predator
+    - surface_feeder
   economy:
     base_price: 28
     sellable: true
@@ -1162,7 +1268,9 @@ species:
     group: fishdex
     recordable: true
   rarity: uncommon
-  tags: []
+  tags:
+  - predator
+  - surface_feeder
   flags: []
 - id: 27
   key: cobia
@@ -1174,30 +1282,32 @@ species:
     shadow: specie27_s.png
   description: "Solitaire, le cobia se colle souvent à l'ombre d'une tortue ou d'une bouée, comme s'il préférait voyager accompagné."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 50
+    max_length_cm: 140
+    min_weight_kg: 2.5
+    max_weight_kg: 35
   availability:
     seasons:
     - spring
     - summer
     - autumn
-    - winter
     time:
     - dawn
     - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - large
+    - predator
   economy:
     base_price: 28
     sellable: true
@@ -1206,7 +1316,9 @@ species:
     group: fishdex
     recordable: true
   rarity: uncommon
-  tags: []
+  tags:
+  - large
+  - predator
   flags: []
 - id: 28
   key: black_drum
@@ -1218,10 +1330,10 @@ species:
     shadow: specie28_s.png
   description: "Quand le tambour noir grogne, c'est sa vessie qui fait le bruit : un rumble sourd, presque trop grave pour un poisson."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 30
+    max_length_cm: 110
+    min_weight_kg: 0.8
+    max_weight_kg: 22
   availability:
     seasons:
     - spring
@@ -1234,14 +1346,19 @@ species:
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - cloudy
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - large
+    - bottom_feeder
+    - scavenger
+    - worm_eater
   economy:
     base_price: 28
     sellable: true
@@ -1250,7 +1367,11 @@ species:
     group: fishdex
     recordable: true
   rarity: uncommon
-  tags: []
+  tags:
+  - large
+  - bottom_feeder
+  - scavenger
+  - worm_eater
   flags: []
 - id: 29
   key: blobfish
@@ -1262,10 +1383,10 @@ species:
     shadow: specie29_s.png
   description: "Au fond, il a une vraie gueule. Sorti de l'eau, il s'affaisse : la pression lui allait infiniment mieux."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 20
+    max_length_cm: 40
+    min_weight_kg: 0.4
+    max_weight_kg: 2.2
   availability:
     seasons:
     - spring
@@ -1313,30 +1434,31 @@ species:
     shadow: specie30_s.png
   description: "Cette carangue rase les plages chaudes, le flanc argenté, toujours un peu trop rapide pour les pieds dans l'eau."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 22
+    max_length_cm: 60
+    min_weight_kg: 0.3
+    max_weight_kg: 3.2
   availability:
     seasons:
     - spring
     - summer
-    - autumn
-    - winter
     time:
     - dawn
     - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - schooling
+    - surface_feeder
   economy:
     base_price: 12
     sellable: true
@@ -1345,7 +1467,9 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - schooling
+  - surface_feeder
   flags: []
 - id: 31
   key: sardine
@@ -1357,10 +1481,10 @@ species:
     shadow: specie31_s.png
   description: "Petite, serrée contre les autres, la sardine nourrit à peu près tout ce qui nage plus grand qu'elle."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 10
+    max_length_cm: 22
+    min_weight_kg: 0.025
+    max_weight_kg: 0.14
   availability:
     seasons:
     - spring
@@ -1373,14 +1497,20 @@ species:
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
-    weather_avoided: []
+    weather_preferred:
+    - clear
+    - cloudy
+    weather_avoided:
+    - storm
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - schooling
+    - surface_feeder
   economy:
     base_price: 12
     sellable: true
@@ -1389,7 +1519,10 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - small
+  - schooling
+  - surface_feeder
   flags: []
 - id: 32
   key: angelfish
@@ -1401,30 +1534,31 @@ species:
     shadow: specie32_s.png
   description: "Haut et comprimé, le poisson-ange glisse le long du récif comme s'il n'avait pas d'épaisseur."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 10
+    max_length_cm: 30
+    min_weight_kg: 0.05
+    max_weight_kg: 0.55
   availability:
     seasons:
     - spring
     - summer
     - autumn
-    - winter
     time:
-    - dawn
     - day
-    - dusk
-    - night
     weather_required: []
-    weather_preferred: []
-    weather_avoided: []
+    weather_preferred:
+    - clear
+    weather_avoided:
+    - storm
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - herbivore
+    - curious
   economy:
     base_price: 28
     sellable: true
@@ -1433,7 +1567,10 @@ species:
     group: fishdex
     recordable: true
   rarity: uncommon
-  tags: []
+  tags:
+  - small
+  - herbivore
+  - curious
   flags: []
 - id: 33
   key: red_snapper
@@ -1445,30 +1582,32 @@ species:
     shadow: specie33_s.png
   description: "Rouge franc, recherché des tropiques au golfe, le vivaneau se tient souvent un peu au-dessus du fond."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 25
+    max_length_cm: 80
+    min_weight_kg: 0.4
+    max_weight_kg: 9
   availability:
     seasons:
     - spring
     - summer
     - autumn
-    - winter
     time:
     - dawn
     - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - predator
+    - opportunist
   economy:
     base_price: 28
     sellable: true
@@ -1477,7 +1616,9 @@ species:
     group: fishdex
     recordable: true
   rarity: uncommon
-  tags: []
+  tags:
+  - predator
+  - opportunist
   flags: []
 - id: 34
   key: salmon
@@ -1489,30 +1630,32 @@ species:
     shadow: specie34_s.png
   description: "Né en rivière, grandi en mer, le saumon remonte un jour le courant pour pondre là où tout a commencé."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 45
+    max_length_cm: 100
+    min_weight_kg: 1.5
+    max_weight_kg: 12
   availability:
     seasons:
-    - spring
     - summer
     - autumn
-    - winter
     time:
     - dawn
     - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - rain
+    - cloudy
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - predator
+    - large
   economy:
     base_price: 12
     sellable: true
@@ -1521,7 +1664,9 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - predator
+  - large
   flags: []
 - id: 35
   key: anglerfish
@@ -1533,10 +1678,10 @@ species:
     shadow: specie35_s.png
   description: "Un leurre lumineux lui pend au-dessus de la gueule : la proie s'approche, et c'est déjà trop tard."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 30
+    max_length_cm: 140
+    min_weight_kg: 1.5
+    max_weight_kg: 28
   availability:
     seasons:
     - spring
@@ -1579,10 +1724,10 @@ species:
     shadow: specie36_s.png
   description: "La crevette est partout à la fois : proie, prise, et parfois le seul mouvement qu'on distingue dans les herbes."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 4
+    max_length_cm: 15
+    min_weight_kg: 0.004
+    max_weight_kg: 0.04
   availability:
     seasons:
     - spring
@@ -1595,14 +1740,17 @@ species:
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - cloudy
     weather_avoided: []
   capture:
     method: net
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - scavenger
   economy:
     base_price: 12
     sellable: true
@@ -1611,7 +1759,9 @@ species:
     group: creaturedex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - small
+  - scavenger
   flags: []
 - id: 37
   key: squid
@@ -1623,10 +1773,10 @@ species:
     shadow: specie37_s.png
   description: "Dix bras, un jet d'eau, un nuage d'encre : le calmar n'est plus là dès qu'on croit l'avoir."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 15
+    max_length_cm: 50
+    min_weight_kg: 0.1
+    max_weight_kg: 2
   availability:
     seasons:
     - spring
@@ -1634,19 +1784,20 @@ species:
     - autumn
     - winter
     time:
-    - dawn
-    - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - cloudy
     weather_avoided: []
   capture:
     method: net
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - predator
+    - nocturnal
   economy:
     base_price: 12
     sellable: true
@@ -1655,7 +1806,9 @@ species:
     group: creaturedex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - predator
+  - nocturnal
   flags: []
 - id: 38
   key: dumbo_octopus
@@ -1667,10 +1820,10 @@ species:
     shadow: specie38_s.png
   description: "Ses nageoires en oreilles battent au-dessus des abysses, trop profond pour qu'on s'attende à quelque chose d'aussi doux."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 12
+    max_length_cm: 28
+    min_weight_kg: 0.15
+    max_weight_kg: 1.8
   availability:
     seasons:
     - spring
@@ -1711,10 +1864,10 @@ species:
     shadow: specie39_s.png
   description: "Large, à reculons, pinces en avant : le crabe ne fuit jamais tout à fait dans le sens qu'on croit."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 6
+    max_length_cm: 22
+    min_weight_kg: 0.04
+    max_weight_kg: 0.7
   availability:
     seasons:
     - spring
@@ -1727,14 +1880,18 @@ species:
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - cloudy
     weather_avoided: []
   capture:
     method: net
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - scavenger
+    - bottom_feeder
+    - opportunist
   economy:
     base_price: 12
     sellable: true
@@ -1743,7 +1900,10 @@ species:
     group: creaturedex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - scavenger
+  - bottom_feeder
+  - opportunist
   flags: []
 - id: 40
   key: lobster
@@ -1755,10 +1915,10 @@ species:
     shadow: specie40_s.png
   description: "Le homard se loge dans les anfractuosités de roche et n'en sort les grosses pinces que lorsqu'il n'a plus le choix."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 18
+    max_length_cm: 60
+    min_weight_kg: 0.25
+    max_weight_kg: 5.5
   availability:
     seasons:
     - spring
@@ -1801,10 +1961,10 @@ species:
     shadow: specie41_s.png
   description: "Presque transparent, l'ange de mer nage en battant deux ailes minuscules, comme s'il n'était fait que d'eau."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 1.5
+    max_length_cm: 4
+    min_weight_kg: 0.001
+    max_weight_kg: 0.006
   availability:
     seasons:
     - winter
@@ -1845,30 +2005,28 @@ species:
     shadow: specie42_s.png
   description: "Elle remonte reprendre l'air, puis reprend des traversées trop longues pour tenir dans une journée."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 35
+    max_length_cm: 110
+    min_weight_kg: 6
+    max_weight_kg: 70
   availability:
     seasons:
     - spring
     - summer
     - autumn
-    - winter
     time:
-    - dawn
     - day
-    - dusk
-    - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: net
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - large
   economy:
     base_price: 12
     sellable: true
@@ -1877,7 +2035,8 @@ species:
     group: creaturedex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - large
   flags: []
 - id: 43
   key: octopus
@@ -1889,10 +2048,10 @@ species:
     shadow: specie43_s.png
   description: "Huit bras et une mémoire trop vive : le poulpe trouve toujours une faille, y compris celle du seau."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 20
+    max_length_cm: 80
+    min_weight_kg: 0.4
+    max_weight_kg: 7
   availability:
     seasons:
     - spring
@@ -1900,19 +2059,21 @@ species:
     - autumn
     - winter
     time:
-    - dawn
-    - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - cloudy
     weather_avoided: []
   capture:
     method: net
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - nocturnal
+    - predator
+    - curious
   economy:
     base_price: 12
     sellable: true
@@ -1921,7 +2082,10 @@ species:
     group: creaturedex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - nocturnal
+  - predator
+  - curious
   flags: []
 - id: 44
   key: pink_fantasia
@@ -1933,10 +2097,10 @@ species:
     shadow: specie44_s.png
   description: "Ce concombre de mer rose nage au-dessus du fond, le corps translucide, comme un rêve un peu trop réel."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 12
+    max_length_cm: 25
+    min_weight_kg: 0.05
+    max_weight_kg: 0.35
   availability:
     seasons:
     - spring
@@ -1944,19 +2108,20 @@ species:
     - autumn
     - winter
     time:
-    - dawn
-    - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
-    weather_avoided: []
+    weather_preferred:
+    - fog
+    weather_avoided:
+    - clear
   capture:
     method: net
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - nocturnal
   economy:
     base_price: 65
     sellable: true
@@ -1965,7 +2130,8 @@ species:
     group: creaturedex
     recordable: true
   rarity: rare
-  tags: []
+  tags:
+  - nocturnal
   flags: []
 - id: 45
   key: sea_spider
@@ -1977,10 +2143,10 @@ species:
     shadow: specie45_s.png
   description: "L'araignée de mer n'est presque que des pattes : le corps tient dans un dé, le reste rampe sur la pierre."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 3
+    max_length_cm: 12
+    min_weight_kg: 0.002
+    max_weight_kg: 0.025
   availability:
     seasons:
     - spring
@@ -2000,7 +2166,9 @@ species:
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - bottom_feeder
   economy:
     base_price: 28
     sellable: true
@@ -2009,7 +2177,9 @@ species:
     group: creaturedex
     recordable: true
   rarity: uncommon
-  tags: []
+  tags:
+  - small
+  - bottom_feeder
   flags: []
 - id: 46
   key: jellyfish
@@ -2021,10 +2191,10 @@ species:
     shadow: specie46_s.png
   description: "Sous l'ombrelle pendent des filaments qu'il vaut mieux ne pas serrer, même quand elle a l'air d'une cloche inoffensive."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 8
+    max_length_cm: 40
+    min_weight_kg: 0.04
+    max_weight_kg: 1.8
   availability:
     seasons:
     - spring
@@ -2069,10 +2239,10 @@ species:
     shadow: specie47_s.png
   description: "Il avale le sédiment, en retire ce qu'il peut, et rend plus loin un fond un peu plus propre."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 10
+    max_length_cm: 30
+    min_weight_kg: 0.04
+    max_weight_kg: 0.45
   availability:
     seasons:
     - spring
@@ -2092,7 +2262,9 @@ species:
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - bottom_feeder
+    - scavenger
   economy:
     base_price: 12
     sellable: true
@@ -2101,7 +2273,9 @@ species:
     group: creaturedex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - bottom_feeder
+  - scavenger
   flags: []
 - id: 48
   key: christmas_tree_worm
@@ -2113,10 +2287,10 @@ species:
     shadow: specie48_s.png
   description: "Deux panaches en spirale dépassent du corail : le ver lui-même reste caché dans son tube, prêt à rentrer d'un coup."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 2
+    max_length_cm: 5
+    min_weight_kg: 0.002
+    max_weight_kg: 0.01
   availability:
     seasons:
     - spring
@@ -2124,19 +2298,20 @@ species:
     - autumn
     - winter
     time:
-    - dawn
     - day
-    - dusk
-    - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: net
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - light_attracted
+    - curious
   economy:
     base_price: 28
     sellable: true
@@ -2145,7 +2320,10 @@ species:
     group: creaturedex
     recordable: true
   rarity: uncommon
-  tags: []
+  tags:
+  - small
+  - light_attracted
+  - curious
   flags: []
 - id: 49
   key: sea_pen
@@ -2157,10 +2335,10 @@ species:
     shadow: specie49_s.png
   description: "Plantée dans la vase, elle ressemble à une plume qu'on aurait fichée là pour marquer le fond."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 10
+    max_length_cm: 40
+    min_weight_kg: 0.02
+    max_weight_kg: 0.18
   availability:
     seasons:
     - spring
@@ -2173,14 +2351,17 @@ species:
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
-    weather_avoided: []
+    weather_preferred:
+    - clear
+    weather_avoided:
+    - storm
   capture:
     method: net
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - bottom_feeder
   economy:
     base_price: 28
     sellable: true
@@ -2189,7 +2370,8 @@ species:
     group: creaturedex
     recordable: true
   rarity: uncommon
-  tags: []
+  tags:
+  - bottom_feeder
   flags: []
 - id: 50
   key: sea_urchin
@@ -2201,10 +2383,10 @@ species:
     shadow: specie50_s.png
   description: "Couvert de piquants, l'oursin broute la pierre et les algues, lentement, comme s'il avait tout son temps."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 4
+    max_length_cm: 12
+    min_weight_kg: 0.03
+    max_weight_kg: 0.22
   availability:
     seasons:
     - spring
@@ -2217,14 +2399,17 @@ species:
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: net
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - herbivore
+    - bottom_feeder
   economy:
     base_price: 28
     sellable: true
@@ -2233,7 +2418,9 @@ species:
     group: creaturedex
     recordable: true
   rarity: uncommon
-  tags: []
+  tags:
+  - herbivore
+  - bottom_feeder
   flags: []
 - id: 51
   key: blue_lobster
@@ -2245,10 +2432,10 @@ species:
     shadow: specie51_s.png
   description: "Un homard comme les autres, sauf cette robe bleu profond que presque personne ne ramène deux fois."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 18
+    max_length_cm: 55
+    min_weight_kg: 0.25
+    max_weight_kg: 4.8
   availability:
     seasons:
     - spring
@@ -2293,10 +2480,10 @@ species:
     shadow: specie52_s.png
   description: "Coquille sur le dos, pied collé à la roche, l'escargot de mer avance si lentement que la mer en est pleine."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 2
+    max_length_cm: 8
+    min_weight_kg: 0.004
+    max_weight_kg: 0.07
   availability:
     seasons:
     - spring
@@ -2316,7 +2503,10 @@ species:
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - herbivore
+    - small
+    - bottom_feeder
   economy:
     base_price: 12
     sellable: true
@@ -2325,7 +2515,10 @@ species:
     group: creaturedex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - herbivore
+  - small
+  - bottom_feeder
   flags: []
 - id: 53
   key: crucian_carp
@@ -2337,10 +2530,10 @@ species:
     shadow: specie53_s.png
   description: "Petit et costaud, le carassin s'accommode d'une eau pauvre où d'autres poissons auraient déjà renoncé."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 10
+    max_length_cm: 35
+    min_weight_kg: 0.04
+    max_weight_kg: 1.1
   availability:
     seasons:
     - spring
@@ -2353,14 +2546,18 @@ species:
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - cloudy
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - opportunist
+    - worm_eater
+    - bottom_feeder
   economy:
     base_price: 12
     sellable: true
@@ -2369,7 +2566,10 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - opportunist
+  - worm_eater
+  - bottom_feeder
   flags: []
 - id: 54
   key: bluegill
@@ -2381,10 +2581,10 @@ species:
     shadow: specie54_s.png
   description: "Une tache sombre barre son opercule : le crapet arlequin aime les eaux calmes, et s'y tient souvent en bande."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 9
+    max_length_cm: 25
+    min_weight_kg: 0.03
+    max_weight_kg: 0.45
   availability:
     seasons:
     - spring
@@ -2392,19 +2592,20 @@ species:
     - autumn
     - winter
     time:
-    - dawn
     - day
-    - dusk
-    - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - insectivore
+    - opportunist
+    - small
   economy:
     base_price: 12
     sellable: true
@@ -2413,7 +2614,10 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - insectivore
+  - opportunist
+  - small
   flags: []
 - id: 55
   key: tilapia
@@ -2425,30 +2629,31 @@ species:
     shadow: specie55_s.png
   description: "Trop à l'aise partout, le tilapia s'installe dès que l'eau se réchauffe, étangs compris."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 14
+    max_length_cm: 40
+    min_weight_kg: 0.12
+    max_weight_kg: 1.8
   availability:
     seasons:
     - spring
     - summer
-    - autumn
-    - winter
     time:
     - dawn
     - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - herbivore
+    - opportunist
   economy:
     base_price: 12
     sellable: true
@@ -2457,7 +2662,9 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - herbivore
+  - opportunist
   flags: []
 - id: 56
   key: smelt
@@ -2469,30 +2676,32 @@ species:
     shadow: specie56_s.png
   description: "Argenté et léger, l'éperlan voyage en bande et passe parfois de la mer à la rivière sans en faire un drame."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 10
+    max_length_cm: 22
+    min_weight_kg: 0.015
+    max_weight_kg: 0.1
   availability:
     seasons:
-    - spring
-    - summer
-    - autumn
     - winter
+    - spring
     time:
     - dawn
     - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - cloudy
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - schooling
+    - surface_feeder
   economy:
     base_price: 12
     sellable: true
@@ -2501,7 +2710,10 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - small
+  - schooling
+  - surface_feeder
   flags: []
 - id: 57
   key: trout
@@ -2513,10 +2725,10 @@ species:
     shadow: specie57_s.png
   description: "Elle aime l'eau froide et claire, commence par les insectes, puis s'attaque à plus gros dès qu'elle en a la taille."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 16
+    max_length_cm: 60
+    min_weight_kg: 0.12
+    max_weight_kg: 2.8
   availability:
     seasons:
     - spring
@@ -2560,30 +2772,33 @@ species:
     shadow: specie58_s.png
   description: "Le combattant vient reprendre l'air à la surface ; chez les mâles, les couleurs dépassent presque le raisonnable."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 4
+    max_length_cm: 7
+    min_weight_kg: 0.003
+    max_weight_kg: 0.012
   availability:
     seasons:
     - spring
     - summer
-    - autumn
-    - winter
     time:
     - dawn
     - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - insectivore
+    - surface_feeder
+    - aggressive
   economy:
     base_price: 28
     sellable: true
@@ -2592,7 +2807,11 @@ species:
     group: fishdex
     recordable: true
   rarity: uncommon
-  tags: []
+  tags:
+  - small
+  - insectivore
+  - surface_feeder
+  - aggressive
   flags: []
 - id: 59
   key: rainbow_trout
@@ -2604,10 +2823,10 @@ species:
     shadow: specie59_s.png
   description: "Une bande rosée lui court le long du flanc, comme si on lui avait passé un trait de lumière."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 18
+    max_length_cm: 70
+    min_weight_kg: 0.18
+    max_weight_kg: 4.2
   availability:
     seasons:
     - spring
@@ -2616,18 +2835,20 @@ species:
     - winter
     time:
     - dawn
-    - day
     - dusk
-    - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - rain
+    - cloudy
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - insectivore
+    - surface_feeder
   economy:
     base_price: 28
     sellable: true
@@ -2636,7 +2857,9 @@ species:
     group: fishdex
     recordable: true
   rarity: uncommon
-  tags: []
+  tags:
+  - insectivore
+  - surface_feeder
   flags: []
 - id: 60
   key: yellow_perch
@@ -2648,10 +2871,10 @@ species:
     shadow: specie60_s.png
   description: "Jaune-vert zébré de barres sombres, la perche jaune chasse souvent en bande dans les herbes."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 12
+    max_length_cm: 32
+    min_weight_kg: 0.04
+    max_weight_kg: 0.55
   availability:
     seasons:
     - spring
@@ -2664,14 +2887,18 @@ species:
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - cloudy
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - schooling
+    - opportunist
+    - insectivore
   economy:
     base_price: 12
     sellable: true
@@ -2680,7 +2907,10 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - schooling
+  - opportunist
+  - insectivore
   flags: []
 - id: 61
   key: char
@@ -2692,30 +2922,32 @@ species:
     shadow: specie61_s.png
   description: "L'omble reste dans les lacs froids du nord, proche de la truite, un peu plus secret, un peu plus rare."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 18
+    max_length_cm: 70
+    min_weight_kg: 0.18
+    max_weight_kg: 4.5
   availability:
     seasons:
-    - spring
-    - summer
     - autumn
     - winter
+    - spring
     time:
     - dawn
     - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - predator
+    - insectivore
   economy:
     base_price: 28
     sellable: true
@@ -2724,7 +2956,9 @@ species:
     group: fishdex
     recordable: true
   rarity: uncommon
-  tags: []
+  tags:
+  - predator
+  - insectivore
   flags: []
 - id: 62
   key: guppy
@@ -2736,30 +2970,33 @@ species:
     shadow: specie62_s.png
   description: "Minuscule, trop coloré, et les petits s'enchaînent : le guppy n'a jamais vraiment fini de peupler une mare."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 2.5
+    max_length_cm: 5.5
+    min_weight_kg: 0.001
+    max_weight_kg: 0.006
   availability:
     seasons:
     - spring
     - summer
-    - autumn
-    - winter
     time:
     - dawn
     - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - insectivore
+    - surface_feeder
+    - schooling
   economy:
     base_price: 12
     sellable: true
@@ -2768,7 +3005,11 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - small
+  - insectivore
+  - surface_feeder
+  - schooling
   flags: []
 - id: 63
   key: king_salmon
@@ -2780,10 +3021,10 @@ species:
     shadow: specie63_s.png
   description: "C'est le plus grand des saumons du Pacifique : quand il remonte, la rivière a l'air trop étroite."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 70
+    max_length_cm: 140
+    min_weight_kg: 5
+    max_weight_kg: 28
   availability:
     seasons:
     - autumn
@@ -2825,30 +3066,31 @@ species:
     shadow: specie64_s.png
   description: "Une bande bleu électrique lui traverse le flanc, le ventre rouge : à plusieurs, ils allument l'eau."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 2
+    max_length_cm: 4
+    min_weight_kg: 0.001
+    max_weight_kg: 0.003
   availability:
     seasons:
     - spring
     - summer
-    - autumn
-    - winter
     time:
     - dawn
     - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - schooling
   economy:
     base_price: 28
     sellable: true
@@ -2857,7 +3099,9 @@ species:
     group: fishdex
     recordable: true
   rarity: uncommon
-  tags: []
+  tags:
+  - small
+  - schooling
   flags: []
 - id: 65
   key: piranha
@@ -2869,10 +3113,10 @@ species:
     shadow: specie65_s.png
   description: "La gueule est nette, les dents aussi. Selon l'espèce, on a affaire à un chasseur ou à un malentendu."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 14
+    max_length_cm: 35
+    min_weight_kg: 0.15
+    max_weight_kg: 1.4
   availability:
     seasons:
     - summer
@@ -2912,30 +3156,31 @@ species:
     shadow: specie66_s.png
   description: "La bouvière pond dans une moule d'eau douce, qui n'a rien demandé et se retrouve nourrice malgré elle."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 4
+    max_length_cm: 9
+    min_weight_kg: 0.003
+    max_weight_kg: 0.018
   availability:
     seasons:
     - spring
     - summer
-    - autumn
-    - winter
     time:
     - dawn
     - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - herbivore
   economy:
     base_price: 28
     sellable: true
@@ -2944,7 +3189,9 @@ species:
     group: fishdex
     recordable: true
   rarity: uncommon
-  tags: []
+  tags:
+  - small
+  - herbivore
   flags: []
 - id: 67
   key: black_bass
@@ -2956,10 +3203,10 @@ species:
     shadow: specie67_s.png
   description: "Grosse bouche, à l'ombre d'un bois noyé : le black-bass attend, puis frappe trop vite pour qu'on ait le temps de dire le mot."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 22
+    max_length_cm: 55
+    min_weight_kg: 0.35
+    max_weight_kg: 3.2
   availability:
     seasons:
     - spring
@@ -2968,18 +3215,21 @@ species:
     - winter
     time:
     - dawn
-    - day
     - dusk
-    - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - cloudy
+    - wind
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - predator
+    - aggressive
+    - large
   economy:
     base_price: 12
     sellable: true
@@ -2988,7 +3238,10 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - predator
+  - aggressive
+  - large
   flags: []
 - id: 68
   key: eel
@@ -3000,10 +3253,10 @@ species:
     shadow: specie68_s.png
   description: "On la prend pour un serpent d'eau. Un jour, elle partira vers l'océan, et on ne la reverra plus."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 30
+    max_length_cm: 90
+    min_weight_kg: 0.18
+    max_weight_kg: 2
   availability:
     seasons:
     - spring
@@ -3048,10 +3301,10 @@ species:
     shadow: specie69_s.png
   description: "Le chevesne est robuste et peu difficile : il mange ce qui passe, insecte, pain ou autre poisson."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 14
+    max_length_cm: 50
+    min_weight_kg: 0.08
+    max_weight_kg: 2.2
   availability:
     seasons:
     - spring
@@ -3064,14 +3317,17 @@ species:
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - cloudy
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - opportunist
+    - worm_eater
   economy:
     base_price: 12
     sellable: true
@@ -3080,7 +3336,9 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - opportunist
+  - worm_eater
   flags: []
 - id: 70
   key: perch
@@ -3092,10 +3350,10 @@ species:
     shadow: specie70_s.png
   description: "Ses bandes verticales se lisent de loin : tout le monde connaît la perche, même ceux qui ne pêchent pas."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 12
+    max_length_cm: 40
+    min_weight_kg: 0.04
+    max_weight_kg: 1.4
   availability:
     seasons:
     - spring
@@ -3104,18 +3362,19 @@ species:
     - winter
     time:
     - dawn
-    - day
     - dusk
-    - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - cloudy
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - predator
+    - opportunist
   economy:
     base_price: 12
     sellable: true
@@ -3124,7 +3383,9 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - predator
+  - opportunist
   flags: []
 - id: 71
   key: crappie
@@ -3136,10 +3397,10 @@ species:
     shadow: specie71_s.png
   description: "La marigane se tient près des branches noyées, dans les eaux calmes, et se laisse souvent trop facilement prendre."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 14
+    max_length_cm: 35
+    min_weight_kg: 0.08
+    max_weight_kg: 1.1
   availability:
     seasons:
     - spring
@@ -3149,17 +3410,18 @@ species:
     time:
     - dawn
     - day
-    - dusk
-    - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - cloudy
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - insectivore
+    - schooling
   economy:
     base_price: 12
     sellable: true
@@ -3168,7 +3430,9 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - insectivore
+  - schooling
   flags: []
 - id: 72
   key: catfish
@@ -3180,10 +3444,10 @@ species:
     shadow: specie72_s.png
   description: "Les barbillons en avant, le poisson-chat goûte la vase avant de mordre, comme s'il lisait le fond avec la bouche."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 25
+    max_length_cm: 85
+    min_weight_kg: 0.35
+    max_weight_kg: 7.5
   availability:
     seasons:
     - spring
@@ -3229,10 +3493,10 @@ species:
     shadow: specie73_s.png
   description: "L'œil du doré jaune brille dans l'eau sombre : il chasse surtout quand la lumière baisse."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 28
+    max_length_cm: 70
+    min_weight_kg: 0.4
+    max_weight_kg: 4.8
   availability:
     seasons:
     - spring
@@ -3275,10 +3539,10 @@ species:
     shadow: specie74_s.png
   description: "Petite et argentée, la vandoise aime les courants vifs et reste collée à la veine d'eau."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 10
+    max_length_cm: 25
+    min_weight_kg: 0.015
+    max_weight_kg: 0.18
   availability:
     seasons:
     - spring
@@ -3291,14 +3555,18 @@ species:
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - insectivore
+    - surface_feeder
   economy:
     base_price: 12
     sellable: true
@@ -3307,7 +3575,10 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - small
+  - insectivore
+  - surface_feeder
   flags: []
 - id: 75
   key: loach
@@ -3319,10 +3590,10 @@ species:
     shadow: specie75_s.png
   description: "Collée au fond, moustaches dans la vase, la loche fouille plus qu'elle ne nage."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 8
+    max_length_cm: 18
+    min_weight_kg: 0.01
+    max_weight_kg: 0.07
   availability:
     seasons:
     - spring
@@ -3335,14 +3606,18 @@ species:
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - cloudy
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - bottom_feeder
+    - worm_eater
+    - small
   economy:
     base_price: 12
     sellable: true
@@ -3351,7 +3626,10 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - bottom_feeder
+  - worm_eater
+  - small
   flags: []
 - id: 76
   key: largemouth_bass
@@ -3363,10 +3641,10 @@ species:
     shadow: specie76_s.png
   description: "Sa bouche dépasse l'œil, assez large pour avaler ce qui passe à sa portée, y compris un leurre trop confiant."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 22
+    max_length_cm: 70
+    min_weight_kg: 0.4
+    max_weight_kg: 5.5
   availability:
     seasons:
     - spring
@@ -3375,18 +3653,20 @@ species:
     - winter
     time:
     - dawn
-    - day
     - dusk
-    - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - cloudy
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - predator
+    - aggressive
+    - large
   economy:
     base_price: 12
     sellable: true
@@ -3395,7 +3675,10 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - predator
+  - aggressive
+  - large
   flags: []
 - id: 77
   key: water_beetle
@@ -3407,10 +3690,10 @@ species:
     shadow: specie77_s.png
   description: "Le dytique rame sous la surface avec des pattes aplaties, chasseur autant que nageur."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 2.5
+    max_length_cm: 4.5
+    min_weight_kg: 0.002
+    max_weight_kg: 0.008
   availability:
     seasons:
     - spring
@@ -3418,10 +3701,7 @@ species:
     - autumn
     - winter
     time:
-    - dawn
     - day
-    - dusk
-    - night
     weather_required: []
     weather_preferred: []
     weather_avoided: []
@@ -3430,7 +3710,9 @@ species:
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - predator
+    - surface_feeder
   economy:
     base_price: 12
     sellable: true
@@ -3439,7 +3721,9 @@ species:
     group: creaturedex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - predator
+  - surface_feeder
   flags: []
 - id: 78
   key: crayfish
@@ -3451,10 +3735,10 @@ species:
     shadow: specie78_s.png
   description: "Petit homard d'eau douce, l'écrevisse se tient sous la pierre et n'en sort que pinces levées."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 5
+    max_length_cm: 15
+    min_weight_kg: 0.015
+    max_weight_kg: 0.12
   availability:
     seasons:
     - spring
@@ -3496,10 +3780,10 @@ species:
     shadow: specie79_s.png
   description: "Il nage quand il veut, tête hors de l'eau, et le repas suivant est souvent un poisson ou une grenouille."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 40
+    max_length_cm: 100
+    min_weight_kg: 0.08
+    max_weight_kg: 1.1
   availability:
     seasons:
     - spring
@@ -3540,10 +3824,10 @@ species:
     shadow: specie80_s.png
   description: "Lentement, l'escargot d'eau douce broute les algues des rives, coquille un peu trop lourde pour son pas."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 1.5
+    max_length_cm: 5
+    min_weight_kg: 0.002
+    max_weight_kg: 0.018
   availability:
     seasons:
     - spring
@@ -3563,7 +3847,10 @@ species:
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - herbivore
+    - small
+    - bottom_feeder
   economy:
     base_price: 12
     sellable: true
@@ -3572,7 +3859,10 @@ species:
     group: creaturedex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - herbivore
+  - small
+  - bottom_feeder
   flags: []
 - id: 81
   key: goldfish
@@ -3584,10 +3874,10 @@ species:
     shadow: specie81_s.png
   description: "Trop vu en bassin, le poisson rouge a encore, ici, des écailles et une vraie nageoire de poisson libre."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 8
+    max_length_cm: 25
+    min_weight_kg: 0.025
+    max_weight_kg: 0.55
   availability:
     seasons:
     - spring
@@ -3600,14 +3890,18 @@ species:
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - opportunist
+    - herbivore
+    - small
   economy:
     base_price: 12
     sellable: true
@@ -3616,7 +3910,10 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - opportunist
+  - herbivore
+  - small
   flags: []
 - id: 82
   key: koi
@@ -3628,10 +3925,10 @@ species:
     shadow: specie82_s.png
   description: "Grande robe, motifs de feu et de neige : la carpe koï se montre, et l'étang tout entier a l'air d'un jardin."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 25
+    max_length_cm: 70
+    min_weight_kg: 0.5
+    max_weight_kg: 7.5
   availability:
     seasons:
     - spring
@@ -3673,30 +3970,32 @@ species:
     shadow: specie83_s.png
   description: "Elle broute les herbes jusqu'à plus soif. Après son passage, l'étang a souvent l'air un peu trop nu."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 30
+    max_length_cm: 100
+    min_weight_kg: 0.7
+    max_weight_kg: 14
   availability:
     seasons:
     - spring
     - summer
     - autumn
-    - winter
     time:
     - dawn
     - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - large
+    - herbivore
   economy:
     base_price: 12
     sellable: true
@@ -3705,7 +4004,9 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - large
+  - herbivore
   flags: []
 - id: 84
   key: fathead_minnow
@@ -3717,10 +4018,10 @@ species:
     shadow: specie84_s.png
   description: "Petit, costaud, le vairon à grosse tête a trop souvent servi d'appât pour qu'on le regarde pour lui-même."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 4
+    max_length_cm: 8
+    min_weight_kg: 0.003
+    max_weight_kg: 0.014
   availability:
     seasons:
     - spring
@@ -3740,7 +4041,10 @@ species:
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - opportunist
+    - schooling
   economy:
     base_price: 12
     sellable: true
@@ -3749,7 +4053,10 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - small
+  - opportunist
+  - schooling
   flags: []
 - id: 85
   key: green_sunfish
@@ -3761,30 +4068,34 @@ species:
     shadow: specie85_s.png
   description: "Ce crapet des petites eaux chaudes défend son coin comme un poisson bien plus grand que lui."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 8
+    max_length_cm: 20
+    min_weight_kg: 0.025
+    max_weight_kg: 0.32
   availability:
     seasons:
     - spring
     - summer
     - autumn
-    - winter
     time:
     - dawn
     - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - predator
+    - aggressive
+    - small
+    - opportunist
   economy:
     base_price: 12
     sellable: true
@@ -3793,7 +4104,11 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - predator
+  - aggressive
+  - small
+  - opportunist
   flags: []
 - id: 86
   key: plecostomus
@@ -3805,19 +4120,15 @@ species:
     shadow: specie86_s.png
   description: "Une ventouse sous le ventre, le pléco racle les parois et les bois noyés jusqu'à ce qu'ils brillent."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 12
+    max_length_cm: 40
+    min_weight_kg: 0.12
+    max_weight_kg: 1.4
   availability:
     seasons:
     - spring
     - summer
-    - autumn
-    - winter
     time:
-    - dawn
-    - day
     - dusk
     - night
     weather_required: []
@@ -3828,7 +4139,10 @@ species:
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - herbivore
+    - bottom_feeder
+    - nocturnal
   economy:
     base_price: 28
     sellable: true
@@ -3837,7 +4151,10 @@ species:
     group: fishdex
     recordable: true
   rarity: uncommon
-  tags: []
+  tags:
+  - herbivore
+  - bottom_feeder
+  - nocturnal
   flags: []
 - id: 87
   key: red_shiner
@@ -3849,30 +4166,32 @@ species:
     shadow: specie87_s.png
   description: "Au printemps, les mâles se peignent de rouge et de bleu, trop voyants pour des poissons si petits."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 4
+    max_length_cm: 8
+    min_weight_kg: 0.003
+    max_weight_kg: 0.014
   availability:
     seasons:
     - spring
     - summer
-    - autumn
-    - winter
     time:
     - dawn
     - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - schooling
+    - insectivore
   economy:
     base_price: 12
     sellable: true
@@ -3881,7 +4200,10 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - small
+  - schooling
+  - insectivore
   flags: []
 - id: 88
   key: pumpkin_seed_fish
@@ -3893,10 +4215,10 @@ species:
     shadow: specie88_s.png
   description: "Le crapet-soleil porte sur l'opercule une tache bordée de rouge, comme une graine oubliée sur le flanc."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 8
+    max_length_cm: 18
+    min_weight_kg: 0.025
+    max_weight_kg: 0.22
   availability:
     seasons:
     - spring
@@ -3904,19 +4226,19 @@ species:
     - autumn
     - winter
     time:
-    - dawn
     - day
-    - dusk
-    - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - insectivore
+    - opportunist
   economy:
     base_price: 12
     sellable: true
@@ -3925,7 +4247,9 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - insectivore
+  - opportunist
   flags: []
 - id: 89
   key: goby
@@ -3937,10 +4261,10 @@ species:
     shadow: specie89_s.png
   description: "Minuscule, collé au fond, le gobie a parfois sous le ventre une ventouse qui le retient au courant."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 4
+    max_length_cm: 12
+    min_weight_kg: 0.004
+    max_weight_kg: 0.035
   availability:
     seasons:
     - spring
@@ -3960,7 +4284,10 @@ species:
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - bottom_feeder
+    - worm_eater
   economy:
     base_price: 12
     sellable: true
@@ -3969,7 +4296,10 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - small
+  - bottom_feeder
+  - worm_eater
   flags: []
 - id: 90
   key: shubukin
@@ -3981,10 +4311,10 @@ species:
     shadow: specie90_s.png
   description: "C'est un poisson rouge calico, la queue un peu trop longue, comme s'il n'avait jamais fini de se déployer."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 8
+    max_length_cm: 20
+    min_weight_kg: 0.025
+    max_weight_kg: 0.32
   availability:
     seasons:
     - spring
@@ -3997,14 +4327,17 @@ species:
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - opportunist
   economy:
     base_price: 28
     sellable: true
@@ -4013,7 +4346,9 @@ species:
     group: fishdex
     recordable: true
   rarity: uncommon
-  tags: []
+  tags:
+  - small
+  - opportunist
   flags: []
 - id: 91
   key: fancy_goldfish
@@ -4025,10 +4360,10 @@ species:
     shadow: specie91_s.png
   description: "On l'a sélectionné pour la forme, pas pour nager. L'étang n'a pas voté, mais il s'y débrouille encore."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 6
+    max_length_cm: 16
+    min_weight_kg: 0.02
+    max_weight_kg: 0.22
   availability:
     seasons:
     - spring
@@ -4041,14 +4376,17 @@ species:
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - opportunist
   economy:
     base_price: 28
     sellable: true
@@ -4057,7 +4395,9 @@ species:
     group: fishdex
     recordable: true
   rarity: uncommon
-  tags: []
+  tags:
+  - small
+  - opportunist
   flags: []
 - id: 92
   key: high_fin_banded_shark
@@ -4069,10 +4409,10 @@ species:
     shadow: specie92_s.png
   description: "Grand, rayé, nageoires hautes : on l'appelle requin, et ce n'en est pas un. Juste un beau poisson d'eau douce."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 18
+    max_length_cm: 60
+    min_weight_kg: 0.25
+    max_weight_kg: 3.8
   availability:
     seasons:
     - summer
@@ -4112,10 +4452,10 @@ species:
     shadow: specie93_s.png
   description: "Il vient reprendre l'air à la surface. C'est l'un des plus anciens poissons de bassin, et il s'en souvient."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 5
+    max_length_cm: 10
+    min_weight_kg: 0.006
+    max_weight_kg: 0.028
   availability:
     seasons:
     - summer
@@ -4157,10 +4497,10 @@ species:
     shadow: specie94_s.png
   description: "L'alose à gésier filtre l'eau en bande, le ventre un peu trop rond, toujours en mouvement."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 14
+    max_length_cm: 40
+    min_weight_kg: 0.08
+    max_weight_kg: 0.75
   availability:
     seasons:
     - spring
@@ -4173,14 +4513,18 @@ species:
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - cloudy
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - schooling
+    - surface_feeder
+    - small
   economy:
     base_price: 12
     sellable: true
@@ -4189,7 +4533,10 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - schooling
+  - surface_feeder
+  - small
   flags: []
 - id: 95
   key: rosette
@@ -4201,30 +4548,32 @@ species:
     shadow: specie95_s.png
   description: "Petite loche tachetée de rose, elle file en groupe dans les herbes, trop jolie pour l'eau trouble."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 2
+    max_length_cm: 4
+    min_weight_kg: 0.001
+    max_weight_kg: 0.004
   availability:
     seasons:
     - spring
     - summer
-    - autumn
-    - winter
     time:
     - dawn
     - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - insectivore
+    - schooling
   economy:
     base_price: 12
     sellable: true
@@ -4233,7 +4582,10 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - small
+  - insectivore
+  - schooling
   flags: []
 - id: 96
   key: golden_tench
@@ -4245,10 +4597,10 @@ species:
     shadow: specie96_s.png
   description: "C'est une tanche, mais dorée : elle aime la vase, l'eau calme, et ne se presse jamais."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 18
+    max_length_cm: 50
+    min_weight_kg: 0.25
+    max_weight_kg: 2.4
   availability:
     seasons:
     - autumn
@@ -4290,30 +4642,32 @@ species:
     shadow: specie97_s.png
   description: "Vivipare, aux robes innombrables, le molly vient d'abord des eaux douces et saumâtres des Amériques."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 4
+    max_length_cm: 10
+    min_weight_kg: 0.004
+    max_weight_kg: 0.028
   availability:
     seasons:
     - spring
     - summer
-    - autumn
-    - winter
     time:
     - dawn
     - day
     - dusk
     - night
     weather_required: []
-    weather_preferred: []
+    weather_preferred:
+    - clear
     weather_avoided: []
   capture:
     method: rod
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - herbivore
+    - opportunist
   economy:
     base_price: 12
     sellable: true
@@ -4322,7 +4676,10 @@ species:
     group: fishdex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - small
+  - herbivore
+  - opportunist
   flags: []
 - id: 98
   key: frog
@@ -4334,10 +4691,10 @@ species:
     shadow: specie98_s.png
   description: "L'adulte reste au bord, à l'affût. Les œufs, eux, sont déjà dans l'eau, en chapelets visqueux."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 5
+    max_length_cm: 10
+    min_weight_kg: 0.012
+    max_weight_kg: 0.07
   availability:
     seasons:
     - spring
@@ -4381,16 +4738,14 @@ species:
     shadow: specie99_s.png
   description: "Pas encore grenouille : une queue, une tête ronde, et déjà l'habitude de fuir dès que l'eau tremble."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 3
+    max_length_cm: 8
+    min_weight_kg: 0.002
+    max_weight_kg: 0.012
   availability:
     seasons:
     - spring
     - summer
-    - autumn
-    - winter
     time:
     - dawn
     - day
@@ -4404,7 +4759,9 @@ species:
     difficulty: 1
     behavior: standard
     hook_tags: []
-    bait_tags: []
+    bait_tags:
+    - small
+    - herbivore
   economy:
     base_price: 12
     sellable: true
@@ -4413,7 +4770,9 @@ species:
     group: creaturedex
     recordable: true
   rarity: common
-  tags: []
+  tags:
+  - small
+  - herbivore
   flags: []
 - id: 100
   key: axolotl
@@ -4425,10 +4784,10 @@ species:
     shadow: specie100_s.png
   description: "Il garde ses branchies toute sa vie, comme s'il avait décidé de ne jamais tout à fait grandir."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 14
+    max_length_cm: 30
+    min_weight_kg: 0.05
+    max_weight_kg: 0.28
   availability:
     seasons:
     - spring
@@ -4469,10 +4828,10 @@ species:
     shadow: specie101_s.png
   description: "Grande spirale rose, trop belle pour rester au fond : on la reconnaît avant même de la soulever."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 12
+    max_length_cm: 30
+    min_weight_kg: 0.18
+    max_weight_kg: 1.4
   availability:
     seasons:
     - spring
@@ -4515,10 +4874,10 @@ species:
     shadow: specie102_s.png
   description: "Le bulot rayé pèse dans la main, strié comme s'il avait gardé toutes les marées sur la coquille."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 6
+    max_length_cm: 15
+    min_weight_kg: 0.035
+    max_weight_kg: 0.22
   availability:
     seasons:
     - spring
@@ -4561,10 +4920,10 @@ species:
     shadow: specie103_s.png
   description: "Le turban vert a l'air d'une pierre polie, jusqu'à ce qu'on la retourne et qu'on voie la spirale."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 4
+    max_length_cm: 10
+    min_weight_kg: 0.015
+    max_weight_kg: 0.1
   availability:
     seasons:
     - spring
@@ -4607,10 +4966,10 @@ species:
     shadow: specie104_s.png
   description: "Le pétoncle doré claque encore un peu entre les doigts, comme s'il n'avait pas fini de nager."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 6
+    max_length_cm: 12
+    min_weight_kg: 0.025
+    max_weight_kg: 0.12
   availability:
     seasons:
     - spring
@@ -4653,10 +5012,10 @@ species:
     shadow: specie105_s.png
   description: "Tacheté, un peu trop facile à ramasser : on le voit de loin sur le galet, et on le prend quand même."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 4
+    max_length_cm: 9
+    min_weight_kg: 0.012
+    max_weight_kg: 0.08
   availability:
     seasons:
     - spring
@@ -4699,10 +5058,10 @@ species:
     shadow: specie106_s.png
   description: "Clair comme une pièce de soleil, ce pétoncle tient dans la paume et chauffe un peu trop vite."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 5
+    max_length_cm: 10
+    min_weight_kg: 0.018
+    max_weight_kg: 0.09
   availability:
     seasons:
     - spring
@@ -4745,10 +5104,10 @@ species:
     shadow: specie107_s.png
   description: "La palourde ambrée reste fermée, sage, et ne dit rien de ce qu'elle garde entre les deux valves."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 4
+    max_length_cm: 8
+    min_weight_kg: 0.015
+    max_weight_kg: 0.07
   availability:
     seasons:
     - spring
@@ -4791,10 +5150,10 @@ species:
     shadow: specie108_s.png
   description: "La telline se cache d'un rien de sable. Un pas de trop, et elle n'est plus là."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 2
+    max_length_cm: 4
+    min_weight_kg: 0.003
+    max_weight_kg: 0.015
   availability:
     seasons:
     - spring
@@ -4837,10 +5196,10 @@ species:
     shadow: specie109_s.png
   description: "La patelle se colle à la roche si fort qu'il faut vraiment le vouloir pour la décoller."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 2
+    max_length_cm: 5
+    min_weight_kg: 0.003
+    max_weight_kg: 0.018
   availability:
     seasons:
     - spring
@@ -4883,10 +5242,10 @@ species:
     shadow: specie110_s.png
   description: "Le turban orange est trop voyant sur le galet : on ne le cherche pas, on le trouve."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 3
+    max_length_cm: 8
+    min_weight_kg: 0.008
+    max_weight_kg: 0.07
   availability:
     seasons:
     - spring
@@ -4929,10 +5288,10 @@ species:
     shadow: specie111_s.png
   description: "C'est une huître. Parfois, entre les deux valves, il y a autre chose que de l'eau de mer."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 6
+    max_length_cm: 15
+    min_weight_kg: 0.04
+    max_weight_kg: 0.35
   availability:
     seasons:
     - spring
@@ -4978,10 +5337,10 @@ species:
     shadow: specie112_s.png
   description: "La moule sombre s'accroche en grappe au bas de l'eau, noire, serrée, déjà trop nombreuse pour les compter."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 4
+    max_length_cm: 10
+    min_weight_kg: 0.01
+    max_weight_kg: 0.07
   availability:
     seasons:
     - autumn
@@ -5023,10 +5382,10 @@ species:
     shadow: specie113_s.png
   description: "Fine, déjà chaude dans la paume, la coquille soleil a l'air d'avoir séché avant même la marée."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 3
+    max_length_cm: 7
+    min_weight_kg: 0.004
+    max_weight_kg: 0.025
   availability:
     seasons:
     - spring
@@ -5069,10 +5428,10 @@ species:
     shadow: specie114_s.png
   description: "Un bulot brun, banal, du genre qu'on garde quand même parce qu'il tient bien dans la poche."
   biology:
-    min_length_cm: null
-    max_length_cm: null
-    min_weight_kg: null
-    max_weight_kg: null
+    min_length_cm: 5
+    max_length_cm: 12
+    min_weight_kg: 0.025
+    max_weight_kg: 0.16
   availability:
     seasons:
     - spring

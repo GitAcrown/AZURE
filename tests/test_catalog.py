@@ -174,6 +174,24 @@ def test_lookup_species_by_key_and_id() -> None:
     assert by_key.capture.method == "rod"
 
 
+def test_species_biology_and_prefs() -> None:
+    catalog = load_catalog(ASSETS)
+    incomplete = [s.key for s in catalog.species if s.biology.is_incomplete()]
+    assert incomplete == []
+    guppy = catalog.get_species("guppy")
+    tuna = catalog.get_species("tuna")
+    assert guppy.biology.max_length_cm < tuna.biology.min_length_cm
+    assert guppy.biology.max_weight_kg < tuna.biology.min_weight_kg
+    pollock = catalog.get_species("pollock")
+    assert pollock.biology.min_length_cm == 25
+    assert pollock.biology.max_length_cm == 90
+    assert "schooling" in pollock.tags
+    assert "cloudy" in pollock.availability.weather_preferred
+    tuna_av = tuna.availability
+    assert tuna_av.seasons == ["summer", "autumn"]
+    assert "fog" in tuna_av.weather_avoided
+
+
 def test_lookup_item_and_starter() -> None:
     catalog = load_catalog(ASSETS)
     rod = catalog.get_item("coastal_rod")

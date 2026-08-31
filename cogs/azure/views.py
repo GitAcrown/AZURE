@@ -43,7 +43,12 @@ from common.display import (
     weather_of,
     energy_amount,
 )
-from common.inspect import inspect_item_text, inspect_species_text
+from common.inspect import (
+    inspect_item_text,
+    inspect_species_text,
+    species_context_line,
+    species_where_text,
+)
 from common.money import format_money, format_money_plain
 from common.onboarding import slide_at, slide_count
 from common.daily import daily_place_block
@@ -1346,6 +1351,9 @@ class CatchView(discord.ui.LayoutView):
         desc = italic_text(species.description)
         if desc:
             children += [discord.ui.Separator(), discord.ui.TextDisplay(desc)]
+        where = species_where_text(catalog, species)
+        if where:
+            children += [discord.ui.Separator(), discord.ui.TextDisplay(where)]
         children += [discord.ui.Separator(), discord.ui.TextDisplay(captures)]
 
         status = _catch_status_lines(catalog, result)
@@ -1541,6 +1549,28 @@ def _dex_species(catalog: Catalog, group: str) -> list:
     return species
 
 
+def _dex_page_lines(catalog: Catalog, rows: dict[str, DexRow], chunk) -> list[str]:
+    lines: list[str] = []
+    last_group = None
+    for spec in chunk:
+        gkey = spec.collection.group or ""
+        if gkey != last_group:
+            lines.append(f"**{DEX_GROUP_LABELS.get(gkey, gkey or '—')}**")
+            last_group = gkey
+        row = rows.get(spec.key)
+        if row is None:
+            lines.append(with_emoji(species_emoji(spec.key, shadow=True), "???"))
+            continue
+        extra = f" ×{row.catch_count}"
+        if row.best_length_cm is not None:
+            extra += f" · `{row.best_length_cm} cm`"
+        lines.append(species_display(catalog, spec.key, extra=extra))
+        where = species_context_line(catalog, spec)
+        if where:
+            lines.append(italic_text(where))
+    return lines
+
+
 class DexView(discord.ui.LayoutView):
     """Dex paginé : sprite si découvert, silhouette sinon. Pas de thumbnail PNG."""
 
@@ -1569,21 +1599,7 @@ class DexView(discord.ui.LayoutView):
         start = self.page * DEX_PAGE_SIZE
         chunk = species[start : start + DEX_PAGE_SIZE]
 
-        lines: list[str] = []
-        last_group = None
-        for spec in chunk:
-            gkey = spec.collection.group or ""
-            if gkey != last_group:
-                lines.append(f"**{DEX_GROUP_LABELS.get(gkey, gkey or '—')}**")
-                last_group = gkey
-            row = rows.get(spec.key)
-            if row is None:
-                lines.append(with_emoji(species_emoji(spec.key, shadow=True), "???"))
-                continue
-            extra = f" ×{row.catch_count}"
-            if row.best_length_cm is not None:
-                extra += f" · `{row.best_length_cm} cm`"
-            lines.append(species_display(catalog, spec.key, extra=extra))
+        lines = _dex_page_lines(catalog, rows, chunk)
 
         group_label = "Tout" if group == "all" else DEX_GROUP_LABELS.get(group, group)
         options = [
