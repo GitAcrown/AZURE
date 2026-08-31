@@ -10,14 +10,14 @@ from common.player.models import CaughtSpecimen
 
 SLOT_LABELS = {
     "tool": "Outil",
-    "hook": "Crochet",
+    "hook": "Hameçon",
     "bait": "Appât",
     "objet": "Objet",
 }
 
 CATEGORY_LABELS = {
     "tool": "Outil",
-    "hook": "Crochet",
+    "hook": "Hameçon",
     "bait": "Appât",
     "food": "Nourriture",
     "treasure": "Trésor",

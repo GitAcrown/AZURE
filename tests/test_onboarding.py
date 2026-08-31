@@ -34,7 +34,7 @@ def test_onboarding_covers_gameplay_loops() -> None:
     assert "/records" in blob
     assert "immédiat" in blob
     assert "marches" in blob
-    assert "crochet" in blob
+    assert "hameçon" in blob
     assert "énergie" in blob
     assert "Agathe" in blob
     assert "Esmer" in blob

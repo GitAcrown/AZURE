@@ -575,7 +575,7 @@ def talk_facts(
             f"Météo préférée ×{fish.weather_preferred_mult}, évitée ×{fish.weather_avoided_mult}. "
             f"Nuit ×{fish.night_weight_mult} (lanterne ignore ce malus). "
             f"Déchet {fish.waste_chance * 100:g} %, butin {fish.loot_chance * 100:g} %, "
-            f"gemme {fish.gem_chance * 1000:g} pour 1000. Crochet obligatoire pour lancer."
+            f"gemme {fish.gem_chance * 1000:g} pour 1000. Hameçon obligatoire pour lancer."
         )
         lines.append(
             f"Énergie : {player.energy_start} au départ, max {player.energy_max}, "

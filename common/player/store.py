@@ -752,7 +752,7 @@ class PlayerStore:
         if hook_eq is not None:
             hook_key = hook_eq.gear.item_key if hook_eq.gear is not None else hook_eq.item_key
         if not hook_key:
-            raise PlayerError("équipe un crochet avec /profil")
+            raise PlayerError("équipe un hameçon avec /profil")
         hook_item = self._item(hook_key)
 
         raw_off = effects.get("offseason_species_chance_bonus")
@@ -974,13 +974,6 @@ class PlayerStore:
         catch_count, kept, carry_used, carry_max = await self._persist_catch(
             guild_id, user_id, result.species_key, specimen
         )
-        snap = result.snap
-        out_energy = result.energy
-        out_max = result.energy_max
-        if energy is None or energy_max is None:
-            snap = await self.snapshot(guild_id, user_id)
-            out_energy = snap.energy
-            out_max = snap.energy_max
         waste = roll_waste(self.catalog, rng)
         waste_key = None
         if waste is not None:
@@ -996,7 +989,10 @@ class PlayerStore:
             await self.add_item(guild_id, user_id, gem.key, 1)
             loot_key = gem.key
         hook_broke = await self._wear_hooked_attempt(guild_id, user_id)
-        milieu_key = snap.milieu_key if snap is not None else None
+        snap = await self.snapshot(guild_id, user_id)
+        out_energy = snap.energy
+        out_max = snap.energy_max
+        milieu_key = snap.milieu_key
         if milieu_key:
             await self._record_milieu_catch(guild_id, milieu_key)
         daily, just_rewarded, daily_note = await self.tick_daily(
@@ -2323,7 +2319,7 @@ class PlayerStore:
                 await self._try_auto_equip_gear(guild_id, user_id, item, gear_id)
 
     async def _ensure_base_hooks(self, guild_id: int, user_id: int) -> bool:
-        """Petit + gros crochet de départ, même pour un profil déjà créé."""
+        """Petit + gros hameçon de départ, même pour un profil déjà créé."""
         owned: set[str] = set()
         async with self._conn.execute(
             "SELECT item_key FROM gear_instances WHERE guild_id = ? AND user_id = ?",

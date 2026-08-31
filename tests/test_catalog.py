@@ -185,6 +185,8 @@ def test_lookup_item_and_starter() -> None:
     assert keys[:3] == ["coastal_rod", "widewater_rod", "net"]
     assert "small_hook" in keys
     assert "big_hook" in keys
+    assert catalog.get_item("small_hook").name == "Petit hameçon"
+    assert catalog.get_item("big_hook").name == "Gros hameçon"
     for key in ("coastal_rod", "widewater_rod", "net"):
         item = catalog.get_item(key)
         assert item.durability is None

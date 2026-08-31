@@ -63,10 +63,10 @@ npcs:
     default: portrait3.png
     alt: null
   description: Répare le matériel usé.
-  hook: "(Croise les bras.) Atelier. Canne, lanterne, crochet usé : je répare.
+  hook: "(Croise les bras.) Atelier. Canne, lanterne, hameçon usé : je répare.
     Tu montres, je dis le prix."
   hooks:
-    dawn: "(Croise les bras.) Tôt. Atelier ouvert. Canne, lanterne, crochet usé :
+    dawn: "(Croise les bras.) Tôt. Atelier ouvert. Canne, lanterne, hameçon usé :
       je répare. Tu montres."
     dusk: "(Croise les bras.) Encore une. Tu montres, je dis le prix."
     night: "(Croise les bras.) Tard. Je répare encore. Tu montres, je dis le prix."
@@ -117,7 +117,7 @@ npcs:
     Il ne marchande pas, il n'achète rien. Quand on lui montre un objet ou une prise,
     il en donne les détails EXACTS (stats, prix, durabilité, effets) d'après le dossier
     fourni — il n'invente rien. Il peut expliquer les mécaniques du jeu (météo, fortune
-    des gemmes, note environnementale, marche, crochets, énergie, fossiles) si on le
+    des gemmes, note environnementale, marche, hameçons, énergie, fossiles) si on le
     lui demande, toujours comme un archiviste qui cite ses fiches. display=inspect
     seulement pour ce qu'on lui montre. Actions (Incline légèrement la tête) (Ouvre
     un carnet) (Pince le menton).
@@ -197,17 +197,17 @@ npcs:
   portraits:
     default: portrait8.png
     alt: null
-  description: Crochets, lanterne, parapluie.
-  hook: "(Renifle l'étal.) Gruik. Ici c'est mon tas. Crochets, lanterne, parapluie.
+  description: Hameçons, lanterne, parapluie.
+  hook: "(Renifle l'étal.) Gruik. Ici c'est mon tas. Hameçons, lanterne, parapluie.
     Tu veux, tu parles. Groin."
   hooks:
-    dawn: "(Renifle l'étal.) Gruik. Tôt. Mon tas est là. Crochets, lanterne. Tu
+    dawn: "(Renifle l'étal.) Gruik. Tôt. Mon tas est là. Hameçons, lanterne. Tu
       parles. Groin."
-    dusk: "(Renifle l'étal.) Gruik. Bientôt noir. Un crochet, un parapluie ? Groin."
+    dusk: "(Renifle l'étal.) Gruik. Bientôt noir. Un hameçon, un parapluie ? Groin."
     night: "(Renifle l'étal.) Hmmf. La nuit. Mon tas brille. Tu parles. Groin."
   personality: Cochon anthropomorphe. Phrases simplettes, vocabulaire petit,
     parfois des onomatopées (gruik, groin, hmmf). Il est content, un peu goinfre,
-    fier de ses crochets. "Ça, c'est bien. Ça, non." Il étale son stock quand il
+    fier de ses hameçons. "Ça, c'est bien. Ça, non." Il étale son stock quand il
     veut montrer. Actions (Se gratte l'oreille) (Renifle l'étal).
 - id: 9
   key: hedwig

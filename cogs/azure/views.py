@@ -30,6 +30,7 @@ from common.discord_ui import (
     section_with_thumbnail,
     select_desc,
     select_label,
+    text_display,
 )
 from common.display import (
     dialogue_turn,
@@ -100,7 +101,7 @@ from common.world import (
 
 SLOT_LABELS = {
     "tool": "Outil",
-    "hook": "Crochet",
+    "hook": "Hameçon",
     "bait": "Appât",
     "objet": "Objet",
 }
@@ -109,7 +110,7 @@ DISPLAY_SLOTS = ("tool", "hook", "bait", "objet")
 
 CATEGORY_LABELS = {
     "tool": "Outil",
-    "hook": "Crochet",
+    "hook": "Hameçon",
     "bait": "Appât",
     "food": "Nourriture",
     "treasure": "Trésor",
@@ -146,6 +147,18 @@ def _energy_bar(current: int, maximum: int, width: int = 10) -> str:
         return "░" * width
     filled = max(0, min(width, round(width * current / maximum)))
     return "█" * filled + "░" * (width - filled)
+
+
+def _durability_plain(item: Item, remaining: int | None) -> str:
+    """Durabilité sans markdown — pour les descriptions de select."""
+    if remaining is None or item.durability is None:
+        return ""
+    dur = item.durability
+    if dur.max_days is not None or dur.unit == "days":
+        return f"{remaining} j"
+    if dur.max is not None:
+        return f"{remaining}/{dur.max} usages"
+    return ""
 
 
 def _durability_label(item: Item, remaining: int | None) -> str:
@@ -548,7 +561,7 @@ class ProfilView(discord.ui.LayoutView):
         elif options and eat:
             note = "Un seul **objet** actif. **Manger** recharge l'énergie."
         elif options:
-            note = "Un seul **objet** actif. Change canne, crochet, appât ou objet."
+            note = "Un seul **objet** actif. Change canne, hameçon, appât ou objet."
         elif eat:
             note = "**Manger** pour récupérer de l'énergie."
         else:
@@ -576,12 +589,19 @@ def _equip_options(catalog: Catalog, snap: PlayerSnapshot) -> list[discord.Selec
                 item_name = catalog.get_item(key).name
             except Exception:
                 item_name = key
-        label = f"RETIRER · {SLOT_LABELS[slot]}"
-        if item_name:
-            label = f"{label} · {item_name}"
+        desc_parts = ["Retirer", SLOT_LABELS[slot]]
+        if eq is not None and eq.gear is not None:
+            try:
+                item = catalog.get_item(eq.gear.item_key)
+                plain = _durability_plain(item, eq.gear.durability)
+                if plain:
+                    desc_parts.append(plain)
+            except Exception:
+                pass
         kwargs: dict = {
-            "label": select_label(label),
+            "label": select_label(item_name or SLOT_LABELS[slot]),
             "value": f"unequip:{slot}"[:100],
+            "description": select_desc(" · ".join(desc_parts)),
         }
         emoji = _select_emoji(_equipped_key(eq))
         if emoji is not None:
@@ -601,10 +621,12 @@ def _equip_options(catalog: Catalog, snap: PlayerSnapshot) -> list[discord.Selec
         if eq is None or not eq.equippable or eq.slot not in GEAR_SLOTS:
             continue
         slot_label = SLOT_LABELS.get(eq.slot or "", eq.slot or "?")
-        extra = _durability_label(item, gear.durability)
+        plain = _durability_plain(item, gear.durability)
+        desc = slot_label if not plain else f"{slot_label} · {plain}"
         kwargs = {
-            "label": select_label(f"{slot_label} · {item.name}{extra}".strip()),
+            "label": select_label(item.name),
             "value": f"gear:{gear.id}"[:100],
+            "description": select_desc(desc),
         }
         emoji = _select_emoji(item.key)
         if emoji is not None:
@@ -621,8 +643,9 @@ def _equip_options(catalog: Catalog, snap: PlayerSnapshot) -> list[discord.Selec
         if eq is None or not eq.equippable or eq.slot != BAIT_SLOT:
             continue
         kwargs = {
-            "label": select_label(f"Appât · {item.name} ×{stack.quantity}"),
+            "label": select_label(item.name),
             "value": f"bait:{item.key}"[:100],
+            "description": select_desc(f"Appât · ×{stack.quantity}"),
         }
         emoji = _select_emoji(item.key)
         if emoji is not None:
@@ -1325,43 +1348,53 @@ class CatchView(discord.ui.LayoutView):
             children += [discord.ui.Separator(), discord.ui.TextDisplay(desc)]
         children += [discord.ui.Separator(), discord.ui.TextDisplay(captures)]
 
-        note = f"**énergie** `{result.energy}/{result.energy_max}`"
-        if result.bait_consumed:
-            note += f" · **appât** −1 {item_display(catalog, result.bait_consumed)}"
-        if result.waste_key:
-            note += f" · **déchet** {item_display(catalog, result.waste_key)}"
-        if result.loot_key:
-            note += f" · **trouvé** {item_display(catalog, result.loot_key)}"
-        if result.hook_broke:
-            note += " · **crochet usé**"
-        if result.kept:
-            note += f" · **dans le sac** · {result.carry_used}/{result.carry_max} places"
-        else:
-            note += f" · **relâché** · **sac plein** {result.carry_used}/{result.carry_max} places"
-        if result.daily_just_rewarded:
-            note += (
-                " · **quête du jour** · "
-                + format_money(result.daily_just_rewarded, catalog.game.money)
-            )
-        elif result.daily_note and result.daily_count is not None:
-            note += f" · **quête du jour** · {result.daily_count}/{result.daily_target}"
+        status = _catch_status_lines(catalog, result)
         self.result = result
         self.catalog = catalog
         shareable = bool(result.is_new or result.personal_record or result.guild_rank or result.loot_key)
-        recast_ok, energy_bit = _recast_note(catalog, result)
-        if energy_bit:
-            note += f" · {energy_bit}"
+        recast_ok, recast_warn = _recast_note(catalog, result)
+        if recast_warn:
+            status.append(recast_warn)
+        if status:
+            children += [discord.ui.Separator(), text_display("\n".join(status))]
         buttons = [_RecastButton(disabled=not recast_ok)]
         if shareable:
             buttons.append(_ShareCatchButton())
-        append_controls(children, note=note, button_row=discord.ui.ActionRow(*buttons))
+        append_controls(children, button_row=discord.ui.ActionRow(*buttons))
         self.add_item(make_container(*children))
+
+
+def _catch_status_lines(catalog: Catalog, result: CastResult) -> list[str]:
+    lines = [f"**Énergie** · `{result.energy}/{result.energy_max}`"]
+    if result.bait_consumed:
+        lines.append(f"**Appât** · −1 {item_display(catalog, result.bait_consumed)}")
+    if result.waste_key:
+        lines.append(f"**Déchet** · {item_display(catalog, result.waste_key)}")
+    if result.loot_key:
+        lines.append(f"**Trouvé** · {item_display(catalog, result.loot_key)}")
+    if result.hook_broke:
+        lines.append("**Hameçon** · usé")
+    places = f"`{result.carry_used}/{result.carry_max}` places"
+    if result.kept:
+        lines.append(f"**Sac** · {places}")
+    else:
+        lines.append(f"**Relâché** · sac plein · {places}")
+    if result.daily_just_rewarded:
+        lines.append(
+            "**Quête du jour** · "
+            + format_money(result.daily_just_rewarded, catalog.game.money)
+        )
+    elif result.daily_note and result.daily_count is not None:
+        lines.append(
+            f"**Quête du jour** · `{result.daily_count}/{result.daily_target}`"
+        )
+    return lines
 
 
 def _recast_note(catalog: Catalog, result: CastResult) -> tuple[bool, str]:
     snap = result.snap
     if snap is None or not _equipped_key(snap.equipped.get("hook")):
-        return False, "**équipe un crochet**"
+        return False, "**Équipe un hameçon**"
     return _recast_energy_note(catalog, result)
 
 
@@ -1420,7 +1453,7 @@ async def start_cast_flow(
                 ),
             )
             return
-        if "crochet" in msg.lower():
+        if "hameçon" in msg.lower() or "crochet" in msg.lower():
             await _apply_view(
                 interaction,
                 await load_player_hub(
@@ -1430,7 +1463,7 @@ async def start_cast_flow(
                     interaction.user.id,
                     interaction.user.display_name,
                     tab="profil",
-                    flash="**Équipe un crochet** pour pêcher.",
+                    flash="**Équipe un hameçon** pour pêcher.",
                 ),
             )
             return

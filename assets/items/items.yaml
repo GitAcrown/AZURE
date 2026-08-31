@@ -719,12 +719,12 @@ items:
   - not_v1
 - id: 28
   key: big_hook
-  name: Gros crochet
+  name: Gros hameçon
   category: hook
   sprite: item28.png
   shadow: item28_s.png
   shadow_ready: true
-  description: Un crochet imposant qui favorise légèrement les grosses prises.
+  description: Un hameçon imposant qui favorise légèrement les grosses prises.
   enabled: true
   sources:
   - shop
@@ -756,12 +756,12 @@ items:
       tension_tolerance_multiplier: 1.05
 - id: 29
   key: small_hook
-  name: Petit crochet
+  name: Petit hameçon
   category: hook
   sprite: item29.png
   shadow: item29_s.png
   shadow_ready: true
-  description: Un crochet discret plus à l'aise sur les petites prises.
+  description: Un hameçon discret plus à l'aise sur les petites prises.
   enabled: true
   sources:
   - shop
@@ -792,7 +792,7 @@ items:
       hook_window_multiplier: 1.05
 - id: 30
   key: multi_hook
-  name: Crochet multiple
+  name: Hameçon multiple
   category: hook
   sprite: item30.png
   shadow: item30_s.png
@@ -828,12 +828,12 @@ items:
       escape_rate_multiplier: 0.82
 - id: 31
   key: bead_hook
-  name: Crochet à perle
+  name: Hameçon à perle
   category: hook
   sprite: item31.png
   shadow: item31_s.png
   shadow_ready: true
-  description: Un crochet orné d'une perle attirant légèrement les espèces curieuses ou sensibles à l'éclat.
+  description: Un hameçon orné d'une perle attirant légèrement les espèces curieuses ou sensibles à l'éclat.
   enabled: true
   sources:
   - shop
@@ -862,12 +862,12 @@ items:
     minigame: {}
 - id: 32
   key: tactical_hook
-  name: Crochet tactique
+  name: Hameçon tactique
   category: hook
   sprite: item32.png
   shadow: item32_s.png
   shadow_ready: true
-  description: Un crochet bien conçu et équilibré, offrant un léger confort de mini-jeu sans forte spécialisation.
+  description: Un hameçon bien conçu et équilibré, offrant un léger confort de mini-jeu sans forte spécialisation.
   enabled: true
   sources:
   - shop

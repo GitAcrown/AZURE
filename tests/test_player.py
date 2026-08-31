@@ -442,7 +442,7 @@ def test_cast_requires_tool_and_energy(catalog, tmp_path: Path) -> None:
             await store.get_or_create(GUILD_A, USER)
             await store.set_milieu(GUILD_A, USER, "ocean")
             await store.unequip(GUILD_A, USER, "hook")
-            with pytest.raises(PlayerError, match="crochet"):
+            with pytest.raises(PlayerError, match="hameçon"):
                 await store.cast(GUILD_A, USER)
             snap = await store.snapshot(GUILD_A, USER)
             small = next(g for g in snap.gear if g.item_key == "small_hook")
@@ -480,9 +480,17 @@ def test_begin_cast_does_not_write_dex_until_finish(catalog, tmp_path: Path) -> 
             assert pending.bait_key is None
             assert pending.weather_key in {w.key for w in catalog.game.world.weathers}
             result = await store.finish_cast(
-                GUILD_A, USER, pending.species_key, bait_consumed=pending.bait_consumed
+                GUILD_A,
+                USER,
+                pending.species_key,
+                bait_consumed=pending.bait_consumed,
+                energy=pending.energy,
+                energy_max=pending.energy_max,
+                preview=pending.preview,
             )
             assert result.catch_count == 1
+            assert result.snap is not None
+            assert result.snap.equipped.get("hook") is not None
             assert result.snap.dex_found == 1
             rows = await store.list_dex(GUILD_A, USER)
             assert pending.species_key in rows
@@ -939,6 +947,69 @@ def test_fossil_set_grants_archaeology_point(catalog, tmp_path: Path) -> None:
             snap = await store.snapshot(GUILD_A, USER)
             assert snap.archaeology_points == 1
             assert "fossil_plaster_a" in snap.owned_keys()
+        finally:
+            await store.close()
+
+    _run(body())
+
+
+def test_equip_select_and_catch_status_display(catalog, tmp_path: Path) -> None:
+    from cogs.azure.views import _catch_status_lines, _equip_options, _recast_note
+    from common.player.models import CastResult
+
+    async def body() -> None:
+        store = await open_store(tmp_path / "ui.db", catalog)
+        try:
+            snap = await store.get_or_create(GUILD_A, USER)
+            options = _equip_options(catalog, snap)
+            assert options
+            for opt in options:
+                assert "`" not in opt.label
+                assert "`" not in (opt.description or "")
+            hook_opts = [
+                o for o in options if o.description and "Hameçon" in o.description
+            ]
+            assert hook_opts
+            labels = {o.label for o in hook_opts}
+            assert any("hameçon" in name.lower() for name in labels)
+            result = CastResult(
+                species_key="unused",
+                catch_count=1,
+                is_new=True,
+                energy=80,
+                energy_max=100,
+                bait_consumed=None,
+                snap=snap,
+                kept=True,
+                carry_used=1,
+                carry_max=5,
+                daily_count=2,
+                daily_target=3,
+                daily_note=True,
+            )
+            lines = _catch_status_lines(catalog, result)
+            assert lines[0].startswith("**Énergie**")
+            assert any(line.startswith("**Sac**") for line in lines)
+            assert any("Quête du jour" in line for line in lines)
+            assert "\n" in "\n".join(lines)
+            ok, warn = _recast_note(catalog, result)
+            assert ok
+            assert warn == ""
+            missing = CastResult(
+                species_key="unused",
+                catch_count=1,
+                is_new=False,
+                energy=80,
+                energy_max=100,
+                bait_consumed=None,
+                snap=None,
+                kept=True,
+                carry_used=1,
+                carry_max=5,
+            )
+            ok_missing, warn_missing = _recast_note(catalog, missing)
+            assert not ok_missing
+            assert "hameçon" in warn_missing.lower()
         finally:
             await store.close()
 

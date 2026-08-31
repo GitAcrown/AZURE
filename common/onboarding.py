@@ -20,7 +20,7 @@ SLIDES: tuple[OnboardingSlide, ...] = (
             "sont tes trois milieux, chacun avec sa météo, ses poissons et "
             "ses créatures.\n\n"
             "Tu arrives déjà équipé d'une **canne côtière**, d'un **filet**, "
-            "d'un **petit crochet** et d'un **gros crochet**. L'argent "
+            "d'un **petit hameçon** et d'un **gros hameçon**. L'argent "
             "viendra plus tard, quand tu vendras tes prises. Les vues qui "
             "suivent reprennent les commandes dans l'ordre où tu t'en serviras."
         ),
@@ -44,9 +44,9 @@ SLIDES: tuple[OnboardingSlide, ...] = (
         title="/pecher",
         body=(
             "Une fois sur place, **/pecher** lance dans le milieu où tu te "
-            "trouves. Il te faut un **outil** et un **crochet** équipés "
-            "(canne ou filet, petit ou gros crochet selon ce que tu vises) ; "
-            "un **appât** aide sans être obligatoire, et tout ça s'équipe "
+            "trouves. Tu as déjà un **outil** et un **hameçon** équipés "
+            "(canne ou filet, petit ou gros hameçon selon ce que tu vises) ; "
+            "un **appât** aide sans être obligatoire, et tu changes tout ça "
             "dans **/profil**.\n\n"
             "Chaque lancer **consomme de l'énergie**, davantage par mauvais "
             "temps. Elle **revient toute seule**, et tu peux **manger** pour "
@@ -60,7 +60,7 @@ SLIDES: tuple[OnboardingSlide, ...] = (
         title="/profil",
         body=(
             "**/profil** rassemble trois onglets : **Profil**, **Sac** et "
-            "**Dex**. Sur Profil tu **équipes** l'outil, le crochet et "
+            "**Dex**. Sur Profil tu **équipes** l'outil, l'hameçon et "
             "l'appât, et tu **manges** (pain, café…) pour récupérer de "
             "l'énergie.\n\n"
             "Le Sac tient **cinq poissons** et **cinq** autres prises "
