@@ -20,10 +20,10 @@ def test_onboarding_covers_gameplay_loops() -> None:
     titles = [s.title for s in SLIDES]
     assert titles == [
         "Bienvenue",
-        "Y aller",
-        "Lancer",
-        "Le sac",
-        "Le village",
+        "/monde",
+        "/pecher",
+        "/profil",
+        "/village",
         "C'est parti",
     ]
     blob = "\n".join(s.body for s in SLIDES)
@@ -31,8 +31,9 @@ def test_onboarding_covers_gameplay_loops() -> None:
     assert "/pecher" in blob
     assert "/village" in blob
     assert "/profil" in blob
+    assert "/records" in blob
     assert "immédiat" in blob
-    assert "marche" in blob
+    assert "marches" in blob
     assert "crochet" in blob
     assert "énergie" in blob
     assert "Agathe" in blob
@@ -40,12 +41,15 @@ def test_onboarding_covers_gameplay_loops() -> None:
     assert "Fortune" in blob
     assert "fossiles" in blob
     assert "Place" in blob
+    assert "quête du jour" in blob
+    for slide in SLIDES:
+        assert len(slide.body) > 180
 
 
 def test_slide_at_clamps() -> None:
     assert slide_at(-1).title == SLIDES[0].title
     assert slide_at(99).title == SLIDES[-1].title
-    assert slide_at(2).title == "Lancer"
+    assert slide_at(2).title == "/pecher"
 
 
 def test_onboarding_view_builds_every_page() -> None:
