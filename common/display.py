@@ -93,6 +93,11 @@ def weather_of(catalog: Catalog, key: str) -> WeatherKind:
     return WeatherKind(key=key, name=key)
 
 
+def energy_amount(amount: int) -> str:
+    """Un coût ou un stock d'énergie, toujours libellé."""
+    return f"**{int(amount)}** énergie"
+
+
 def item_display(
     catalog: Catalog,
     item_key: str,

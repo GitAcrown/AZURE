@@ -296,10 +296,10 @@ def energy_shortfall_message(
     cost = base + extra
     if extra and weather_label:
         return (
-            f"pas assez d'énergie — {weather_label} ajoute **+{extra}** "
-            f"· il faut **{cost}**, tu as **{energy}**"
+            f"pas assez d'énergie — {weather_label} ajoute **+{extra}** énergie "
+            f"· il faut **{cost}** énergie, tu as **{energy}**"
         )
-    return f"pas assez d'énergie — il faut **{cost}**, tu as **{energy}**"
+    return f"pas assez d'énergie — il faut **{cost}** énergie, tu as **{energy}**"
 
 
 def simulate(

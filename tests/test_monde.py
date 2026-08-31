@@ -15,15 +15,16 @@ ASSETS = ROOT / "assets"
 def test_monde_cast_cost_rain_and_clear() -> None:
     catalog = load_catalog(ASSETS)
     clear = monde_cast_cost_bit(catalog, "clear", ignore=False)
-    assert "**8**" in clear
+    assert "**8** énergie" in clear
     assert "+4" not in clear
     rain = monde_cast_cost_bit(catalog, "rain", ignore=False)
-    assert "**12**" in rain
+    assert "**12** énergie" in rain
     assert "+4" in rain
     wind = monde_cast_cost_bit(catalog, "wind", ignore=False)
+    assert "énergie" in wind
     assert "+2" in wind
     ignored = monde_cast_cost_bit(catalog, "rain", ignore=True)
-    assert "**8**" in ignored
+    assert "**8** énergie" in ignored
     assert "+4" not in ignored
 
 

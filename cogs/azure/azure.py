@@ -562,7 +562,10 @@ class Azure(commands.Cog):
         new_value = await store.set_energy(guild.id, target.id, valeur)
         snap = await store.snapshot(guild.id, target.id)
         await interaction.response.send_message(
-            view=NoticeView("Énergie", f"{target.mention} → {new_value}/{snap.energy_max}"),
+            view=NoticeView(
+                "Énergie",
+                f"{target.mention} → {new_value}/{snap.energy_max} énergie",
+            ),
             ephemeral=True,
         )
 

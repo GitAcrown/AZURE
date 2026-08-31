@@ -40,6 +40,7 @@ from common.display import (
     title_name,
     weather_display,
     weather_of,
+    energy_amount,
 )
 from common.inspect import inspect_item_text, inspect_species_text
 from common.money import format_money, format_money_plain
@@ -154,7 +155,7 @@ def _durability_label(item: Item, remaining: int | None) -> str:
     if dur.max_days is not None or dur.unit == "days":
         return f" · `{remaining} j`"
     if dur.max is not None:
-        return f" · `{remaining}/{dur.max}`"
+        return f" · `{remaining}/{dur.max}` usages"
     return ""
 
 
@@ -395,7 +396,7 @@ def _eat_options(catalog: Catalog, snap: PlayerSnapshot) -> list[discord.SelectO
                 desc = "énergie"
         elif "max_energy_bonus_pct" in effects:
             try:
-                desc = f"+{int(round(float(effects['max_energy_bonus_pct']) * 100))} % max"
+                desc = f"+{int(round(float(effects['max_energy_bonus_pct']) * 100))} % énergie max"
             except (TypeError, ValueError):
                 desc = "énergie max"
         else:
@@ -516,7 +517,7 @@ class ProfilView(discord.ui.LayoutView):
         energy_line = f"**Énergie** · `{bar}` {snap.energy}/{snap.energy_max}"
         if snap.coffee_minutes:
             pct = int(round(snap.coffee_pct * 100))
-            energy_line += f"\n-# Café · +{pct}% encore {snap.coffee_minutes} min"
+            energy_line += f"\n-# Café · +{pct}% énergie max · encore {snap.coffee_minutes} min"
         children: list = [
             discord.ui.TextDisplay("## Profil"),
             discord.ui.TextDisplay(subtitle),
@@ -773,8 +774,8 @@ class _HubTabSelect(discord.ui.Select):
 def monde_cast_cost_bit(catalog: Catalog, weather_key: str, *, ignore: bool) -> str:
     base, extra = cast_energy_parts(catalog, weather_key, ignore=ignore)
     if extra:
-        return f"lancer **{base + extra}** (**+{extra}** météo)"
-    return f"lancer **{base}**"
+        return f"{energy_amount(base + extra)} (**+{extra}** énergie météo)"
+    return energy_amount(base)
 
 
 def monde_here_line(
@@ -1334,9 +1335,9 @@ class CatchView(discord.ui.LayoutView):
         if result.hook_broke:
             note += " · **crochet usé**"
         if result.kept:
-            note += f" · **dans le sac** · {result.carry_used}/{result.carry_max}"
+            note += f" · **dans le sac** · {result.carry_used}/{result.carry_max} places"
         else:
-            note += f" · **relâché** · **sac plein** {result.carry_used}/{result.carry_max}"
+            note += f" · **relâché** · **sac plein** {result.carry_used}/{result.carry_max} places"
         if result.daily_just_rewarded:
             note += (
                 " · **quête du jour** · "
@@ -1386,11 +1387,11 @@ def _recast_energy_note(catalog: Catalog, result: CastResult) -> tuple[bool, str
         )
         base = _base
         if extra:
-            weather_bit = f"{weather_display(weather)} **+{extra}** · "
+            weather_bit = f"{weather_display(weather)} **+{extra}** énergie · "
     needed = base + extra
     if result.energy >= needed:
         return True, ""
-    return False, f"**pas assez d'énergie** · {weather_bit}il faut **{needed}**"
+    return False, f"**pas assez d'énergie** · {weather_bit}il faut {energy_amount(needed)}"
 
 
 async def start_cast_flow(
@@ -1752,7 +1753,7 @@ class SacView(discord.ui.LayoutView):
             start = self.page * SAC_PAGE_SIZE
             chunk = rows[start : start + SAC_PAGE_SIZE]
             body = "\n".join(_specimen_line(catalog, spec) for spec in chunk) if chunk else empty
-            subtitle = f"-# {used}/{cap} · {SAC_TAB_LABELS[self.tab]}"
+            subtitle = f"-# {used}/{cap} places · {SAC_TAB_LABELS[self.tab]}"
             if pages > 1:
                 subtitle += f" · page {self.page + 1}/{pages}"
             release_options: list[discord.SelectOption] = []

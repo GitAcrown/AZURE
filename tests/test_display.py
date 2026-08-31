@@ -7,6 +7,7 @@ from common.catalog.models import WeatherKind
 from common.display import (
     bracket_name,
     dialogue_turn,
+    energy_amount,
     error_message,
     italic_text,
     item_display,
@@ -81,3 +82,8 @@ def test_species_display_matches_item_style() -> None:
         species_display(catalog, "perch", extra=" · `20 cm`", emoji=False)
         == "**[Perche]** · `20 cm`"
     )
+
+
+def test_energy_amount_always_says_energy() -> None:
+    assert energy_amount(8) == "**8** énergie"
+    assert energy_amount(12) == "**12** énergie"

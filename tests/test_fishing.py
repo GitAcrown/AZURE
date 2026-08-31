@@ -263,13 +263,13 @@ def test_generate_specimen_fallback_and_yaml_range() -> None:
 
 def test_energy_shortfall_mentions_weather() -> None:
     plain = energy_shortfall_message(energy=3, base=8)
-    assert "il faut **8**" in plain
+    assert "il faut **8** énergie" in plain
     assert "tu as **3**" in plain
     assert "météo" not in plain
     wet = energy_shortfall_message(
         energy=10, base=8, extra=4, weather_label="🌧️ pluie"
     )
     assert "🌧️ pluie" in wet
-    assert "**+4**" in wet
-    assert "il faut **12**" in wet
+    assert "**+4** énergie" in wet
+    assert "il faut **12** énergie" in wet
     assert "tu as **10**" in wet
