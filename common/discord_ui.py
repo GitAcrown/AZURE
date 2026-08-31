@@ -151,18 +151,27 @@ def section_with_thumbnail(body: discord.ui.Item, media):
 
 async def sync_slash_to_guilds(
     bot: discord.Client, guilds: list
-) -> list[str]:
-    """Publie les slash en commandes de serveur (instantané) et vide le global."""
+) -> tuple[list[str], int, int]:
+    """Publie les slash sur chaque serveur (instantané) et vide le global.
+
+    Renvoie `(noms, ok, échecs)` — un serveur en erreur n'empêche pas les autres.
+    """
     names: list[str] = []
     tree = getattr(bot, "tree", None)
     if tree is None:
-        return names
+        return names, 0, 0
+    ok = 0
+    failed = 0
     for guild in guilds:
-        tree.copy_global_to(guild=guild)
-        synced = await tree.sync(guild=guild)
-        names = [c.name for c in synced]
+        try:
+            tree.copy_global_to(guild=guild)
+            synced = await tree.sync(guild=guild)
+            names = [c.name for c in synced]
+            ok += 1
+        except discord.HTTPException:
+            failed += 1
     await clear_global_slash(bot)
-    return names
+    return names, ok, failed
 
 
 async def clear_global_slash(bot: discord.Client) -> None:

@@ -197,15 +197,31 @@ class Azure(commands.Cog):
             logger.warning("Aucun serveur à synchroniser (slash). az!sync ~ sur le serveur voulu.")
             return
         try:
-            names = await sync_slash_to_guilds(self.bot, targets)
+            names, ok, failed = await sync_slash_to_guilds(self.bot, targets)
             logger.info(
-                "Slash commands sync (serveur, pas global) : %s (%d serveur(s))",
+                "Slash commands sync (serveur, pas global) : %s — %d/%d serveur(s)%s",
                 ", ".join(names) or "—",
+                ok,
                 len(targets),
+                f" · {failed} échec(s)" if failed else "",
             )
             self._synced_dev = True
         except discord.HTTPException as exc:
             logger.warning("Sync slash impossible : %s", exc)
+
+    @commands.Cog.listener()
+    async def on_guild_join(self, guild: discord.Guild) -> None:
+        try:
+            names, ok, failed = await sync_slash_to_guilds(self.bot, [guild])
+            logger.info(
+                "Slash commands sync sur %s (%s) : %s%s",
+                guild.name,
+                guild.id,
+                ", ".join(names) or "—",
+                " · échec" if failed or not ok else "",
+            )
+        except discord.HTTPException as exc:
+            logger.warning("Sync slash impossible sur %s : %s", guild.id, exc)
 
     @app_commands.command(name="profil", description="Profil, sac et dex.")
     @app_commands.guild_only()

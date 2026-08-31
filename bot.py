@@ -360,7 +360,8 @@ async def main() -> None:
         ) -> None:
             """Synchronise les slash commands.
 
-            sync / sync ~ / sync *  → serveur courant uniquement (et vide le global)
+            sync / sync *           → tous les serveurs du bot (et vide le global)
+            sync ~                  → serveur courant uniquement
             sync ^                  → retire les commandes de ce serveur
             sync global             → global uniquement (et vide les copies serveur)
             sync <id>               → serveur(s) indiqué(s)
@@ -370,9 +371,9 @@ async def main() -> None:
                     synced = await ctx.bot.tree.sync()
                     for guild in ctx.bot.guilds:
                         await clear_guild_slash(ctx.bot, guild)
-                    names = ", ".join(f"`{c.name}`" for c in synced) if synced else "—"
+                    listed = ", ".join(f"`{c.name}`" for c in synced) if synced else "—"
                     await ctx.send(
-                        f"**{len(synced)} commande(s) globales :** {names}\n"
+                        f"**{len(synced)} commande(s) globales :** {listed}\n"
                         "Copies serveur retirées — Discord peut mettre jusqu'à 1 h à les afficher."
                     )
                     return
@@ -380,21 +381,22 @@ async def main() -> None:
                     await clear_guild_slash(ctx.bot, ctx.guild)
                     await ctx.send("**Commandes slash retirées** de ce serveur.")
                     return
-                names = await sync_slash_to_guilds(ctx.bot, [ctx.guild])
+                targets = [ctx.guild] if spec == "~" else list(ctx.bot.guilds)
+                names, ok, failed = await sync_slash_to_guilds(ctx.bot, targets)
                 listed = ", ".join(f"`{n}`" for n in names) if names else "—"
+                scope = f"'{ctx.guild}'" if spec == "~" else f"{ok} serveur(s)"
+                extra = f" · {failed} échec(s)" if failed else ""
                 await ctx.send(
-                    f"**{len(names)} commande(s) sur '{ctx.guild}'** "
-                    f"(plus de copie globale) : {listed}"
+                    f"**{len(names)} commande(s) sur {scope}** "
+                    f"(plus de copie globale){extra} : {listed}"
                 )
                 return
 
-            ok = 0
-            try:
-                await sync_slash_to_guilds(ctx.bot, list(guilds))
-                ok = len(guilds)
-            except discord.HTTPException:
-                pass
-            await ctx.send(f"Arbre synchronisé dans {ok}/{len(guilds)} serveur(s).")
+            names, ok, failed = await sync_slash_to_guilds(ctx.bot, list(guilds))
+            extra = f" · {failed} échec(s)" if failed else ""
+            await ctx.send(
+                f"Arbre synchronisé dans {ok}/{len(guilds)} serveur(s).{extra}"
+            )
 
         # -------------------------------------------------------------------
         # Démarrage
