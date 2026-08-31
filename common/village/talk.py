@@ -6,6 +6,9 @@ import re
 from typing import Any, Awaitable, Callable, Optional
 
 from common.catalog import Catalog, Npc
+from common.display import weather_display
+from common.fishing.engine import fortune_mult, gem_items, unique_gem_count
+from common.inspect import inspect_dossier_plain
 from common.player.models import CaughtSpecimen, PlayerSnapshot
 from common.village.engine import (
     VillageAnnouncement,
@@ -31,6 +34,7 @@ from common.village.engine import (
     waste_sell_unit,
     walk_minutes,
 )
+from common.world import season_label, time_label, world_state
 
 MODEL_MAIN = "gpt-5.6-luna"
 ACTOR_MAX_TOKENS = 1200
@@ -65,12 +69,21 @@ NPC_TALK_SCHEMA = {
         },
         "display": {
             "type": "string",
-            "enum": ["none", "stock", "purse", "destinations", "repairs", "fossils", "env"],
+            "enum": [
+                "none",
+                "stock",
+                "purse",
+                "destinations",
+                "repairs",
+                "fossils",
+                "env",
+                "inspect",
+            ],
             "description": (
                 "Ce que tu montres sur le layout. none = rien. "
                 "stock = ton rayon, purse = ce que le joueur peut vendre, "
                 "destinations = milieux, repairs = matériel usé, "
-                "fossils = échange Oz, env = note Gaia."
+                "fossils = échange Oz, env = note Gaia, inspect = dossier Esmer."
             ),
         },
         "board_keys": {
@@ -124,6 +137,7 @@ et en MONTRANT. `board_keys` = 1 à 4 clés de CE TOUR. Vide = rien sur le layou
 - Réparateur : `repairs` pour le matos qu'il montre.
 - Gaia : `env` si tu parles de la note ; un déchet seulement s'il le montre.
 - Oz : `fossils` s'il tend un fossile.
+- Esmer (archiviste) : `inspect` pour l'objet QU'ON LUI MONTRE. intent=none toujours.
 Si tu ne montres rien : display=none, board_keys=[].
 
 Réalité : le message utilisateur liste TON stock, TES prix, le sac du joueur.
@@ -139,8 +153,10 @@ tu PEUX céder UN TOUT PETIT PEU. bargain=true alors, une seule fois par visite.
 Pas au premier bonjour, pas si « déjà négocié ». Ne cite PAS un nouveau chiffre :
 le jeu ajuste les prix. Tu peux céder ET proposer une transaction.
 Oz ne marchande jamais. bargain=false par défaut.
+Esmer ne marchande jamais. bargain=false. intent=none. Vousvoie.
 
 Oz (squelette) : AUCUNE parole. `reponse` = uniquement des actions entre parenthèses.
+Esmer : VOUVOIEMENT. Dossier montré = stats EXACTES, tu n'inventes rien.
 """
 
 
@@ -240,6 +256,8 @@ def sanitize_talk(
         valid_keys = {it.key for it in catalog.items}
     elif display == "env":
         valid_keys = {it.key for it in cleanup_waste_items(catalog)}
+    elif display == "inspect":
+        valid_keys = {it.key for it in catalog.items} | {s.key for s in catalog.species}
     else:
         valid_keys = set()
     if isinstance(raw_keys, list):
@@ -300,6 +318,8 @@ def talk_facts(
     specimens: list[CaughtSpecimen] | None = None,
     announcements: list[VillageAnnouncement] | None = None,
     bargain: dict[str, Any] | None = None,
+    shown_key: str | None = None,
+    shown_extra: str | None = None,
 ) -> str:
     """Réalité métier envoyée à GPT : stock, prix, sac — pas seulement des clés."""
     mods = price_modifiers(announcements, bargain)
@@ -464,6 +484,10 @@ def talk_facts(
             "intent=cleanup, display=env. "
             "N'étale PAS tous tes tarifs. Un déchet seulement s'il le montre."
         )
+        if snap is not None:
+            from common.daily import daily_talk_line
+
+            lines.append(daily_talk_line(catalog, snap.guild_id))
         lines.append(f"Tes tarifs (pour toi, pas le layout) :")
         for it in cleanup_waste_items(catalog):
             unit = waste_sell_unit(it, mods)
@@ -489,6 +513,101 @@ def talk_facts(
         lines.append(f"Fossiles dans la pierre : {fossils}")
         replicas = ", ".join(f"{it.key} = {it.name}" for it in fossil_replicas(catalog))
         lines.append(f"Répliques possibles : {replicas or 'aucune'}")
+    elif role == "lore":
+        fish = catalog.game.fishing
+        village = catalog.game.village
+        player = catalog.game.player
+        per = float(fish.gem_fortune_per_badge)
+        owned = snap.owned_keys() if snap is not None else set()
+        n_gems = unique_gem_count(catalog, owned)
+        fort = fortune_mult(catalog, owned)
+        lines.append(
+            "Tu es l'archiviste. Tu n'achètes ni ne vends. intent=none toujours. "
+            "display=inspect si on te montre quelque chose, sinon none. "
+            "VOUVOIEMENT. Cite le dossier EXACT, n'invente aucune stat."
+        )
+        if shown_key:
+            remaining = None
+            specimen = None
+            if snap is not None:
+                for gear in snap.gear:
+                    if gear.item_key == shown_key:
+                        remaining = gear.durability
+                        break
+            if specimens:
+                matches = [s for s in specimens if s.species_key == shown_key]
+                if len(matches) == 1:
+                    specimen = matches[0]
+                elif shown_extra and matches:
+                    specimen = matches[0]
+            lines.append("Dossier de ce qu'il MONTRE (stats exactes) :")
+            lines.append(
+                inspect_dossier_plain(
+                    catalog, shown_key, remaining=remaining, specimen=specimen
+                )
+            )
+            if shown_extra:
+                lines.append(f"Précision du spécimen : {shown_extra}")
+        else:
+            lines.append("Rien montré ce tour. Pas de dossier. display=none.")
+        gem_have = [it for it in gem_items(catalog) if it.key in owned]
+        gem_miss = [it for it in gem_items(catalog) if it.key not in owned]
+        have_s = ", ".join(f"{it.key}={it.name}" for it in gem_have) or "aucune"
+        miss_s = ", ".join(f"{it.key}={it.name}" for it in gem_miss) or "—"
+        lines.append(
+            f"Fortune : chaque gemme UNIQUE ajoute +{per * 100:g} % aux raretés "
+            f"non communes. Il en a {n_gems}/{len(gem_items(catalog))} "
+            f"(multiplicateur ×{fort:g}). Possédées : {have_s}. Manquantes : {miss_s}."
+        )
+        lines.append(
+            f"Note environnementale du serveur : {env_score}/{village.environment_score_max} "
+            f"({environment_pct(catalog, env_score)} %). "
+            f"Sereine dès {village.environment_good_threshold}. "
+            f"Beaux poissons plus fréquents au-dessus de {village.environment_great_threshold} % "
+            f"(×{fish.env_great_rarity_mult}), plus rares en dessous de "
+            f"{village.environment_poor_threshold} % (×{fish.env_poor_rarity_mult}). "
+            f"Surpêche : plus de {village.overfish_per_bucket} prises / heure dans un milieu "
+            f"fait baisser la note."
+        )
+        lines.append(
+            f"Pêche : un lancer coûte {fish.cast_energy_cost} énergie"
+            f"{f' (+{fish.bad_weather_energy_extra} si mauvais temps)' if fish.bad_weather_energy_extra else ''}. "
+            f"Météo préférée ×{fish.weather_preferred_mult}, évitée ×{fish.weather_avoided_mult}. "
+            f"Nuit ×{fish.night_weight_mult} (lanterne ignore ce malus). "
+            f"Déchet {fish.waste_chance * 100:g} %, butin {fish.loot_chance * 100:g} %, "
+            f"gemme {fish.gem_chance * 1000:g} pour 1000. Crochet obligatoire pour lancer."
+        )
+        lines.append(
+            f"Énergie : {player.energy_start} au départ, max {player.energy_max}, "
+            f"régénère {player.energy_regen_per_hour}/h. Pain / conserve restaurent, "
+            f"café augmente le max un moment. "
+            f"Sac : {player.fish_carry_capacity} poissons, "
+            f"{player.non_fish_carry_capacity} autres (seau / filet en bonus). "
+            f"Marche {catalog.game.village.travel_minutes} min, gratuite "
+            f"(boussole ×0.2). Passage payant chez les passeurs. "
+            f"Oz dès {village.skull_summon_threshold} crânes. "
+            f"Cinq répliques fossiles uniques s'assemblent (+1 archéologie)."
+        )
+        if snap is not None:
+            from common.daily import daily_talk_line
+
+            lines.append(daily_talk_line(catalog, snap.guild_id))
+            lines.append(
+                f"Joueur : énergie {snap.energy}/{snap.energy_max} · "
+                f"archéologie {snap.archaeology_points}."
+            )
+            milieu_keys = [m.key for m in catalog.milieus]
+            state = world_state(catalog.game.world, snap.guild_id, milieu_keys)
+            weather_bits = []
+            for milieu in catalog.milieus:
+                w = state.weathers.get(milieu.key)
+                if w is None:
+                    continue
+                weather_bits.append(f"{milieu.key}={weather_display(w)}")
+            lines.append(
+                f"Maintenant : {season_label(state.season)}, {time_label(state.time_of_day)}. "
+                f"Météo (change chaque heure) : {', '.join(weather_bits)}."
+            )
 
     if snap is not None:
         lines.append(f"Argent du joueur : {snap.money} {money_name}")
@@ -538,6 +657,8 @@ def _facts_block(
     specimens: list[CaughtSpecimen] | None = None,
     announcements: list[VillageAnnouncement] | None = None,
     bargain: dict[str, Any] | None = None,
+    shown_key: str | None = None,
+    shown_extra: str | None = None,
 ) -> str:
     return talk_facts(
         catalog,
@@ -548,6 +669,8 @@ def _facts_block(
         specimens=specimens,
         announcements=announcements,
         bargain=bargain,
+        shown_key=shown_key,
+        shown_extra=shown_extra,
     )
 
 
@@ -584,7 +707,7 @@ async def talk_npc(
         extra = f" — {shown_extra}" if shown_extra else ""
         shown_line = f"Le joueur MONTRE : {shown_key} ({shown_name}){extra}.\n\n"
     user = (
-        f"{_facts_block(catalog, npc, env_score=env_score, skulls=skulls, snap=snap, specimens=specimens, announcements=announcements, bargain=bargain)}\n\n"
+        f"{_facts_block(catalog, npc, env_score=env_score, skulls=skulls, snap=snap, specimens=specimens, announcements=announcements, bargain=bargain, shown_key=shown_key, shown_extra=shown_extra)}\n\n"
         f"Historique récent :\n{history_block}\n\n"
         f"{shown_line}"
         f"Le joueur dit : {question}"

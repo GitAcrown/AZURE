@@ -51,6 +51,8 @@ class PlayerSnapshot:
     travel_dest: str | None = None
     travel_arrives_at: str | None = None
     just_arrived: str | None = None
+    archaeology_points: int = 0
+    onboarding_done: bool = True
 
     def owned_keys(self) -> set[str]:
         keys = {s.item_key for s in self.stacks}
@@ -140,3 +142,7 @@ class CastResult:
     waste_key: str | None = None
     loot_key: str | None = None
     hook_broke: bool = False
+    daily_count: int | None = None
+    daily_target: int = 0
+    daily_just_rewarded: int = 0
+    daily_note: bool = False

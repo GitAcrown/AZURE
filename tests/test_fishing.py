@@ -166,6 +166,12 @@ def test_roll_loot_independent_of_waste() -> None:
     loot = roll_loot(catalog, _Hit())
     assert loot is not None
     assert loot.category != "waste"
+    from common.fishing import item_is_gem, roll_gem
+
+    assert not item_is_gem(loot)
+    gem = roll_gem(catalog, _Hit())
+    assert gem is not None
+    assert item_is_gem(gem)
 
 
 def test_ocean_rod_and_net_pools_disjoint() -> None:

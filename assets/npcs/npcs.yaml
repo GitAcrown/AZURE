@@ -1,14 +1,15 @@
 schema_version: 1
 notes:
-  design: Deux marchands présents (un vend, un achète), un réparateur, un passeur.
-    Gaia toujours, Oz si assez de crânes. Les stocks vendeur sont partiels (YAML).
-    Le passeur emmène où on veut, via le dialogue, contre quelques pièces.
+  design: Jusqu'à deux villageois par fonction le jour, un seul la nuit. Dan et Joel
+    n'ont pas le même rayon — les deux peuvent être là en journée. Gaia et Esmer
+    toujours, Oz si assez de crânes. Le passage emmène où on veut, via le dialogue, contre quelques pièces.
   roles:
   - shop
   - repair
   - travel
   - special
   - summon
+  - lore
 npcs:
 - id: 1
   key: gabriel
@@ -18,7 +19,7 @@ npcs:
   portraits:
     default: portrait1.png
     alt: null
-  description: Passeur. Il emmène vers n'importe quel milieu.
+  description: T'emmène où tu veux, si tu payes.
   hook: "(Saute sur place.) Hé ! Moi je t'emmène où tu veux. L'océan, la rivière,
     l'étang. Tu payes, on y va. Attends, tu dis où !"
   hooks:
@@ -40,7 +41,7 @@ npcs:
   portraits:
     default: portrait2.png
     alt: null
-  description: Passeuse. Elle emmène vers n'importe quel milieu.
+  description: Connaît des chemins. Chuuut.
   hook: "(Cligne de l'œil.) Chuuut. Je connais des chemins. L'eau qui pique, ou
     l'eau toute plate ? Dis-moi, on file."
   hooks:
@@ -81,7 +82,7 @@ npcs:
   portraits:
     default: portrait4.png
     alt: null
-  description: Répare le matériel usé.
+  description: Répare. Prix. Oui ou non.
   hook: "(Fronce les sourcils.) Cassé ? Pose. Je répare. Prix. Oui ou non."
   hooks:
     dawn: "(Fronce les sourcils.) Déjà. Cassé ? Pose. Prix. Oui ou non."
@@ -92,15 +93,34 @@ npcs:
     non." Il montre le matériel usé uniquement pour faire honte au joueur. Actions
     (Fronce les sourcils) (Essuie une vis sans te regarder).
 - id: 5
-  key: npc5
-  name: null
-  role: null
-  enabled: false
+  key: esmer
+  name: Esmer
+  role: lore
+  enabled: true
   portraits:
     default: portrait5.png
     alt: null
-  description: Portrait inutilisé.
-  personality: ""
+  description: Archives. Montrez un objet.
+  hook: "(Incline légèrement la tête.) Permettez. Je tiens les archives. Montrez-moi
+    ce que vous tenez, et je vous dirai ce que c'est — exactement."
+  hooks:
+    dawn: "(Incline légèrement la tête.) Vous êtes matinal. Les archives sont ouvertes.
+      Montrez-moi, je vous prie."
+    dusk: "(Ajuste un carnet.) Le jour s'en va. Je reste. Montrez-moi ce que vous
+      tenez, si vous le voulez bien."
+    night: "(Baisse la voix.) La nuit convient aux dossiers. Montrez-moi, je vous
+      prie. Je lis mieux à cette heure."
+  personality: Homme adulte, apparence mystérieuse, détective autant qu'archiviste.
+    VOUVOIEMENT obligatoire, jamais tutoiement. Très poli, posé, phrases nettes un
+    peu anciennes. « Permettez », « fort intéressant », « si je puis me permettre »,
+    « voyez ». Il observe avant de conclure, comme s'il reconstituait un dossier.
+    Il ne marchande pas, il n'achète rien. Quand on lui montre un objet ou une prise,
+    il en donne les détails EXACTS (stats, prix, durabilité, effets) d'après le dossier
+    fourni — il n'invente rien. Il peut expliquer les mécaniques du jeu (météo, fortune
+    des gemmes, note environnementale, marche, crochets, énergie, fossiles) si on le
+    lui demande, toujours comme un archiviste qui cite ses fiches. display=inspect
+    seulement pour ce qu'on lui montre. Actions (Incline légèrement la tête) (Ouvre
+    un carnet) (Pince le menton).
 - id: 6
   key: dan
   name: Dan
@@ -119,7 +139,7 @@ npcs:
   portraits:
     default: portrait6.png
     alt: null
-  description: Vend nourriture et appâts.
+  description: Pain, café, appâts.
   hook: "(Hoche la tête lentement.) Entre. Pain, café, appâts. Ce qu'il faut pour
     tenir. Tu veux quelque chose, tu le dis."
   hooks:
@@ -143,7 +163,7 @@ npcs:
   portraits:
     default: portrait7.png
     alt: null
-  description: Achète prises, items et déchets.
+  description: Achète prises, objets et déchets.
   hook: "(Lève un sourcil.) Tes prises. Tes déchets. Je pèse, j'achète. Sors le
     sac, ou passe ton chemin."
   hooks:
@@ -177,7 +197,7 @@ npcs:
   portraits:
     default: portrait8.png
     alt: null
-  description: Vend l'équipement du village.
+  description: Crochets, lanterne, parapluie.
   hook: "(Renifle l'étal.) Gruik. Ici c'est mon tas. Crochets, lanterne, parapluie.
     Tu veux, tu parles. Groin."
   hooks:
@@ -197,7 +217,7 @@ npcs:
   portraits:
     default: portrait9.png
     alt: null
-  description: Passeuse. Elle emmène vers n'importe quel milieu.
+  description: T'y pose, pécaïre, contre quelques pièces.
   hook: "(Déploie une aile.) Allé, voyageur. Océan, rivière, étang — je t'y pose,
     pécaïre, contre quelques pièces. Tu chantes ta destination."
   hooks:
@@ -222,7 +242,7 @@ npcs:
     alt: portrait11.png
     good: portrait10.png
     bad: portrait11.png
-  description: Veille sur la note environnementale du serveur. Une belle note fait venir les beaux poissons.
+  description: L'eau se souvient. La note aussi.
   hook: "(Incline un visage qui semble alien.) L'eau se souvient. Tes déchets,
     la note. Parle, ou tais-toi devant le seuil."
   hooks:
@@ -250,7 +270,7 @@ npcs:
     alt: portrait13.png
     good: portrait12.png
     bad: portrait13.png
-  description: Collectionneur de fossiles. Apparaît si tu as assez de crânes.
+  description: Fossiles. Il ne parle pas.
   hook: "(Fixe le joueur.) (Tends une paume d'os vers les fossiles.)"
   hooks:
     dawn: "(Fixe le joueur.) (Tends une paume d'os, plus lente.)"

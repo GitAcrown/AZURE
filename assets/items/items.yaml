@@ -148,10 +148,10 @@ items:
   sprite: item6.png
   shadow: item6_s.png
   shadow_ready: false
-  description: Une pierre rouge lumineuse, recherchée uniquement pour le prestige.
+  description: Une pierre rouge lumineuse. Badge rare — les belles prises te trouvent plus facilement.
   enabled: true
   sources:
-  - rare_loot
+  - exceptional_loot
   economy:
     buy_price: null
     sell_price: null
@@ -172,10 +172,10 @@ items:
   sprite: item7.png
   shadow: item7_s.png
   shadow_ready: false
-  description: Une gemme chaude et translucide, très appréciée des collectionneurs.
+  description: Une gemme chaude et translucide. Un badge. L'eau te doit un peu plus.
   enabled: true
   sources:
-  - rare_loot
+  - exceptional_loot
   economy:
     buy_price: null
     sell_price: null
@@ -196,10 +196,10 @@ items:
   sprite: item8.png
   shadow: item8_s.png
   shadow_ready: false
-  description: Une pierre verte aux reflets profonds, symbole classique de richesse.
+  description: Une pierre verte aux reflets profonds. Badge. Les poissons rares s'approchent.
   enabled: true
   sources:
-  - rare_loot
+  - exceptional_loot
   economy:
     buy_price: null
     sell_price: null
@@ -220,10 +220,10 @@ items:
   sprite: item9.png
   shadow: item9_s.png
   shadow_ready: false
-  description: Une gemme claire aux tons de lagune tropicale.
+  description: Une gemme claire aux tons de lagune. Un badge exceptionnel.
   enabled: true
   sources:
-  - rare_loot
+  - exceptional_loot
   economy:
     buy_price: null
     sell_price: null
@@ -244,10 +244,10 @@ items:
   sprite: item10.png
   shadow: item10_s.png
   shadow_ready: false
-  description: Une pierre sombre rappelant la mer au large.
+  description: Une pierre sombre comme le large. Badge. L'eau te reconnaît.
   enabled: true
   sources:
-  - rare_loot
+  - exceptional_loot
   economy:
     buy_price: null
     sell_price: null
@@ -268,10 +268,10 @@ items:
   sprite: item11.png
   shadow: item11_s.png
   shadow_ready: false
-  description: Un cristal brillant et très pur, pièce de prestige par excellence.
+  description: Un cristal trop pur. Le plus rare des badges.
   enabled: true
   sources:
-  - rare_loot
+  - exceptional_loot
   economy:
     buy_price: null
     sell_price: null
@@ -292,10 +292,10 @@ items:
   sprite: item12.png
   shadow: item12_s.png
   shadow_ready: false
-  description: Une pierre aux couleurs changeantes dont les reflets semblent vivants.
+  description: Une pierre aux couleurs changeantes. Badge. Rien n'est figé.
   enabled: true
   sources:
-  - rare_loot
+  - exceptional_loot
   economy:
     buy_price: null
     sell_price: null
@@ -400,8 +400,7 @@ items:
   sprite: item16.png
   shadow: item16_s.png
   shadow_ready: true
-  description: Un conteneur radioactif extrêmement rare. Le retirer de l'eau améliore fortement la note environnementale et
-    peut alerter certains PNJ.
+  description: Un fût trop lourd pour l'eau. Le sortir de là, c'est déjà beaucoup.
   enabled: true
   sources:
   - very_rare_fishing_loot
@@ -426,8 +425,7 @@ items:
   sprite: item17.png
   shadow: item17_s.png
   shadow_ready: true
-  description: Un conteneur toxique rare. Le remonter améliore fortement l'état du milieu et peut déclencher des dialogues
-    spéciaux.
+  description: Un baril qui ne devrait pas flotter. L'eau s'en souvient.
   enabled: true
   sources:
   - very_rare_fishing_loot
@@ -452,7 +450,7 @@ items:
   sprite: item18.png
   shadow: item18_s.png
   shadow_ready: true
-  description: Une boussole qui raccourcit les marches entre milieux (−80 %).
+  description: Elle trouve le chemin plus vite que tes pieds.
   enabled: true
   sources:
   - shop
@@ -483,7 +481,7 @@ items:
   sprite: item19.png
   shadow: item19_s.png
   shadow_ready: true
-  description: Une longue-vue permettant de consulter la météo à venir avant de voyager vers un milieu.
+  description: Elle montre le temps, plus loin, avant de marcher.
   enabled: true
   sources:
   - shop
@@ -571,8 +569,7 @@ items:
   sprite: item22.png
   shadow: item22_s.png
   shadow_ready: true
-  description: Un appât exceptionnel garantissant une prise qui dépasse au moins un record personnel, si le maximum biologique
-    de l'espèce n'est pas déjà atteint.
+  description: Un appât trop beau. La prochaine prise veut battre un souvenir.
   enabled: true
   sources:
   - rare_npc
@@ -637,7 +634,7 @@ items:
   sprite: item24.png
   shadow: item24_s.png
   shadow_ready: true
-  description: Un fragment de circuit imprimé rongé par l'eau. Le retirer améliore le milieu et peut intriguer certains PNJ.
+  description: Un morceau de circuit rongé par le sel. Ça n'a rien à faire dans l'eau.
   enabled: true
   sources:
   - rare_fishing_loot
@@ -706,7 +703,7 @@ items:
   sprite: item27.png
   shadow: item27_s.png
   shadow_ready: true
-  description: Un objet réservé à un futur événement d'Halloween.
+  description: Une citrouille trouée. Pas encore la saison, ou déjà trop tard.
   enabled: false
   sources:
   - halloween_event
@@ -731,6 +728,7 @@ items:
   enabled: true
   sources:
   - shop
+  - starter
   economy:
     buy_price: 90
     sell_price: 35
@@ -767,6 +765,7 @@ items:
   enabled: true
   sources:
   - shop
+  - starter
   economy:
     buy_price: 125
     sell_price: 50
@@ -903,7 +902,7 @@ items:
   sprite: item33.png
   shadow: item33_s.png
   shadow_ready: true
-  description: Une bouée prévue pour faciliter une extraction rapide lors des futures plongées.
+  description: Une bouée. On la jette, on remonte.
   enabled: false
   sources:
   - starter
@@ -926,7 +925,7 @@ items:
   sprite: item34.png
   shadow: item34_s.png
   shadow_ready: true
-  description: Des palmes destinées aux futures explorations sous-marines.
+  description: Des palmes. Plus loin, plus vite, sous la surface.
   enabled: false
   sources:
   - starter
@@ -949,7 +948,7 @@ items:
   sprite: item35.png
   shadow: item35_s.png
   shadow_ready: true
-  description: Un masque destiné aux futures explorations sous-marines.
+  description: Un masque. Voir ce qui se passe en dessous.
   enabled: false
   sources:
   - starter
@@ -972,7 +971,7 @@ items:
   sprite: item36.png
   shadow: item36_s.png
   shadow_ready: true
-  description: Des bouteilles d'air réservées aux futures plongées prolongées.
+  description: De l'air emporté avec soi.
   enabled: false
   sources:
   - starter
@@ -995,7 +994,7 @@ items:
   sprite: item37.png
   shadow: item37_s.png
   shadow_ready: true
-  description: Un fossile encore pris dans la roche, pouvant être échangé au PNJ squelette rare contre une réplique en plâtre.
+  description: Un os encore pris dans la roche. Oz le regarderait longtemps.
   enabled: true
   sources:
   - rare_fishing_loot
@@ -1021,7 +1020,7 @@ items:
   sprite: item38.png
   shadow: item38_s.png
   shadow_ready: true
-  description: Un seau aménagé pour ramener davantage de poissons, sans augmenter la capacité pour les autres créatures.
+  description: Un seau. Plus de poissons, pas plus de coquillages.
   enabled: true
   sources:
   - shop
@@ -1052,7 +1051,7 @@ items:
   sprite: item39.png
   shadow: item39_s.png
   shadow_ready: true
-  description: Un crâne rituel servant de ressource pour invoquer le PNJ squelette rare.
+  description: Un crâne. Oz s'approche quand il y en a assez.
   enabled: true
   sources:
   - rare_loot
@@ -1078,7 +1077,7 @@ items:
   sprite: item40.png
   shadow: item40_s.png
   shadow_ready: true
-  description: Une version dorée du crâne rituel, comptant comme cinq crânes normaux pour l'invocation.
+  description: Un crâne doré. Il compte plus que les autres, aux yeux d'Oz.
   enabled: true
   sources:
   - very_rare_loot
@@ -1257,7 +1256,7 @@ items:
   sprite: item46.png
   shadow: item46_s.png
   shadow_ready: true
-  description: Une réplique en plâtre de fossile, obtenue auprès du collectionneur squelette rare.
+  description: Une réplique en plâtre. Cinq pièces font un set, un point d'archéologie.
   enabled: true
   sources:
   - skeleton_collector
@@ -1281,7 +1280,7 @@ items:
   sprite: item47.png
   shadow: item47_s.png
   shadow_ready: true
-  description: Une réplique en plâtre de fossile, obtenue auprès du collectionneur squelette rare.
+  description: Une réplique en plâtre. Cinq pièces font un set, un point d'archéologie.
   enabled: true
   sources:
   - skeleton_collector
@@ -1305,7 +1304,7 @@ items:
   sprite: item48.png
   shadow: item48_s.png
   shadow_ready: true
-  description: Une réplique en plâtre de fossile, obtenue auprès du collectionneur squelette rare.
+  description: Une réplique en plâtre. Cinq pièces font un set, un point d'archéologie.
   enabled: true
   sources:
   - skeleton_collector
@@ -1329,7 +1328,7 @@ items:
   sprite: item49.png
   shadow: item49_s.png
   shadow_ready: true
-  description: Une réplique en plâtre de fossile, obtenue auprès du collectionneur squelette rare.
+  description: Une réplique en plâtre. Cinq pièces font un set, un point d'archéologie.
   enabled: true
   sources:
   - skeleton_collector
@@ -1353,7 +1352,7 @@ items:
   sprite: item50.png
   shadow: item50_s.png
   shadow_ready: true
-  description: Une réplique en plâtre de fossile, obtenue auprès du collectionneur squelette rare.
+  description: Une réplique en plâtre. Cinq pièces font un set, un point d'archéologie.
   enabled: true
   sources:
   - skeleton_collector

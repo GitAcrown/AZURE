@@ -22,6 +22,8 @@ UI_SPECS: tuple[tuple[str, str, str], ...] = (
     ("MEDAL2", "medal2.png", "azure_medal2"),
     ("MEDAL3", "medal3.png", "azure_medal3"),
     ("MEDAL4", "medal4.png", "azure_medal4"),
+    ("LEFT", "left.png", "azure_left"),
+    ("RIGHT", "right.png", "azure_right"),
 )
 
 

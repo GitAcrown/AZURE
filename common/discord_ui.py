@@ -8,6 +8,42 @@ import discord
 
 from common.display import error_message
 
+TEXT_DISPLAY_MAX = 4000
+SELECT_MAX = 25
+SELECT_LABEL_MAX = 100
+SELECT_DESC_MAX = 100
+BUTTON_LABEL_MAX = 80
+
+
+def clamp_text(text: str, limit: int = TEXT_DISPLAY_MAX) -> str:
+    """Borne un texte Discord (TextDisplay 4000, labels 100, etc.)."""
+
+
+def clamp_text(text: str, limit: int = TEXT_DISPLAY_MAX) -> str:
+    """Borne un TextDisplay Discord (4000)."""
+    raw = text or ""
+    if len(raw) <= limit:
+        return raw
+    if limit <= 1:
+        return "…"[:limit]
+    return raw[: limit - 1] + "…"
+
+
+def text_display(content: str) -> discord.ui.TextDisplay:
+    return discord.ui.TextDisplay(clamp_text(content))
+
+
+def select_label(text: str) -> str:
+    return clamp_text(text or "—", SELECT_LABEL_MAX)
+
+
+def select_desc(text: str) -> str:
+    return clamp_text(text or "", SELECT_DESC_MAX)
+
+
+def button_label(text: str) -> str:
+    return clamp_text(text or "…", BUTTON_LABEL_MAX)
+
 
 async def ack(interaction: discord.Interaction, *, ephemeral: bool = True) -> bool:
     """Defer sans planter si l'interaction est déjà ack ou expirée."""
@@ -34,22 +70,28 @@ def append_controls(
     *,
     note: str = "",
     button_row: Optional[discord.ui.ActionRow] = None,
+    extra_button_row: Optional[discord.ui.ActionRow] = None,
     select_row: Optional[discord.ui.ActionRow] = None,
+    extra_select_row: Optional[discord.ui.ActionRow] = None,
 ) -> None:
-    """Pied de vue : note optionnelle, puis boutons, puis select."""
-    text = (note or "").strip()
+    """Pied de vue : note optionnelle, puis boutons, puis selects."""
+    text = clamp_text((note or "").strip())
     if text:
         if not text.startswith("-#"):
             text = f"-# {text}"
-        children += [discord.ui.Separator(), discord.ui.TextDisplay(text)]
-    if button_row is not None or select_row is not None:
-        children.append(discord.ui.Separator())
-        if button_row is not None:
-            children.append(button_row)
-        if select_row is not None:
-            if button_row is not None:
-                children.append(discord.ui.Separator())
-            children.append(select_row)
+        children += [discord.ui.Separator(), discord.ui.TextDisplay(clamp_text(text))]
+    rows = [
+        row
+        for row in (button_row, extra_button_row, select_row, extra_select_row)
+        if row is not None
+    ]
+    if not rows:
+        return
+    children.append(discord.ui.Separator())
+    for index, row in enumerate(rows):
+        if index:
+            children.append(discord.ui.Separator())
+        children.append(row)
 
 
 async def send_error(interaction: discord.Interaction, message: str, *, ephemeral: bool = True) -> None:
@@ -83,7 +125,15 @@ def make_container(*children, spoiler: bool = False) -> discord.ui.Container:
     kwargs = {}
     if spoiler:
         kwargs["spoiler"] = True
-    return discord.ui.Container(*children, **kwargs)
+    safe: list = []
+    for child in children:
+        content = getattr(child, "content", None)
+        if isinstance(child, discord.ui.TextDisplay) and isinstance(content, str):
+            clamped = clamp_text(content)
+            if clamped != content:
+                child = discord.ui.TextDisplay(clamped)
+        safe.append(child)
+    return discord.ui.Container(*safe, **kwargs)
 
 
 def section_with_thumbnail(body: discord.ui.Item, media):

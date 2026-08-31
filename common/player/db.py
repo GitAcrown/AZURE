@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS players (
     travel_arrives_at TEXT,
     village_npc_key TEXT,
     village_bucket INTEGER,
+    archaeology_points INTEGER NOT NULL DEFAULT 0,
+    onboarding_done INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (guild_id, user_id)
 );
 
@@ -122,6 +124,16 @@ CREATE TABLE IF NOT EXISTS village_announcements (
 CREATE INDEX IF NOT EXISTS idx_village_ann_guild
     ON village_announcements (guild_id, ends_at);
 
+CREATE TABLE IF NOT EXISTS daily_progress (
+    guild_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    day_key TEXT NOT NULL,
+    milieu_key TEXT NOT NULL,
+    count INTEGER NOT NULL DEFAULT 0,
+    rewarded INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (guild_id, user_id)
+);
+
 CREATE TABLE IF NOT EXISTS village_talk (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     guild_id INTEGER NOT NULL,
@@ -165,6 +177,9 @@ _PLAYER_COLUMN_MIGRATIONS = (
     ("travel_arrives_at", "TEXT"),
     ("village_npc_key", "TEXT"),
     ("village_bucket", "INTEGER"),
+    ("archaeology_points", "INTEGER NOT NULL DEFAULT 0"),
+    # DEFAULT 1 : les profils déjà en base ont déjà joué, pas d'onboarding.
+    ("onboarding_done", "INTEGER NOT NULL DEFAULT 1"),
 )
 
 _VILLAGE_TALK_COLUMN_MIGRATIONS = (

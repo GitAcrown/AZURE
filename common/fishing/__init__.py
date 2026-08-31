@@ -8,6 +8,7 @@ from .engine import (
     context_from_world,
     eligible,
     roll,
+    roll_gem,
     roll_loot,
     roll_waste,
     simulate,
@@ -16,6 +17,8 @@ from .engine import (
     weather_energy_extra,
     cast_energy_parts,
     energy_shortfall_message,
+    fortune_mult,
+    item_is_gem,
 )
 from .minigame import BiteTimings, bite_timings, hook_window_multiplier
 from .specimen import Specimen, generate_specimen
@@ -33,6 +36,7 @@ __all__ = [
     "generate_specimen",
     "hook_window_multiplier",
     "roll",
+    "roll_gem",
     "roll_loot",
     "roll_waste",
     "simulate",
@@ -41,4 +45,6 @@ __all__ = [
     "weather_energy_extra",
     "cast_energy_parts",
     "energy_shortfall_message",
+    "fortune_mult",
+    "item_is_gem",
 ]

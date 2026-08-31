@@ -39,15 +39,13 @@ from common.world import weather_bucket
 
 from .views import (
     CatalogView,
-    DexView,
     EmojisGalleryView,
-    ItemInspectView,
     MondeView,
     NoticeView,
-    ProfilView,
+    OnboardingView,
     RecordsView,
-    SacView,
     VillageAnnounceView,
+    load_player_hub,
     load_village_view,
     start_cast_flow,
     travel_arrival_flash,
@@ -112,12 +110,32 @@ async def _send_view(interaction: discord.Interaction, view: discord.ui.LayoutVi
             follow: dict = {"view": view, "ephemeral": True}
             if files:
                 follow["files"] = files
-            await interaction.followup.send(**follow)
+            try:
+                await interaction.followup.send(**follow)
+            except discord.HTTPException:
+                return
         return
     kwargs = {"view": view, "ephemeral": True}
     if files:
         kwargs["files"] = files
-    await interaction.response.send_message(**kwargs)
+    try:
+        await interaction.response.send_message(**kwargs)
+    except discord.HTTPException:
+        return
+
+
+async def _maybe_onboard(
+    interaction: discord.Interaction, store: PlayerStore, catalog: Catalog
+) -> bool:
+    """True si le diaporama a été envoyé : l'appelant doit s'arrêter."""
+    guild = interaction.guild
+    if guild is None:
+        return False
+    snap = await store.get_or_create(guild.id, interaction.user.id)
+    if snap.onboarding_done:
+        return False
+    await _send_view(interaction, OnboardingView(catalog, page=0))
+    return True
 
 
 class OwnerGroup(app_commands.Group):
@@ -139,6 +157,7 @@ class Azure(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         self._synced_dev = False
+        self._talk_gen: dict[tuple[int, int], int] = {}
 
     async def cog_load(self) -> None:
         if not self._expire_announcements.is_running():
@@ -192,7 +211,7 @@ class Azure(commands.Cog):
         except discord.HTTPException as exc:
             logger.warning("Sync slash impossible : %s", exc)
 
-    @app_commands.command(name="profil", description="Ton profil de pêcheur.")
+    @app_commands.command(name="profil", description="Profil, sac et dex.")
     @app_commands.guild_only()
     async def profil(self, interaction: discord.Interaction) -> None:
         guild = interaction.guild
@@ -201,113 +220,30 @@ class Azure(commands.Cog):
             return
         store = _store(self.bot)
         cat = _catalog(self.bot)
-        snap = await store.get_or_create(guild.id, interaction.user.id)
-        view = ProfilView(cat, snap, interaction.user.display_name)
+        if await _maybe_onboard(interaction, store, cat):
+            return
+        view = await load_player_hub(
+            cat, store, guild.id, interaction.user.id, interaction.user.display_name
+        )
         await _send_view(interaction, view)
 
-    @app_commands.command(name="inspect", description="Fiche d'un item.")
-    @app_commands.describe(item="Nom ou clé d'item")
-    @app_commands.guild_only()
-    async def inspect(self, interaction: discord.Interaction, item: str) -> None:
-        guild = interaction.guild
-        if guild is None:
-            await send_error(interaction, "Cette commande s'utilise sur un serveur.")
-            return
-        cat = _catalog(self.bot)
-        admin = await interaction.client.is_owner(interaction.user)
-        try:
-            resolved = cat.get_item(item)
-        except CatalogError:
-            await send_error(
-                interaction,
-                "Tu ne possèdes pas cet item." if not admin else f"Item introuvable : `{item}`",
-            )
-            return
-        if not admin:
-            snap = await _store(self.bot).get_or_create(guild.id, interaction.user.id)
-            if resolved.key not in snap.owned_keys():
-                await send_error(interaction, "Tu ne possèdes pas cet item.")
-                return
-        await _send_view(interaction, ItemInspectView(cat, resolved, admin=admin))
-
-    @inspect.autocomplete("item")
-    async def inspect_item_autocomplete(
-        self, interaction: discord.Interaction, current: str
-    ) -> list[app_commands.Choice[str]]:
-        cat = _catalog(self.bot)
-        if await interaction.client.is_owner(interaction.user):
-            return _item_choices(cat, current)
-        guild = interaction.guild
-        if guild is None:
-            return []
-        snap = await _store(self.bot).get_or_create(guild.id, interaction.user.id)
-        return _item_choices(cat, current, allowed=snap.owned_keys())
-
-    @app_commands.command(name="monde", description="Météo des milieux, et y marcher (gratuit).")
+    @app_commands.command(name="monde", description="Carte : météo, pêche, et y aller à pied.")
     @app_commands.guild_only()
     async def monde(self, interaction: discord.Interaction) -> None:
         guild = interaction.guild
         if guild is None:
             await send_error(interaction, "Cette commande s'utilise sur un serveur.")
             return
-        cat = _catalog(self.bot)
-        snap = await _store(self.bot).get_or_create(guild.id, interaction.user.id)
-        flash = travel_arrival_flash(cat, snap)
-        await _send_view(interaction, MondeView(cat, snap, flash=flash))
-
-    @app_commands.command(name="manger", description="Mange un aliment du sac.")
-    @app_commands.describe(item="Pain, conserve, café…")
-    @app_commands.guild_only()
-    async def manger(self, interaction: discord.Interaction, item: str) -> None:
-        guild = interaction.guild
-        if guild is None:
-            await send_error(interaction, "Cette commande s'utilise sur un serveur.")
-            return
         store = _store(self.bot)
         cat = _catalog(self.bot)
-        try:
-            energy, energy_max = await store.consume_item(guild.id, interaction.user.id, item)
-        except PlayerError as exc:
-            await interaction.response.send_message(
-                view=NoticeView("Manger", f"**{str(exc).rstrip('.')}.**"),
-                ephemeral=True,
-            )
+        if await _maybe_onboard(interaction, store, cat):
             return
-        await interaction.response.send_message(
-            view=NoticeView(
-                "Manger",
-                f"{item_display(cat, item)} · **énergie** `{energy}/{energy_max}`",
-            ),
-            ephemeral=True,
+        snap = await store.get_or_create(guild.id, interaction.user.id)
+        env_score = await store.environment_score(guild.id)
+        flash = travel_arrival_flash(cat, snap)
+        await _send_view(
+            interaction, MondeView(cat, snap, env_score=env_score, flash=flash)
         )
-
-    @manger.autocomplete("item")
-    async def manger_item_autocomplete(
-        self, interaction: discord.Interaction, current: str
-    ) -> list[app_commands.Choice[str]]:
-        guild = interaction.guild
-        if guild is None:
-            return []
-        cat = _catalog(self.bot)
-        snap = await _store(self.bot).get_or_create(guild.id, interaction.user.id)
-        owned = {s.item_key for s in snap.stacks if s.quantity > 0}
-        q = (current or "").lower()
-        out: list[app_commands.Choice[str]] = []
-        for it in cat.items:
-            if it.key not in owned:
-                continue
-            if it.consumable is None or not it.consumable.consumed_on_use:
-                continue
-            effects = it.effects or {}
-            if "restore_energy_pct" not in effects and "max_energy_bonus_pct" not in effects:
-                continue
-            if q and q not in it.key.lower() and q not in it.name.lower():
-                continue
-            qty = next(s.quantity for s in snap.stacks if s.item_key == it.key)
-            out.append(app_commands.Choice(name=f"{it.name} ×{qty}", value=it.key))
-            if len(out) >= 25:
-                break
-        return out
 
     @app_commands.command(name="pecher", description="Lance dans le milieu actuel.")
     @app_commands.guild_only()
@@ -316,42 +252,13 @@ class Azure(commands.Cog):
         if guild is None:
             await send_error(interaction, "Cette commande s'utilise sur un serveur.")
             return
-        if not await ack(interaction, ephemeral=True):
-            return
         store = _store(self.bot)
         cat = _catalog(self.bot)
+        if await _maybe_onboard(interaction, store, cat):
+            return
+        if not await ack(interaction, ephemeral=True):
+            return
         await start_cast_flow(interaction, cat, store)
-
-    @app_commands.command(name="dex", description="Espèces découvertes et silhouettes.")
-    @app_commands.guild_only()
-    async def dex(self, interaction: discord.Interaction) -> None:
-        guild = interaction.guild
-        if guild is None:
-            await send_error(interaction, "Cette commande s'utilise sur un serveur.")
-            return
-        store = _store(self.bot)
-        cat = _catalog(self.bot)
-        snap = await store.get_or_create(guild.id, interaction.user.id)
-        rows = await store.list_dex(guild.id, interaction.user.id)
-        await _send_view(
-            interaction,
-            DexView(cat, rows, found=snap.dex_found, total=snap.dex_total),
-        )
-
-    @app_commands.command(name="sac", description="Poissons, créatures et items du sac.")
-    @app_commands.guild_only()
-    async def sac(self, interaction: discord.Interaction) -> None:
-        guild = interaction.guild
-        if guild is None:
-            await send_error(interaction, "Cette commande s'utilise sur un serveur.")
-            return
-        if not await ack(interaction, ephemeral=True):
-            return
-        store = _store(self.bot)
-        cat = _catalog(self.bot)
-        snap = await store.get_or_create(guild.id, interaction.user.id)
-        specimens = await store.list_caught(guild.id, interaction.user.id)
-        await _send_view(interaction, SacView(cat, snap, specimens))
 
     @app_commands.command(name="records", description="Meilleures prises du serveur.")
     @app_commands.guild_only()
@@ -362,6 +269,8 @@ class Azure(commands.Cog):
             return
         store = _store(self.bot)
         cat = _catalog(self.bot)
+        if await _maybe_onboard(interaction, store, cat):
+            return
         rows = await store.list_guild_records(guild.id)
         names: dict[int, str] = {}
         for _key, user_id, _length, _weight in rows:
@@ -371,17 +280,19 @@ class Azure(commands.Cog):
             names[user_id] = member.display_name if member is not None else f"<@{user_id}>"
         await _send_view(interaction, RecordsView(cat, rows, names=names))
 
-    @app_commands.command(name="village", description="Place du village : marchands, réparateur, passeurs.")
+    @app_commands.command(name="village", description="Place du village : étals, atelier, passages.")
     @app_commands.guild_only()
     async def village(self, interaction: discord.Interaction) -> None:
         guild = interaction.guild
         if guild is None:
             await send_error(interaction, "Cette commande s'utilise sur un serveur.")
             return
-        if not await ack(interaction, ephemeral=True):
-            return
         store = _store(self.bot)
         cat = _catalog(self.bot)
+        if await _maybe_onboard(interaction, store, cat):
+            return
+        if not await ack(interaction, ephemeral=True):
+            return
         snap = await store.get_or_create(guild.id, interaction.user.id)
         flash = travel_arrival_flash(cat, snap)
         view = await load_village_view(
@@ -411,6 +322,9 @@ class Azure(commands.Cog):
         cat = _catalog(self.bot)
         if not await ack(interaction, ephemeral=False):
             return
+        talk_key = (guild.id, interaction.user.id)
+        token = self._talk_gen.get(talk_key, 0) + 1
+        self._talk_gen[talk_key] = token
         snap = await store.snapshot(guild.id, interaction.user.id)
         specimens = await store.list_caught(guild.id, interaction.user.id)
         present = present_npcs(cat, guild.id, skulls=skull_score(cat, snap))
@@ -451,6 +365,8 @@ class Azure(commands.Cog):
             quantity: int = 1,
             flash: str = "",
         ) -> None:
+            if self._talk_gen.get(talk_key) != token:
+                return
             view = await load_village_view(
                 cat,
                 store,
@@ -476,6 +392,8 @@ class Azure(commands.Cog):
 
         async def _on_partial(partial: str) -> None:
             nonlocal last_edit
+            if self._talk_gen.get(talk_key) != token:
+                return
             now = time.monotonic()
             if now - last_edit < STREAM_EDIT_INTERVAL_S:
                 return
@@ -504,7 +422,10 @@ class Azure(commands.Cog):
             )
         except LLMOpenAIError:
             logger.exception("Dialogue village")
-            await send_error(interaction, "Cette personne n'a pas entendu.")
+            if self._talk_gen.get(talk_key) == token:
+                await send_error(interaction, "Cette personne n'a pas entendu.")
+            return
+        if self._talk_gen.get(talk_key) != token:
             return
         granted = False
         if result.get("bargain"):
@@ -668,7 +589,7 @@ class Azure(commands.Cog):
             NoticeView("Reset", f"Profil effacé pour {target.mention}.", note="Ce serveur uniquement."),
         )
 
-    @admin.command(name="annonce", description="Publie un bonus temporaire. L'effet est obligatoire.")
+    @admin.command(name="bonus", description="Publie un bonus temporaire. L'effet est obligatoire.")
     @app_commands.describe(
         bonus="Effet appliqué aux prix, passages ou réparations",
         texte="Réplique dans le salon (pas l'effet)",
@@ -680,7 +601,7 @@ class Azure(commands.Cog):
             for kind, label in ANNOUNCE_KINDS.items()
         ]
     )
-    async def admin_annonce(
+    async def admin_bonus(
         self,
         interaction: discord.Interaction,
         bonus: str,
@@ -728,10 +649,10 @@ class Azure(commands.Cog):
             try:
                 await channel.send(**kwargs)
             except discord.HTTPException:
-                logger.warning("Impossible de poster l'annonce village (salon).")
+                logger.warning("Impossible de poster le bonus village (salon).")
         await interaction.response.send_message(
             view=NoticeView(
-                "Annonce",
+                "Bonus",
                 f"{speaker.name or speaker.key} · jusqu'à {posted.ends_at}",
                 note=note,
             ),
@@ -743,8 +664,12 @@ class Azure(commands.Cog):
         guild = interaction.guild
         assert guild is not None
         cat = _catalog(self.bot)
-        snap = await _store(self.bot).get_or_create(guild.id, interaction.user.id)
-        await _send_view(interaction, MondeView(cat, snap, debug=True))
+        store = _store(self.bot)
+        snap = await store.get_or_create(guild.id, interaction.user.id)
+        env_score = await store.environment_score(guild.id)
+        await _send_view(
+            interaction, MondeView(cat, snap, env_score=env_score, debug=True)
+        )
 
     @admin.command(name="simuler", description="Simule N lancers (équilibrage).")
     @app_commands.describe(

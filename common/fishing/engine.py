@@ -33,6 +33,7 @@ class EncounterContext:
     ignore_night_penalty: bool = False
     offseason_bonus: float = 0.0
     env_quality_mult: float = 1.0
+    fortune_mult: float = 1.0
 
 
 @dataclass(frozen=True)
@@ -52,6 +53,7 @@ def context_from_world(
     ignore_night_penalty: bool = False,
     offseason_bonus: float = 0.0,
     env_quality_mult: float = 1.0,
+    fortune_mult: float = 1.0,
 ) -> EncounterContext:
     state = world_state(catalog.game.world, guild_id, [milieu_key])
     return EncounterContext(
@@ -65,6 +67,7 @@ def context_from_world(
         ignore_night_penalty=ignore_night_penalty,
         offseason_bonus=offseason_bonus,
         env_quality_mult=env_quality_mult,
+        fortune_mult=fortune_mult,
     )
 
 
@@ -138,6 +141,11 @@ def species_weight(
             weight *= float(ctx.env_quality_mult)
         except (TypeError, ValueError):
             pass
+    if species.rarity != "common" and ctx.fortune_mult != 1.0:
+        try:
+            weight *= float(ctx.fortune_mult)
+        except (TypeError, ValueError):
+            pass
     return weight
 
 
@@ -191,12 +199,34 @@ def roll_waste(catalog: Catalog, rng: random.Random) -> Item | None:
     return rng.choices(pool, weights=[waste_weight(it) for it in pool], k=1)[0]
 
 
+def item_is_gem(item: Item) -> bool:
+    col = item.collection
+    return col is not None and col.collectible and col.group == "gemstones"
+
+
+def gem_items(catalog: Catalog) -> list[Item]:
+    return [it for it in catalog.items if it.enabled and item_is_gem(it)]
+
+
+def unique_gem_count(catalog: Catalog, owned: set[str]) -> int:
+    return sum(1 for it in gem_items(catalog) if it.key in owned)
+
+
+def fortune_mult(catalog: Catalog, owned: set[str]) -> float:
+    n = unique_gem_count(catalog, owned)
+    if n <= 0:
+        return 1.0
+    return 1.0 + float(catalog.game.fishing.gem_fortune_per_badge) * n
+
+
 def loot_items(catalog: Catalog) -> list[Item]:
     out: list[Item] = []
     for it in catalog.items:
         if not it.enabled:
             continue
         if it.category == "waste":
+            continue
+        if item_is_gem(it):
             continue
         if _LOOT_SOURCES.intersection(it.sources or []):
             out.append(it)
@@ -220,6 +250,22 @@ def roll_loot(catalog: Catalog, rng: random.Random) -> Item | None:
     if not pool:
         return None
     return rng.choices(pool, weights=[loot_weight(it) for it in pool], k=1)[0]
+
+
+def gem_weight(item: Item) -> float:
+    col = item.collection
+    prestige = int(col.prestige_value) if col is not None and col.prestige_value else 1
+    return max(1.0, 8.0 - float(prestige))
+
+
+def roll_gem(catalog: Catalog, rng: random.Random) -> Item | None:
+    chance = float(catalog.game.fishing.gem_chance)
+    if chance <= 0 or rng.random() >= chance:
+        return None
+    pool = gem_items(catalog)
+    if not pool:
+        return None
+    return rng.choices(pool, weights=[gem_weight(it) for it in pool], k=1)[0]
 
 
 def weather_energy_extra(catalog: Catalog, weather_key: str, *, ignore: bool) -> int:

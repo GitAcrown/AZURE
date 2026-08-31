@@ -22,3 +22,7 @@ MEDAL1 = ""
 MEDAL2 = ""
 MEDAL3 = ""
 MEDAL4 = ""
+
+# --- Navigation (flèches de menus) ---
+LEFT = ""
+RIGHT = ""

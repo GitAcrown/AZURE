@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+import functools
 import json
 import logging
 import random
@@ -13,6 +15,7 @@ from typing import Any, Optional
 import aiosqlite
 
 from common.catalog import Catalog, CatalogError, Item, Npc
+from common.daily import DailyStatus, daily_day_key, daily_milieu_key
 from common.display import weather_display
 from common.village import (
     VillageAnnouncement,
@@ -40,8 +43,10 @@ from common.fishing import (
     context_from_world,
     generate_specimen,
     roll,
+    roll_gem,
     roll_loot,
     roll_waste,
+    fortune_mult,
     cast_energy_parts,
     energy_shortfall_message,
 )
@@ -68,6 +73,68 @@ from .models import (
 )
 
 logger = logging.getLogger("AZURE.Player")
+
+
+class _ReentrantLock:
+    """Lock asyncio réentrant pour la même tâche (évite les deadlocks internes)."""
+
+    def __init__(self) -> None:
+        self._lock = asyncio.Lock()
+        self._task: asyncio.Task | None = None
+        self._depth = 0
+
+    @property
+    def depth(self) -> int:
+        return self._depth
+
+    async def __aenter__(self) -> "_ReentrantLock":
+        task = asyncio.current_task()
+        if self._task is task:
+            self._depth += 1
+            return self
+        await self._lock.acquire()
+        self._task = task
+        self._depth = 1
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb) -> None:
+        if self._depth > 1:
+            self._depth -= 1
+            return
+        self._depth = 0
+        self._task = None
+        self._lock.release()
+
+
+def _locked_player(method):
+    """Sérialise les écritures (une connexion SQLite) et rollback si ça plante."""
+
+    @functools.wraps(method)
+    async def wrapped(self, guild_id: int, user_id: int, *args, **kwargs):
+        async with self._write_lock:
+            try:
+                return await method(self, guild_id, user_id, *args, **kwargs)
+            except Exception:
+                if self._write_lock.depth <= 1:
+                    try:
+                        await self._conn.rollback()
+                    except Exception:
+                        pass
+                raise
+
+    return wrapped
+
+BASE_HOOKS = ("small_hook", "big_hook")
+
+
+def _starter_grant_order(item: Item) -> tuple[int, int]:
+    if item.key == "coastal_rod":
+        return (0, item.id)
+    if item.key == "small_hook":
+        return (1, item.id)
+    if item.key == "big_hook":
+        return (2, item.id)
+    return (10, item.id)
 
 
 def _now() -> str:
@@ -183,6 +250,40 @@ class PlayerStore:
     def __init__(self, conn: aiosqlite.Connection, catalog: Catalog) -> None:
         self._conn = conn
         self.catalog = catalog
+        self._write_lock = _ReentrantLock()
+        self._active_casts: dict[tuple[int, int], PendingCast] = {}
+
+    def _cast_key(self, guild_id: int, user_id: int) -> tuple[int, int]:
+        return (int(guild_id), int(user_id))
+
+    def has_active_cast(self, guild_id: int, user_id: int) -> bool:
+        pending = self._active_casts.get(self._cast_key(guild_id, user_id))
+        return pending is not None and not pending.resolved
+
+    def clear_active_cast(
+        self,
+        guild_id: int,
+        user_id: int,
+        pending: PendingCast | None = None,
+    ) -> None:
+        key = self._cast_key(guild_id, user_id)
+        current = self._active_casts.get(key)
+        if pending is None or current is pending:
+            self._active_casts.pop(key, None)
+
+    async def _debit_money(self, guild_id: int, user_id: int, amount: int) -> None:
+        paid = int(amount)
+        if paid <= 0:
+            return
+        cur = await self._conn.execute(
+            """
+            UPDATE players SET money = money - ?
+            WHERE guild_id = ? AND user_id = ? AND money >= ?
+            """,
+            (paid, guild_id, user_id, paid),
+        )
+        if int(cur.rowcount or 0) != 1:
+            raise PlayerError("pas assez d'argent")
 
     async def close(self) -> None:
         await self._conn.close()
@@ -190,35 +291,57 @@ class PlayerStore:
     async def get_or_create(self, guild_id: int, user_id: int) -> PlayerSnapshot:
         existing = await self._fetch_player_row(guild_id, user_id)
         if existing is not None:
+            if await self._ensure_base_hooks(guild_id, user_id):
+                await self._conn.commit()
             snap = await self.snapshot(guild_id, user_id)
             snap.created = False
             return snap
 
         defaults = self.catalog.game.player
-        await self._conn.execute(
-            """
-            INSERT INTO players (
-                guild_id, user_id, energy, energy_max, money, milieu_key,
-                created_at, energy_updated_at, energy_bonus_pct, energy_bonus_until
+        try:
+            await self._conn.execute(
+                """
+                INSERT INTO players (
+                    guild_id, user_id, energy, energy_max, money, milieu_key,
+                    created_at, energy_updated_at, energy_bonus_pct, energy_bonus_until,
+                    onboarding_done
+                )
+                VALUES (?, ?, ?, ?, ?, NULL, ?, ?, 0, NULL, 0)
+                """,
+                (
+                    guild_id,
+                    user_id,
+                    defaults.energy_start,
+                    defaults.energy_max,
+                    defaults.money_start,
+                    _now(),
+                    _now(),
+                ),
             )
-            VALUES (?, ?, ?, ?, ?, NULL, ?, ?, 0, NULL)
-            """,
-            (
-                guild_id,
-                user_id,
-                defaults.energy_start,
-                defaults.energy_max,
-                defaults.money_start,
-                _now(),
-                _now(),
-            ),
-        )
+        except aiosqlite.IntegrityError:
+            snap = await self.snapshot(guild_id, user_id)
+            snap.created = False
+            return snap
         await self._grant_starter(guild_id, user_id)
+        await self._ensure_base_hooks(guild_id, user_id)
         await self._conn.commit()
         logger.info("Profil créé guild=%s user=%s", guild_id, user_id)
         snap = await self.snapshot(guild_id, user_id)
         snap.created = True
+        snap.onboarding_done = False
         return snap
+
+    @_locked_player
+    async def complete_onboarding(self, guild_id: int, user_id: int) -> None:
+        await self.get_or_create(guild_id, user_id)
+        await self._conn.execute(
+            """
+            UPDATE players SET onboarding_done = 1
+            WHERE guild_id = ? AND user_id = ?
+            """,
+            (guild_id, user_id),
+        )
+        await self._conn.commit()
 
     async def snapshot(self, guild_id: int, user_id: int) -> PlayerSnapshot:
         row, just_arrived = await self._tick_energy(guild_id, user_id)
@@ -314,8 +437,17 @@ class PlayerStore:
             travel_dest=row["travel_dest"],
             travel_arrives_at=row["travel_arrives_at"],
             just_arrived=just_arrived,
+            archaeology_points=int(row["archaeology_points"] or 0)
+            if "archaeology_points" in row.keys()
+            else 0,
+            onboarding_done=(
+                bool(int(row["onboarding_done"] or 0))
+                if "onboarding_done" in row.keys()
+                else True
+            ),
         )
 
+    @_locked_player
     async def add_item(
         self,
         guild_id: int,
@@ -336,6 +468,7 @@ class PlayerStore:
             added = await self._add_stack(guild_id, user_id, item, quantity)
             if auto_equip:
                 await self._try_auto_equip_stack(guild_id, user_id, item)
+            await self._try_assemble_fossils(guild_id, user_id)
             if commit:
                 await self._conn.commit()
             return added
@@ -348,17 +481,22 @@ class PlayerStore:
             await self._conn.commit()
         return quantity
 
+    @_locked_player
     async def add_money(self, guild_id: int, user_id: int, delta: int) -> int:
         await self.get_or_create(guild_id, user_id)
-        snap = await self.snapshot(guild_id, user_id)
-        new_value = max(0, snap.money + delta)
-        await self._conn.execute(
-            "UPDATE players SET money = ? WHERE guild_id = ? AND user_id = ?",
-            (new_value, guild_id, user_id),
-        )
+        amount = int(delta)
+        if amount > 0:
+            await self._conn.execute(
+                "UPDATE players SET money = money + ? WHERE guild_id = ? AND user_id = ?",
+                (amount, guild_id, user_id),
+            )
+        elif amount < 0:
+            await self._debit_money(guild_id, user_id, -amount)
         await self._conn.commit()
-        return new_value
+        snap = await self.snapshot(guild_id, user_id)
+        return snap.money
 
+    @_locked_player
     async def set_energy(self, guild_id: int, user_id: int, value: int) -> int:
         await self.get_or_create(guild_id, user_id)
         snap = await self.snapshot(guild_id, user_id)
@@ -373,6 +511,7 @@ class PlayerStore:
         await self._conn.commit()
         return new_value
 
+    @_locked_player
     async def set_milieu(self, guild_id: int, user_id: int, milieu_key: str) -> tuple[bool, str]:
         """Marche gratuite. Premier milieu : instantané. Renvoie `(changé, dest)`."""
         try:
@@ -420,6 +559,7 @@ class PlayerStore:
         await self._conn.commit()
         return True, milieu.key
 
+    @_locked_player
     async def unequip(self, guild_id: int, user_id: int, slot: str) -> str:
         if slot not in ACTIVE_SLOTS:
             raise PlayerError(f"slot inconnu : {slot!r}")
@@ -434,6 +574,7 @@ class PlayerStore:
         await self._conn.commit()
         return slot
 
+    @_locked_player
     async def equip_gear(self, guild_id: int, user_id: int, gear_id: int) -> str:
         await self.get_or_create(guild_id, user_id)
         async with self._conn.execute(
@@ -464,6 +605,7 @@ class PlayerStore:
         await self._conn.commit()
         return slot
 
+    @_locked_player
     async def equip_bait(self, guild_id: int, user_id: int, item_key: str) -> str:
         item = self._item(item_key)
         eq = item.equipment
@@ -495,6 +637,7 @@ class PlayerStore:
         await self._conn.commit()
         return BAIT_SLOT
 
+    @_locked_player
     async def consume_item(self, guild_id: int, user_id: int, item_key: str) -> tuple[int, int]:
         """Mange un consommable. Renvoie `(énergie, max effectif)`."""
         item = self._item(item_key)
@@ -508,27 +651,10 @@ class PlayerStore:
             raise PlayerError("cet item ne se mange pas")
         await self.get_or_create(guild_id, user_id)
         snap = await self.snapshot(guild_id, user_id)
-        owned = next((s.quantity for s in snap.stacks if s.item_key == item.key), 0)
-        if owned < 1:
-            raise PlayerError("tu n'as pas cet item")
-        new_qty = owned - 1
-        if new_qty <= 0:
-            await self._conn.execute(
-                """
-                DELETE FROM inventory_stacks
-                WHERE guild_id = ? AND user_id = ? AND item_key = ?
-                """,
-                (guild_id, user_id, item.key),
-            )
-        else:
-            await self._conn.execute(
-                """
-                UPDATE inventory_stacks SET quantity = ?
-                WHERE guild_id = ? AND user_id = ? AND item_key = ?
-                """,
-                (new_qty, guild_id, user_id, item.key),
-            )
-
+        try:
+            await self._consume_stack(guild_id, user_id, item.key, 1)
+        except PlayerError:
+            raise PlayerError("tu n'as pas cet item") from None
         now = datetime.now(timezone.utc)
         energy = snap.energy
         eff_max = snap.energy_max
@@ -560,6 +686,7 @@ class PlayerStore:
         await self._conn.commit()
         return energy, eff_max
 
+    @_locked_player
     async def begin_cast(
         self,
         guild_id: int,
@@ -569,6 +696,8 @@ class PlayerStore:
     ) -> PendingCast:
         """Paie énergie et appât, tire l'espèce, n'écrit pas le Dex."""
         rng = rng or random.Random()
+        if self.has_active_cast(guild_id, user_id):
+            raise PlayerError("un lancer est déjà en cours — attends la touche ou la fuite")
         snap = await self.get_or_create(guild_id, user_id)
         if not snap.milieu_key:
             raise PlayerError("choisis un milieu avec /monde")
@@ -622,8 +751,9 @@ class PlayerStore:
         hook_key = None
         if hook_eq is not None:
             hook_key = hook_eq.gear.item_key if hook_eq.gear is not None else hook_eq.item_key
-        if hook_key:
-            hook_item = self._item(hook_key)
+        if not hook_key:
+            raise PlayerError("équipe un crochet avec /profil")
+        hook_item = self._item(hook_key)
 
         raw_off = effects.get("offseason_species_chance_bonus")
         try:
@@ -641,6 +771,7 @@ class PlayerStore:
             ignore_night_penalty=bool(effects.get("ignore_night_fishing_success_penalty")),
             offseason_bonus=offseason,
             env_quality_mult=env_quality_mult(self.catalog, env_score),
+            fortune_mult=fortune_mult(self.catalog, snap.owned_keys()),
         )
         pool = build_pool(self.catalog, ctx)
         try:
@@ -649,40 +780,28 @@ class PlayerStore:
             raise PlayerError(str(exc)) from exc
 
         new_energy = snap.energy - cost
-        await self._conn.execute(
+        cur = await self._conn.execute(
             """
-            UPDATE players SET energy = ?, energy_updated_at = ?
-            WHERE guild_id = ? AND user_id = ?
+            UPDATE players SET energy = energy - ?, energy_updated_at = ?
+            WHERE guild_id = ? AND user_id = ? AND energy >= ?
             """,
-            (new_energy, _now(), guild_id, user_id),
+            (cost, _now(), guild_id, user_id, cost),
         )
+        if int(cur.rowcount or 0) != 1:
+            raise PlayerError(
+                energy_shortfall_message(
+                    energy=snap.energy,
+                    base=base,
+                    extra=extra,
+                    weather_label=weather_display(weather) if extra else "",
+                )
+            )
 
         bait_consumed: str | None = None
         if bait_item is not None and bait_key is not None:
             cons = bait_item.consumable
             if cons is not None and cons.consumed_on_attempt:
-                owned = next((s.quantity for s in snap.stacks if s.item_key == bait_key), 0)
-                new_qty = owned - 1
-                if new_qty <= 0:
-                    await self._conn.execute(
-                        """
-                        DELETE FROM inventory_stacks
-                        WHERE guild_id = ? AND user_id = ? AND item_key = ?
-                        """,
-                        (guild_id, user_id, bait_key),
-                    )
-                    await self._conn.execute(
-                        "DELETE FROM equipped WHERE guild_id = ? AND user_id = ? AND slot = ?",
-                        (guild_id, user_id, BAIT_SLOT),
-                    )
-                else:
-                    await self._conn.execute(
-                        """
-                        UPDATE inventory_stacks SET quantity = ?
-                        WHERE guild_id = ? AND user_id = ? AND item_key = ?
-                        """,
-                        (new_qty, guild_id, user_id, bait_key),
-                    )
+                await self._consume_stack(guild_id, user_id, bait_key, 1)
                 bait_consumed = bait_key
 
         await self._conn.commit()
@@ -690,7 +809,7 @@ class PlayerStore:
             self.catalog.game.fishing.minigame, method, hook=hook_item, rng=rng
         )
         fresh = await self.snapshot(guild_id, user_id)
-        return PendingCast(
+        pending = PendingCast(
             guild_id=guild_id,
             user_id=user_id,
             species_key=species.key,
@@ -708,6 +827,8 @@ class PlayerStore:
             hook_key=hook_key,
             bait_key=bait_key,
         )
+        self._active_casts[self._cast_key(guild_id, user_id)] = pending
+        return pending
 
     async def preview_cast(
         self,
@@ -778,6 +899,7 @@ class PlayerStore:
             carry_max=carry_max,
         )
 
+    @_locked_player
     async def finish_cast(
         self,
         guild_id: int,
@@ -792,6 +914,34 @@ class PlayerStore:
         preview: CastResult | None = None,
     ) -> CastResult:
         """Enregistre la capture : spécimen, Dex, records."""
+        try:
+            return await self._finish_cast_work(
+                guild_id,
+                user_id,
+                species_key,
+                bait_consumed=bait_consumed,
+                rng=rng,
+                specimen=specimen,
+                energy=energy,
+                energy_max=energy_max,
+                preview=preview,
+            )
+        finally:
+            self.clear_active_cast(guild_id, user_id)
+
+    async def _finish_cast_work(
+        self,
+        guild_id: int,
+        user_id: int,
+        species_key: str,
+        *,
+        bait_consumed: str | None = None,
+        rng: random.Random | None = None,
+        specimen: Specimen | None = None,
+        energy: int | None = None,
+        energy_max: int | None = None,
+        preview: CastResult | None = None,
+    ) -> CastResult:
         rng = rng or random.Random()
         if preview is not None:
             if specimen is None and preview.length_cm is not None and preview.weight_kg is not None:
@@ -841,10 +991,19 @@ class PlayerStore:
         if loot is not None:
             await self.add_item(guild_id, user_id, loot.key, 1)
             loot_key = loot.key
+        gem = roll_gem(self.catalog, rng)
+        if gem is not None:
+            await self.add_item(guild_id, user_id, gem.key, 1)
+            loot_key = gem.key
         hook_broke = await self._wear_hooked_attempt(guild_id, user_id)
         milieu_key = snap.milieu_key if snap is not None else None
         if milieu_key:
             await self._record_milieu_catch(guild_id, milieu_key)
+        daily, just_rewarded, daily_note = await self.tick_daily(
+            guild_id, user_id, kept=kept, milieu_key=milieu_key
+        )
+        if just_rewarded:
+            snap = await self.snapshot(guild_id, user_id)
         return replace(
             result,
             catch_count=catch_count,
@@ -858,6 +1017,10 @@ class PlayerStore:
             waste_key=waste_key,
             loot_key=loot_key,
             hook_broke=hook_broke,
+            daily_count=daily.count if daily_note else None,
+            daily_target=daily.target,
+            daily_just_rewarded=just_rewarded,
+            daily_note=daily_note,
         )
 
     async def _evaluate_catch(
@@ -1101,6 +1264,7 @@ class PlayerStore:
                 )
         return out
 
+    @_locked_player
     async def release_caught(
         self, guild_id: int, user_id: int, specimen_id: int
     ) -> CaughtSpecimen:
@@ -1115,10 +1279,12 @@ class PlayerStore:
             row = await cur.fetchone()
         if row is None:
             raise PlayerError("prise introuvable")
-        await self._conn.execute(
+        deleted = await self._conn.execute(
             "DELETE FROM caught_specimens WHERE id = ? AND guild_id = ? AND user_id = ?",
             (specimen_id, guild_id, user_id),
         )
+        if int(deleted.rowcount or 0) != 1:
+            raise PlayerError("prise introuvable")
         await self._conn.commit()
         return CaughtSpecimen(
             id=int(row["id"]),
@@ -1248,6 +1414,7 @@ class PlayerStore:
         )
         return True, used + 1, cap
 
+    @_locked_player
     async def reset_player(self, guild_id: int, user_id: int) -> None:
         await self._conn.execute(
             "DELETE FROM guild_records WHERE guild_id = ? AND user_id = ?",
@@ -1278,10 +1445,111 @@ class PlayerStore:
             (guild_id, user_id),
         )
         await self._conn.execute(
+            "DELETE FROM daily_progress WHERE guild_id = ? AND user_id = ?",
+            (guild_id, user_id),
+        )
+        await self._conn.execute(
             "DELETE FROM players WHERE guild_id = ? AND user_id = ?",
             (guild_id, user_id),
         )
         await self._conn.commit()
+
+    async def daily_status(
+        self,
+        guild_id: int,
+        user_id: int,
+        *,
+        now: datetime | None = None,
+    ) -> DailyStatus:
+        settings = self.catalog.game.daily
+        day = daily_day_key(self.catalog, now)
+        milieu = daily_milieu_key(self.catalog, guild_id, now=now)
+        async with self._conn.execute(
+            """
+            SELECT day_key, milieu_key, count, rewarded FROM daily_progress
+            WHERE guild_id = ? AND user_id = ?
+            """,
+            (guild_id, user_id),
+        ) as cur:
+            row = await cur.fetchone()
+        count = 0
+        rewarded = False
+        if (
+            row is not None
+            and str(row["day_key"]) == day
+            and str(row["milieu_key"]) == milieu
+        ):
+            count = int(row["count"] or 0)
+            rewarded = bool(int(row["rewarded"] or 0))
+        return DailyStatus(
+            day_key=day,
+            milieu_key=milieu,
+            count=count,
+            target=int(settings.catch_count),
+            rewarded=rewarded,
+            reward_bronze=int(settings.reward_bronze),
+        )
+
+    async def tick_daily(
+        self,
+        guild_id: int,
+        user_id: int,
+        *,
+        kept: bool,
+        milieu_key: str | None,
+        now: datetime | None = None,
+    ) -> tuple[DailyStatus, int, bool]:
+        """Incrémente si prise gardée au bon milieu. Renvoie (status, bronze versé, flash)."""
+        status = await self.daily_status(guild_id, user_id, now=now)
+        progressed = False
+        just_rewarded = 0
+        if kept and milieu_key == status.milieu_key and not status.rewarded:
+            nxt = status.count
+            if nxt < status.target:
+                nxt += 1
+                progressed = True
+            rewarded = nxt >= status.target
+            just_rewarded = status.reward_bronze if rewarded else 0
+            if just_rewarded:
+                await self._conn.execute(
+                    """
+                    UPDATE players SET money = money + ?
+                    WHERE guild_id = ? AND user_id = ?
+                    """,
+                    (just_rewarded, guild_id, user_id),
+                )
+            await self._conn.execute(
+                """
+                INSERT INTO daily_progress (
+                    guild_id, user_id, day_key, milieu_key, count, rewarded
+                )
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT(guild_id, user_id) DO UPDATE SET
+                    day_key = excluded.day_key,
+                    milieu_key = excluded.milieu_key,
+                    count = excluded.count,
+                    rewarded = excluded.rewarded
+                """,
+                (
+                    guild_id,
+                    user_id,
+                    status.day_key,
+                    status.milieu_key,
+                    nxt,
+                    1 if rewarded else 0,
+                ),
+            )
+            await self._conn.commit()
+            status = DailyStatus(
+                day_key=status.day_key,
+                milieu_key=status.milieu_key,
+                count=nxt,
+                target=status.target,
+                rewarded=rewarded,
+                reward_bronze=status.reward_bronze,
+            )
+        flash = progressed or just_rewarded > 0
+        return status, just_rewarded, flash
 
     async def environment_score(self, guild_id: int) -> int:
         async with self._conn.execute(
@@ -1421,6 +1689,7 @@ class PlayerStore:
         await self._conn.commit()
         return int(cur.rowcount or 0)
 
+    @_locked_player
     async def sell_specimen(self, guild_id: int, user_id: int, specimen_id: int) -> tuple[int, str, int]:
         """Vend une prise. Renvoie `(prix, species_key, argent)`."""
         await self.get_or_create(guild_id, user_id)
@@ -1455,15 +1724,15 @@ class PlayerStore:
         )
         if int(deleted.rowcount or 0) != 1:
             raise PlayerError("prise introuvable")
-        snap = await self.snapshot(guild_id, user_id)
-        new_money = snap.money + price
         await self._conn.execute(
-            "UPDATE players SET money = ? WHERE guild_id = ? AND user_id = ?",
-            (new_money, guild_id, user_id),
+            "UPDATE players SET money = money + ? WHERE guild_id = ? AND user_id = ?",
+            (price, guild_id, user_id),
         )
         await self._conn.commit()
-        return price, species_key, new_money
+        snap = await self.snapshot(guild_id, user_id)
+        return price, species_key, snap.money
 
+    @_locked_player
     async def sell_item(
         self,
         guild_id: int,
@@ -1502,16 +1771,17 @@ class PlayerStore:
                 env_gain = max(0, int(raw_env)) * (quantity if _is_stackable(item) else 1)
             except (TypeError, ValueError):
                 env_gain = 0
-        new_money = snap.money + total
         await self._conn.execute(
-            "UPDATE players SET money = ? WHERE guild_id = ? AND user_id = ?",
-            (new_money, guild_id, user_id),
+            "UPDATE players SET money = money + ? WHERE guild_id = ? AND user_id = ?",
+            (total, guild_id, user_id),
         )
         if env_gain:
             await self.add_environment_score(guild_id, env_gain, commit=False)
         await self._conn.commit()
-        return total, new_money, env_gain
+        snap = await self.snapshot(guild_id, user_id)
+        return total, snap.money, env_gain
 
+    @_locked_player
     async def buy_item(
         self,
         guild_id: int,
@@ -1533,7 +1803,7 @@ class PlayerStore:
             try:
                 seller = self.catalog.get_npc(seller_key)
             except CatalogError as exc:
-                raise PlayerError("ce marchand n'est pas là") from exc
+                raise PlayerError("cette personne n'est plus là") from exc
             if seller.shop_mode != "sell":
                 raise PlayerError("pas de vente ici")
         stock = {it.key for it in shop_stock(self.catalog, seller)}
@@ -1555,16 +1825,12 @@ class PlayerStore:
         if added < 1:
             raise PlayerError("pas de place dans le sac")
         paid = unit * added
-        if snap.money < paid:
-            raise PlayerError("pas assez d'argent")
-        new_money = snap.money - paid
-        await self._conn.execute(
-            "UPDATE players SET money = ? WHERE guild_id = ? AND user_id = ?",
-            (new_money, guild_id, user_id),
-        )
+        await self._debit_money(guild_id, user_id, paid)
         await self._conn.commit()
-        return paid, new_money
+        snap = await self.snapshot(guild_id, user_id)
+        return paid, snap.money
 
+    @_locked_player
     async def travel_to(
         self, guild_id: int, user_id: int, milieu_key: str
     ) -> tuple[bool, str, int]:
@@ -1596,19 +1862,22 @@ class PlayerStore:
             await self.trade_modifiers(guild_id, user_id),
             "travel_mult",
         )
-        if cost > 0 and snap.money < cost:
-            raise PlayerError("pas assez d'argent pour le passage")
-        new_money = snap.money - cost
+        if cost > 0:
+            try:
+                await self._debit_money(guild_id, user_id, cost)
+            except PlayerError:
+                raise PlayerError("pas assez d'argent pour le passage") from None
         await self._conn.execute(
             """
             UPDATE players
-            SET milieu_key = ?, money = ?, travel_dest = NULL, travel_arrives_at = NULL
+            SET milieu_key = ?, travel_dest = NULL, travel_arrives_at = NULL
             WHERE guild_id = ? AND user_id = ?
             """,
-            (milieu.key, new_money, guild_id, user_id),
+            (milieu.key, guild_id, user_id),
         )
         await self._conn.commit()
-        return True, milieu.key, new_money
+        snap = await self.snapshot(guild_id, user_id)
+        return True, milieu.key, snap.money
 
     async def list_village_talk(
         self,
@@ -1708,6 +1977,7 @@ class PlayerStore:
                     keys.update(str(k) for k in parsed if str(k).strip())
         return keys
 
+    @_locked_player
     async def record_village_talk(
         self,
         guild_id: int,
@@ -1750,6 +2020,7 @@ class PlayerStore:
         )
         await self._conn.commit()
 
+    @_locked_player
     async def clear_village_talk_intent(
         self, guild_id: int, user_id: int, npc_key: str
     ) -> None:
@@ -1795,6 +2066,7 @@ class PlayerStore:
             int(raw_bucket) if raw_bucket is not None else None,
         )
 
+    @_locked_player
     async def set_village_focus(
         self,
         guild_id: int,
@@ -1839,6 +2111,7 @@ class PlayerStore:
             return None
         return parsed if isinstance(parsed, dict) else None
 
+    @_locked_player
     async def set_village_bargain(
         self,
         guild_id: int,
@@ -1894,6 +2167,7 @@ class PlayerStore:
             )
         return price_modifiers(anns, bargain)
 
+    @_locked_player
     async def repair_gear(self, guild_id: int, user_id: int, gear_id: int) -> tuple[int, int]:
         """Répare une instance. Renvoie `(coût, argent)`."""
         await self.get_or_create(guild_id, user_id)
@@ -1923,21 +2197,16 @@ class PlayerStore:
             await self.trade_modifiers(guild_id, user_id),
             "repair_mult",
         )
-        snap = await self.snapshot(guild_id, user_id)
-        if snap.money < cost:
-            raise PlayerError("pas assez d'argent")
-        new_money = snap.money - cost
+        await self._debit_money(guild_id, user_id, int(cost))
         await self._conn.execute(
             "UPDATE gear_instances SET durability = ? WHERE id = ? AND guild_id = ? AND user_id = ?",
             (maximum, gear_id, guild_id, user_id),
         )
-        await self._conn.execute(
-            "UPDATE players SET money = ? WHERE guild_id = ? AND user_id = ?",
-            (new_money, guild_id, user_id),
-        )
         await self._conn.commit()
-        return int(cost), new_money
+        snap = await self.snapshot(guild_id, user_id)
+        return int(cost), snap.money
 
+    @_locked_player
     async def exchange_fossil(
         self,
         guild_id: int,
@@ -1968,43 +2237,43 @@ class PlayerStore:
     async def _consume_stack(
         self, guild_id: int, user_id: int, item_key: str, quantity: int = 1
     ) -> int:
-        """Retire `quantity` d'un stack. Recheck. Ne commit pas."""
-        async with self._conn.execute(
+        """Retire `quantity` d'un stack de façon atomique. Ne commit pas."""
+        qty = max(1, int(quantity))
+        cur = await self._conn.execute(
             """
-            SELECT quantity FROM inventory_stacks
-            WHERE guild_id = ? AND user_id = ? AND item_key = ?
+            UPDATE inventory_stacks
+            SET quantity = quantity - ?
+            WHERE guild_id = ? AND user_id = ? AND item_key = ? AND quantity > ?
+            """,
+            (qty, guild_id, user_id, item_key, qty),
+        )
+        if int(cur.rowcount or 0) == 1:
+            async with self._conn.execute(
+                """
+                SELECT quantity FROM inventory_stacks
+                WHERE guild_id = ? AND user_id = ? AND item_key = ?
+                """,
+                (guild_id, user_id, item_key),
+            ) as sel:
+                row = await sel.fetchone()
+            return int(row["quantity"]) if row is not None else 0
+        deleted = await self._conn.execute(
+            """
+            DELETE FROM inventory_stacks
+            WHERE guild_id = ? AND user_id = ? AND item_key = ? AND quantity = ?
+            """,
+            (guild_id, user_id, item_key, qty),
+        )
+        if int(deleted.rowcount or 0) != 1:
+            raise PlayerError("tu n'as pas assez de cet item")
+        await self._conn.execute(
+            """
+            DELETE FROM equipped
+            WHERE guild_id = ? AND user_id = ? AND item_key = ? AND gear_id IS NULL
             """,
             (guild_id, user_id, item_key),
-        ) as cur:
-            row = await cur.fetchone()
-        owned = int(row["quantity"]) if row is not None else 0
-        if owned < quantity:
-            raise PlayerError("tu n'as pas assez de cet item")
-        new_qty = owned - quantity
-        if new_qty <= 0:
-            await self._conn.execute(
-                """
-                DELETE FROM inventory_stacks
-                WHERE guild_id = ? AND user_id = ? AND item_key = ?
-                """,
-                (guild_id, user_id, item_key),
-            )
-            await self._conn.execute(
-                """
-                DELETE FROM equipped
-                WHERE guild_id = ? AND user_id = ? AND item_key = ? AND gear_id IS NULL
-                """,
-                (guild_id, user_id, item_key),
-            )
-        else:
-            await self._conn.execute(
-                """
-                UPDATE inventory_stacks SET quantity = ?
-                WHERE guild_id = ? AND user_id = ? AND item_key = ?
-                """,
-                (new_qty, guild_id, user_id, item_key),
-            )
-        return new_qty
+        )
+        return 0
 
     async def _delete_gear(
         self,
@@ -2044,6 +2313,7 @@ class PlayerStore:
 
     async def _grant_starter(self, guild_id: int, user_id: int) -> None:
         starters = self.catalog.items_by_source("starter", enabled_only=True)
+        starters = sorted(starters, key=_starter_grant_order)
         for item in starters:
             if _is_stackable(item):
                 await self._add_stack(guild_id, user_id, item, 1)
@@ -2051,6 +2321,54 @@ class PlayerStore:
             else:
                 gear_id = await self._insert_gear(guild_id, user_id, item)
                 await self._try_auto_equip_gear(guild_id, user_id, item, gear_id)
+
+    async def _ensure_base_hooks(self, guild_id: int, user_id: int) -> bool:
+        """Petit + gros crochet de départ, même pour un profil déjà créé."""
+        owned: set[str] = set()
+        async with self._conn.execute(
+            "SELECT item_key FROM gear_instances WHERE guild_id = ? AND user_id = ?",
+            (guild_id, user_id),
+        ) as cur:
+            async for row in cur:
+                owned.add(str(row["item_key"]))
+        granted = False
+        for key in BASE_HOOKS:
+            if key in owned:
+                continue
+            item = self._item(key)
+            gear_id = await self._insert_gear(guild_id, user_id, item)
+            await self._try_auto_equip_gear(guild_id, user_id, item, gear_id)
+            granted = True
+        return granted
+
+    async def _try_assemble_fossils(self, guild_id: int, user_id: int) -> bool:
+        """Si les 5 répliques sont là, les consomme et +1 archéologie."""
+        replicas = fossil_replicas(self.catalog)
+        if not replicas:
+            return False
+        owned: dict[str, int] = {}
+        async with self._conn.execute(
+            """
+            SELECT item_key, quantity FROM inventory_stacks
+            WHERE guild_id = ? AND user_id = ?
+            """,
+            (guild_id, user_id),
+        ) as cur:
+            async for row in cur:
+                owned[str(row["item_key"])] = int(row["quantity"])
+        if any(owned.get(it.key, 0) < 1 for it in replicas):
+            return False
+        for it in replicas:
+            await self._consume_stack(guild_id, user_id, it.key, 1)
+        await self._conn.execute(
+            """
+            UPDATE players
+            SET archaeology_points = COALESCE(archaeology_points, 0) + 1
+            WHERE guild_id = ? AND user_id = ?
+            """,
+            (guild_id, user_id),
+        )
+        return True
 
     async def _add_stack(self, guild_id: int, user_id: int, item: Item, quantity: int) -> int:
         max_stack = max(1, item.inventory.max_stack)

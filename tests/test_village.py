@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import pytest
 
@@ -44,6 +45,9 @@ ASSETS = ROOT / "assets"
 
 GUILD = 7001
 USER = 88
+PARIS = ZoneInfo("Europe/Paris")
+DAY = datetime(2026, 6, 15, 12, 0, tzinfo=PARIS)
+NIGHT = datetime(2026, 6, 15, 23, 0, tzinfo=PARIS)
 
 
 def _run(coro):
@@ -104,6 +108,7 @@ def test_bargain_modifier_and_sanitize(catalog) -> None:
     assert npc_can_bargain(dan)
     assert npc_can_bargain(agathe)
     assert not npc_can_bargain(oz)
+    assert not npc_can_bargain(catalog.get_npc("esmer"))
     shop = bargain_modifier(catalog, dan)
     assert infer_modifier_kind(shop) == "bargain"
     assert apply_named_mult(100, [shop], "buy_mult") == 95
@@ -172,33 +177,69 @@ def test_bargain_persists_and_cuts_buy_price(catalog, tmp_path: Path) -> None:
     _run(body())
 
 
-def test_roster_roles_and_oz_threshold(catalog) -> None:
-    empty = present_npcs(catalog, GUILD, skulls=0, bucket=1)
+def test_concurrent_buy_does_not_overdraw(catalog, tmp_path: Path) -> None:
+    async def body() -> None:
+        store = await open_store(tmp_path / "race-buy.db", catalog)
+        try:
+            await store.get_or_create(GUILD, USER)
+            price = int(catalog.get_item("bread").economy.buy_price or 0)
+            await store.add_money(GUILD, USER, price)
+            first, second = await asyncio.gather(
+                store.buy_item(GUILD, USER, "bread", 1),
+                store.buy_item(GUILD, USER, "bread", 1),
+                return_exceptions=True,
+            )
+            results = [first, second]
+            oks = [x for x in results if not isinstance(x, BaseException)]
+            errs = [x for x in results if isinstance(x, BaseException)]
+            assert len(oks) == 1
+            assert len(errs) == 1
+            assert isinstance(errs[0], PlayerError)
+            assert "argent" in str(errs[0])
+            snap = await store.snapshot(GUILD, USER)
+            assert snap.money == 0
+            bread = next(s for s in snap.stacks if s.item_key == "bread")
+            assert bread.quantity == 1
+        finally:
+            await store.close()
+
+    _run(body())
+    empty = present_npcs(catalog, GUILD, skulls=0, bucket=1, dt=DAY)
     roles = [n.role for n in empty]
     shops = [n for n in empty if n.role == "shop"]
-    assert roles.count("shop") == 2
+    assert roles.count("shop") == 3
     assert {n.shop_mode for n in shops} == {"sell", "buy"}
-    assert roles.count("repair") == 1
-    assert roles.count("travel") == 1
+    assert roles.count("repair") == 2
+    assert roles.count("travel") == 2
     assert "gaia" in {n.key for n in empty}
+    assert "esmer" in {n.key for n in empty}
     assert "oz" not in {n.key for n in empty}
-    assert {n.key for n in shops if n.shop_mode == "sell"} <= {"dan", "joel"}
+    assert {n.key for n in shops if n.shop_mode == "sell"} == {"dan", "joel"}
     assert {n.key for n in shops if n.shop_mode == "buy"} == {"agathe"}
-    assert {n.key for n in empty if n.role == "repair"} <= {"maurice", "patrick"}
+    assert {n.key for n in empty if n.role == "repair"} == {"maurice", "patrick"}
     assert {n.key for n in empty if n.role == "travel"} <= {"gabriel", "inti", "hedwig"}
+    assert len({n.key for n in empty if n.role == "travel"}) == 2
 
-    with_oz = present_npcs(catalog, GUILD, skulls=10, bucket=1)
+    with_oz = present_npcs(catalog, GUILD, skulls=10, bucket=1, dt=DAY)
     assert "oz" in {n.key for n in with_oz}
 
-    same = present_npcs(catalog, GUILD, skulls=0, bucket=1)
+    same = present_npcs(catalog, GUILD, skulls=0, bucket=1, dt=DAY)
     assert [n.key for n in same] == [n.key for n in empty]
+
+    night = present_npcs(catalog, GUILD, skulls=0, bucket=1, dt=NIGHT)
+    night_roles = [n.role for n in night]
+    assert len([n for n in night if n.shop_mode == "sell"]) == 1
+    assert night_roles.count("repair") == 1
+    assert night_roles.count("travel") == 1
+    assert "gaia" in {n.key for n in night}
+    assert "esmer" in {n.key for n in night}
 
 
 def test_roster_is_deterministic_per_bucket(catalog) -> None:
-    a = [n.key for n in present_npcs(catalog, GUILD, skulls=0, bucket=3)]
-    b = [n.key for n in present_npcs(catalog, GUILD, skulls=0, bucket=3)]
+    a = [n.key for n in present_npcs(catalog, GUILD, skulls=0, bucket=3, dt=DAY)]
+    b = [n.key for n in present_npcs(catalog, GUILD, skulls=0, bucket=3, dt=DAY)]
     assert a == b
-    other_guild = [n.key for n in present_npcs(catalog, GUILD + 1, skulls=0, bucket=3)]
+    other_guild = [n.key for n in present_npcs(catalog, GUILD + 1, skulls=0, bucket=3, dt=DAY)]
     # Même palier, autre serveur : le tirage shop/repair peut diverger.
     assert len(other_guild) == len(a)
 
@@ -323,13 +364,17 @@ def test_sell_buy_repair_oz_and_reset(catalog, tmp_path: Path) -> None:
             snap = await store.snapshot(GUILD, USER)
             assert skull_score(catalog, snap) == 9
             assert "oz" not in {
-                n.key for n in present_npcs(catalog, GUILD, skulls=skull_score(catalog, snap), bucket=1)
+                n.key for n in present_npcs(
+                    catalog, GUILD, skulls=skull_score(catalog, snap), bucket=1, dt=DAY
+                )
             }
             await store.add_item(GUILD, USER, "normal_skull", 1)
             snap = await store.snapshot(GUILD, USER)
             assert skull_score(catalog, snap) == 10
             assert "oz" in {
-                n.key for n in present_npcs(catalog, GUILD, skulls=skull_score(catalog, snap), bucket=1)
+                n.key for n in present_npcs(
+                    catalog, GUILD, skulls=skull_score(catalog, snap), bucket=1, dt=DAY
+                )
             }
 
             await store.add_item(GUILD, USER, "golden_skull", 2)
@@ -781,10 +826,13 @@ def test_npc_personalities(catalog) -> None:
     joel = catalog.get_npc("joel").personality.lower()
     gaia = catalog.get_npc("gaia").personality.lower()
     oz = catalog.get_npc("oz").personality.lower()
+    esmer = catalog.get_npc("esmer").personality.lower()
     assert "oiseau" in hedwig or "chant" in hedwig
     assert "cochon" in joel
     assert "alien" in gaia
     assert "ne parle" in oz
+    assert "vouvoiement" in esmer
+    assert catalog.get_npc("esmer").hook
     assert catalog.get_npc("hedwig").hook
     assert catalog.get_npc("joel").hook
     hedwig = catalog.get_npc("hedwig")
@@ -815,6 +863,9 @@ def test_talk_show_keys(catalog) -> None:
     assert "lantern" in talk_show_keys(catalog, catalog.get_npc("maurice"), snap=snap)
     assert "broken_bottle" in talk_show_keys(catalog, catalog.get_npc("gaia"), snap=snap)
     assert talk_show_keys(catalog, catalog.get_npc("oz"), snap=snap) == []
+    esmer_keys = talk_show_keys(catalog, catalog.get_npc("esmer"), snap=snap)
+    assert "broken_bottle" in esmer_keys
+    assert "lantern" in esmer_keys
 
 
 def test_talk_select_description() -> None:
@@ -851,6 +902,12 @@ def test_focus_talk_board_never_dumps_catalog(catalog) -> None:
         item_key="bread",
     )
     assert len(keys) <= 4
+    esmer = catalog.get_npc("esmer")
+    display, keys = focus_talk_board(
+        esmer, display="none", board_keys=[], shown_key="compass"
+    )
+    assert display == "inspect"
+    assert keys == ["compass"]
 
 
 def test_waste_rates(catalog) -> None:
@@ -902,6 +959,51 @@ def test_talk_facts_include_prices(catalog) -> None:
     assert "broken_bottle = Bouteille cassée ×2" in bought
     assert "perch =" in bought
     assert "40" in bought
+
+
+def test_talk_facts_esmer_wiki_and_dossier(catalog) -> None:
+    from common.player.models import PlayerSnapshot, Stack
+    from common.village.talk import sanitize_talk, talk_facts
+
+    esmer = catalog.get_npc("esmer")
+    snap = PlayerSnapshot(
+        guild_id=GUILD,
+        user_id=USER,
+        energy=80,
+        energy_max=100,
+        energy_max_base=100,
+        money=0,
+        milieu_key="pond",
+        created_at="",
+        stacks=[Stack(item_key="red_gem", quantity=1)],
+    )
+    wiki = talk_facts(catalog, esmer, env_score=50, skulls=0, snap=snap)
+    assert "intent=none" in wiki
+    assert "+2 %" in wiki or "+2%" in wiki
+    assert "red_gem" in wiki
+    assert "Fortune" in wiki
+    shown = talk_facts(
+        catalog, esmer, env_score=50, skulls=0, snap=snap, shown_key="compass"
+    )
+    assert "walk_time_mult" in shown or "marche" in shown.lower()
+    assert "compass" in shown
+    raw = sanitize_talk(
+        {
+            "reponse": "(Incline légèrement la tête.) Permettez, voyez.",
+            "intent": "buy",
+            "item_key": "bread",
+            "display": "none",
+            "board_keys": [],
+            "bargain": True,
+        },
+        catalog,
+        esmer,
+        shown_key="compass",
+    )
+    assert raw["intent"] == "none"
+    assert raw["bargain"] is False
+    assert raw["display"] == "inspect"
+    assert "compass" in raw["board_keys"]
 
 
 def test_talk_intent_block_quantity(catalog) -> None:

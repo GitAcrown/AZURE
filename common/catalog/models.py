@@ -328,6 +328,8 @@ class FishingSettings(_ContentModel):
     specimen: SpecimenSettings = Field(default_factory=SpecimenSettings)
     waste_chance: float = 0.12
     loot_chance: float = 0.06
+    gem_chance: float = 0.001
+    gem_fortune_per_badge: float = 0.02
     night_weight_mult: float = 0.65
     bad_weather_energy_extra: int = 4
     env_great_rarity_mult: float = 1.4
@@ -348,6 +350,10 @@ class FishingSettings(_ContentModel):
             raise ValueError("waste_chance doit être entre 0 et 1")
         if not (0 <= self.loot_chance <= 1):
             raise ValueError("loot_chance doit être entre 0 et 1")
+        if not (0 <= self.gem_chance <= 1):
+            raise ValueError("gem_chance doit être entre 0 et 1")
+        if self.gem_fortune_per_badge < 0:
+            raise ValueError("gem_fortune_per_badge doit être ≥ 0")
         if self.night_weight_mult <= 0:
             raise ValueError("night_weight_mult doit être > 0")
         if self.bad_weather_energy_extra < 0:
@@ -417,6 +423,19 @@ class VillageSettings(_ContentModel):
         return self
 
 
+class DailySettings(_ContentModel):
+    catch_count: int = 3
+    reward_bronze: int = 40
+
+    @model_validator(mode="after")
+    def _check_daily(self) -> DailySettings:
+        if self.catch_count < 1:
+            raise ValueError("daily.catch_count doit être ≥ 1")
+        if self.reward_bronze < 0:
+            raise ValueError("daily.reward_bronze doit être ≥ 0")
+        return self
+
+
 class GameSettings(_ContentModel):
     schema_version: int = 1
     player: PlayerDefaults
@@ -424,3 +443,4 @@ class GameSettings(_ContentModel):
     world: WorldSettings = Field(default_factory=WorldSettings)
     fishing: FishingSettings = Field(default_factory=FishingSettings)
     village: VillageSettings = Field(default_factory=VillageSettings)
+    daily: DailySettings = Field(default_factory=DailySettings)

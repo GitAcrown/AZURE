@@ -30,8 +30,10 @@ fishing:
   specimen:
     fallback_length_cm: [10, 50]
     fallback_weight_kg: [0.08, 2.0]
-  waste_chance: 0.12
+    waste_chance: 0.12
   loot_chance: 0.06
+  gem_chance: 0.001
+  gem_fortune_per_badge: 0.02
   night_weight_mult: 0.65
   bad_weather_energy_extra: 4
   env_great_rarity_mult: 1.4
@@ -53,8 +55,11 @@ village:
     buy_mult: 0.95
     sell_mult: 1.05
     waste_mult: 1.05
-    travel_mult: 0.95
-    repair_mult: 0.95
+  travel_mult: 0.95
+  repair_mult: 0.95
+daily:
+  catch_count: 3
+  reward_bronze: 40
 world:
   timezone: Europe/Paris
   weather_bucket_minutes: 60

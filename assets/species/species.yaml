@@ -17,7 +17,7 @@ species:
   assets:
     sprite: specie1.png
     shadow: specie1_s.png
-  description: Poisson tropical dont les dents soudées forment un bec puissant, utilisé pour racler les algues et le corail.
+  description: Un bec de pierre pour râcler le corail.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -61,8 +61,7 @@ species:
   assets:
     sprite: specie2.png
     shadow: specie2_s.png
-  description: Poisson marin rapide vivant souvent en bancs, reconnaissable à son dos rayé et apprécié pour sa chair riche
-    en oméga-3.
+  description: Dos rayé, vite, souvent en bande.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -106,8 +105,7 @@ species:
   assets:
     sprite: specie3.png
     shadow: specie3_s.png
-  description: Petit poisson récifal vivant en symbiose avec certaines anémones de mer, dont les tentacules le protègent des
-    prédateurs.
+  description: Petit, vif, collé à son anémone.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -151,7 +149,7 @@ species:
   assets:
     sprite: specie4.png
     shadow: specie4_s.png
-  description: Poisson plat vivant sur les fonds sableux ou vaseux, avec les deux yeux regroupés sur le même côté du corps.
+  description: Plat, posé dans le sable, les deux yeux du même côté.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -195,7 +193,7 @@ species:
   assets:
     sprite: specie5.png
     shadow: specie5_s.png
-  description: Stade migrateur de l’anguille européenne, dont le corps s’argente avant son départ vers la mer pour se reproduire.
+  description: Le corps s'argente avant la grande traversée.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -245,7 +243,7 @@ species:
   assets:
     sprite: specie6.png
     shadow: specie6_s.png
-  description: Poisson marin à tête chevaline dont le mâle porte les œufs dans une poche incubatrice jusqu’à l’éclosion.
+  description: Tête de cheval, poche d'œufs côté père.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -289,8 +287,7 @@ species:
   assets:
     sprite: specie7.png
     shadow: specie7_s.png
-  description: Poisson tropical muni de longues épines venimeuses ; certaines espèces sont devenues invasives dans l’Atlantique
-    occidental.
+  description: Belles épines. Trop belles. Elles piquent.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -335,7 +332,7 @@ species:
   assets:
     sprite: specie8.png
     shadow: specie8_s.png
-  description: Poisson-coffre au corps rigide souvent muni de petites cornes, protégé par une carapace de plaques osseuses.
+  description: Coffré, un peu cornu, trop rigide pour filer.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -379,8 +376,7 @@ species:
   assets:
     sprite: specie9.png
     shadow: specie9_s.png
-  description: Grand poisson pélagique extrêmement endurant, capable de maintenir une température musculaire supérieure à
-    celle de l’eau.
+  description: Grand, chaud, il n'arrête pas de nager.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -427,7 +423,7 @@ species:
   assets:
     sprite: specie10.png
     shadow: specie10_s.png
-  description: Poisson récifal tropical à corps comprimé, généralement observé près des coraux où il recherche de petits invertébrés.
+  description: Haut, comprimé, près des coraux.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -471,8 +467,7 @@ species:
   assets:
     sprite: specie11.png
     shadow: specie11_s.png
-  description: Nom anglais assez générique ; il désigne ici un bar marin, prédateur côtier fréquentant notamment les zones
-    rocheuses et les estuaires.
+  description: Prédateur côtier. Rochers, estuaires, gueule nette.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -516,7 +511,7 @@ species:
   assets:
     sprite: specie12.png
     shadow: specie12_s.png
-  description: Poisson récifal bleu vif possédant près de la queue une épine tranchante caractéristique des poissons-chirurgiens.
+  description: Bleu franc, une épine près de la queue.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -560,8 +555,7 @@ species:
   assets:
     sprite: specie13.png
     shadow: specie13_s.png
-  description: Poisson de la famille des gadidés vivant dans l’Atlantique Nord, souvent présent près des côtes rocheuses et
-    en pleine eau.
+  description: Chair pâle, côtes du nord qui cognent.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -605,7 +599,7 @@ species:
   assets:
     sprite: specie14.png
     shadow: specie14_s.png
-  description: Grand labre de l’Atlantique Nord-Est, aux couleurs très variables, vivant surtout sur les fonds rocheux.
+  description: Couleurs changeantes, fonds de pierre.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -649,8 +643,7 @@ species:
   assets:
     sprite: specie15.png
     shadow: specie15_s.png
-  description: Poisson côtier qui s’enfouit dans le sable et possède des épines dorsales venimeuses capables de provoquer
-    une piqûre douloureuse.
+  description: Enfoui. Les épines du dos, on s'en souvient.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -694,8 +687,7 @@ species:
   assets:
     sprite: specie16.png
     shadow: specie16_s.png
-  description: Nom commun couvrant plusieurs poissons marins au corps comprimé ; beaucoup fréquentent les côtes et se nourrissent
-    d’invertébrés.
+  description: Corps haut, argent. Elle rase les côtes.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -739,8 +731,7 @@ species:
   assets:
     sprite: specie17.png
     shadow: specie17_s.png
-  description: Poisson capable de gonfler son corps en avalant de l’eau ou de l’air ; plusieurs espèces contiennent de la
-    tétrodotoxine.
+  description: Il gonfle. Mieux vaut le laisser.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -784,7 +775,7 @@ species:
   assets:
     sprite: specie18.png
     shadow: specie18_s.png
-  description: Grand poisson de l’Atlantique Nord vivant près du fond, longtemps au cœur d’importantes pêcheries commerciales.
+  description: Gros fond, vieille histoire de filets.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -828,7 +819,7 @@ species:
   assets:
     sprite: specie19.png
     shadow: specie19_s.png
-  description: Petit poisson plat des mers européennes, vivant sur des fonds sableux ou vaseux où il chasse de petits invertébrés.
+  description: Petite plie des sables européens.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -872,8 +863,7 @@ species:
   assets:
     sprite: specie20.png
     shadow: specie20_s.png
-  description: Nom donné à plusieurs poissons plats benthiques dont le corps asymétrique est adapté à la vie posée sur le
-    fond.
+  description: Posé sur le fond. On le marche presque dessus.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -917,7 +907,7 @@ species:
   assets:
     sprite: specie21.png
     shadow: specie21_s.png
-  description: Gadidé de l’Atlantique Nord-Est, plutôt élancé, se nourrissant de crustacés et de petits poissons.
+  description: Élancé, chair pâle, il chasse petit.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -961,7 +951,7 @@ species:
   assets:
     sprite: specie22.png
     shadow: specie22_s.png
-  description: Très grand poisson plat des eaux froides, capable d’atteindre une taille et un poids considérables.
+  description: Énorme plat des eaux froides.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1005,8 +995,7 @@ species:
   assets:
     sprite: specie23.png
     shadow: specie23_s.png
-  description: Petit poisson pélagique vivant en immenses bancs et jouant un rôle essentiel dans les chaînes alimentaires
-    marines.
+  description: Des bancs si denses que l'eau en argent.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1053,7 +1042,7 @@ species:
   assets:
     sprite: specie24.png
     shadow: specie24_s.png
-  description: Raie aplatie possédant généralement un aiguillon venimeux sur la queue, qu’elle utilise surtout pour se défendre.
+  description: Aplatie. L'aiguillon, sous la queue.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1095,7 +1084,7 @@ species:
   assets:
     sprite: specie25.png
     shadow: specie25_s.png
-  description: Poisson des eaux froides doté de puissantes mâchoires adaptées au broyage de coquillages, crustacés et oursins.
+  description: Mâchoires de broyeur, eaux froides.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1139,8 +1128,7 @@ species:
   assets:
     sprite: specie26.png
     shadow: specie26_s.png
-  description: Poisson argenté des eaux tropicales peu profondes, célèbre chez les pêcheurs sportifs pour sa vitesse et sa
-    méfiance.
+  description: Argent, trop vite pour les tropiques peu profonds.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1184,8 +1172,7 @@ species:
   assets:
     sprite: specie27.png
     shadow: specie27_s.png
-  description: Grand poisson marin solitaire ou en petits groupes, souvent observé près de structures flottantes, requins
-    ou raies.
+  description: Solitaire, souvent à l'ombre d'autre chose.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1229,7 +1216,7 @@ species:
   assets:
     sprite: specie28.png
     shadow: specie28_s.png
-  description: Poisson côtier de l’Atlantique occidental capable de produire des sons sourds grâce à sa vessie natatoire.
+  description: Il grogne. La vessie fait le bruit.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1273,8 +1260,7 @@ species:
   assets:
     sprite: specie29.png
     shadow: specie29_s.png
-  description: Poisson profond dont le corps gélatineux est adapté à la forte pression ; son aspect déformé apparaît surtout
-    lorsqu’il est remonté en surface.
+  description: Mou dès qu'on le sort. Le fond lui allait mieux.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1325,7 +1311,7 @@ species:
   assets:
     sprite: specie30.png
     shadow: specie30_s.png
-  description: Nom donné à plusieurs carangues argentées rapides fréquentant surtout les eaux côtières chaudes.
+  description: Carangue rapide le long des plages chaudes.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1369,8 +1355,7 @@ species:
   assets:
     sprite: specie31.png
     shadow: specie31_s.png
-  description: Petit poisson pélagique grégaire vivant en bancs denses et constituant une ressource alimentaire majeure pour
-    de nombreux prédateurs.
+  description: Petite, en masse, tout le monde en vit.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1414,8 +1399,7 @@ species:
   assets:
     sprite: specie32.png
     shadow: specie32_s.png
-  description: Poisson récifal tropical au corps haut et aplati ; les espèces marines appartiennent principalement à la famille
-    des Pomacanthidés.
+  description: Haut, aplati, récif.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1459,8 +1443,7 @@ species:
   assets:
     sprite: specie33.png
     shadow: specie33_s.png
-  description: Poisson récifal de l’Atlantique occidental et du golfe du Mexique, recherché pour sa chair et reconnaissable
-    à sa coloration rouge.
+  description: Rouge, recherché, golfe et tropiques.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1504,8 +1487,7 @@ species:
   assets:
     sprite: specie34.png
     shadow: specie34_s.png
-  description: Poisson migrateur qui naît généralement en eau douce, grandit en mer puis retourne vers sa rivière d’origine
-    pour se reproduire.
+  description: Né à la rivière, grandi en mer, et le retour.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1549,8 +1531,7 @@ species:
   assets:
     sprite: specie35.png
     shadow: specie35_s.png
-  description: Poisson prédateur utilisant un appendice transformé en leurre pour attirer ses proies ; certaines espèces vivent
-    dans les abysses.
+  description: Un leurre au bout du nez. La proie s'approche.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1596,8 +1577,7 @@ species:
   assets:
     sprite: specie36.png
     shadow: specie36_s.png
-  description: Crustacé décapode présent dans presque tous les milieux aquatiques, important à la fois comme prédateur et
-    comme proie.
+  description: Petite, partout, proie et prise.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1641,8 +1621,7 @@ species:
   assets:
     sprite: specie37.png
     shadow: specie37_s.png
-  description: Céphalopode à dix appendices capable de propulsion par jet et, chez de nombreuses espèces, de changer rapidement
-    de couleur.
+  description: Dix bras, un jet, et il n'est plus là.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1686,7 +1665,7 @@ species:
   assets:
     sprite: specie38.png
     shadow: specie38_s.png
-  description: Pieuvre profonde du genre Grimpoteuthis, reconnaissable à ses nageoires latérales rappelant de grandes oreilles.
+  description: Des nageoires comme des oreilles, trop profond.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1730,7 +1709,7 @@ species:
   assets:
     sprite: specie39.png
     shadow: specie39_s.png
-  description: Crustacé décapode au corps large et à l’abdomen réduit, présent des littoraux jusqu’aux grandes profondeurs.
+  description: Large, à reculons, pinces en avant.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1774,8 +1753,7 @@ species:
   assets:
     sprite: specie40.png
     shadow: specie40_s.png
-  description: Grand crustacé marin muni de puissantes pinces, vivant surtout sur des fonds rocheux où il se cache dans des
-    anfractuosités.
+  description: Grosses pinces, cachette de roche.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1821,8 +1799,7 @@ species:
   assets:
     sprite: specie41.png
     shadow: specie41_s.png
-  description: Petit gastéropode marin pélagique presque transparent dont le pied s’est transformé en deux nageoires évoquant
-    des ailes.
+  description: Transparent, deux ailes, presque rien.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1866,8 +1843,7 @@ species:
   assets:
     sprite: specie42.png
     shadow: specie42_s.png
-  description: Reptile marin respirant à l’air libre et parcourant parfois des milliers de kilomètres entre zones d’alimentation
-    et sites de ponte.
+  description: Elle reprend l'air. Les traversées, très loin.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1911,7 +1887,7 @@ species:
   assets:
     sprite: specie43.png
     shadow: specie43_s.png
-  description: Céphalopode à huit bras réputé pour son intelligence, son camouflage et sa capacité à manipuler des objets.
+  description: Huit bras, trop intelligent pour le seau.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1955,7 +1931,7 @@ species:
   assets:
     sprite: specie44.png
     shadow: specie44_s.png
-  description: Holothurie profonde translucide, aussi appelée « pink see-through fantasia », qui nage au-dessus du fond marin.
+  description: Concombre rose qui nage au-dessus du fond.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -1999,8 +1975,7 @@ species:
   assets:
     sprite: specie45.png
     shadow: specie45_s.png
-  description: Arthropode marin du groupe des pycnogonides, caractérisé par un petit corps entouré de longues pattes très
-    fines.
+  description: Tout en pattes, presque pas de corps.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2044,8 +2019,7 @@ species:
   assets:
     sprite: specie46.png
     shadow: specie46_s.png
-  description: Cnidaire gélatineux se déplaçant par contractions de son ombrelle et capturant ses proies grâce à des cellules
-    urticantes.
+  description: Ombrelle, filaments, mieux vaut ne pas serrer.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2093,8 +2067,7 @@ species:
   assets:
     sprite: specie47.png
     shadow: specie47_s.png
-  description: Échinoderme benthique au corps allongé qui recycle les sédiments en ingérant de la matière organique déposée
-    sur le fond.
+  description: Il avale le fond et le rend plus loin.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2138,8 +2111,7 @@ species:
   assets:
     sprite: specie48.png
     shadow: specie48_s.png
-  description: Ver marin tubicole dont les deux panaches spiralés très colorés servent à respirer et à filtrer les particules
-    alimentaires.
+  description: Deux panaches en spirale, plantés dans le tube.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2183,8 +2155,7 @@ species:
   assets:
     sprite: specie49.png
     shadow: specie49_s.png
-  description: Colonie de cnidaires ressemblant à une plume plantée dans les fonds meubles, principalement dans les eaux calmes
-    ou profondes.
+  description: On dirait une plume fichée dans la vase.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2228,8 +2199,7 @@ species:
   assets:
     sprite: specie50.png
     shadow: specie50_s.png
-  description: Échinoderme couvert de piquants mobiles, souvent herbivore et important dans l’équilibre des communautés rocheuses
-    et récifales.
+  description: Piquants. Il broute la pierre.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2273,8 +2243,7 @@ species:
   assets:
     sprite: specie51.png
     shadow: specie51_s.png
-  description: Homard présentant une coloration bleue rare, généralement due à une variation génétique affectant les pigments
-    de sa carapace.
+  description: Le même, plus rare, bleu.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2322,8 +2291,7 @@ species:
   assets:
     sprite: specie52.png
     shadow: specie52_s.png
-  description: Gastéropode marin à coquille, groupe extrêmement diversifié allant des petits brouteurs littoraux aux espèces
-    prédatrices.
+  description: Coquille, pied, lent. La mer en est pleine.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2367,8 +2335,7 @@ species:
   assets:
     sprite: specie53.png
     shadow: specie53_s.png
-  description: Petit cyprinidé européen très résistant aux eaux pauvres en oxygène, fréquentant surtout les eaux lentes et
-    riches en végétation.
+  description: Petit, costaud, l'eau pauvre ne l'arrête pas.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2412,8 +2379,7 @@ species:
   assets:
     sprite: specie54.png
     shadow: specie54_s.png
-  description: Crapet nord-américain vivant dans les eaux calmes ; il se reconnaît notamment à la tache sombre située sur
-    son opercule.
+  description: Tache sombre sur l'opercule. Eaux calmes.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2457,7 +2423,7 @@ species:
   assets:
     sprite: specie55.png
     shadow: specie55_s.png
-  description: Nom regroupant plusieurs cichlidés tropicaux d’eau douce, souvent omnivores et largement élevés en aquaculture.
+  description: Trop à l'aise partout. Les étangs le connaissent.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2501,7 +2467,7 @@ species:
   assets:
     sprite: specie56.png
     shadow: specie56_s.png
-  description: Petit poisson argenté vivant en bancs ; plusieurs espèces migrent entre mer et eau douce pour se reproduire.
+  description: Argenté, en bande, parfois entre mer et rivière.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2545,7 +2511,7 @@ species:
   assets:
     sprite: specie57.png
     shadow: specie57_s.png
-  description: Salmonidé d’eaux fraîches et bien oxygénées, prédateur d’insectes aquatiques, de crustacés et de petits poissons.
+  description: Eau froide, claire. Insectes, puis plus gros.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2592,7 +2558,7 @@ species:
   assets:
     sprite: specie58.png
     shadow: specie58_s.png
-  description: Petit poisson asiatique capable de respirer de l’air atmosphérique grâce à un organe spécialisé appelé labyrinthe.
+  description: Il prend l'air. Les couleurs, surtout les mâles.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2636,7 +2602,7 @@ species:
   assets:
     sprite: specie59.png
     shadow: specie59_s.png
-  description: Salmonidé originaire d’Amérique du Nord, reconnaissable à la bande rosée courant le long de ses flancs.
+  description: Bande rosée le long du flanc.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2680,8 +2646,7 @@ species:
   assets:
     sprite: specie60.png
     shadow: specie60_s.png
-  description: Poisson nord-américain jaune-verdâtre marqué de bandes verticales sombres, vivant souvent en bancs dans les
-    lacs et rivières calmes.
+  description: Jaune-vert, barres sombres, souvent en bande.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2725,7 +2690,7 @@ species:
   assets:
     sprite: specie61.png
     shadow: specie61_s.png
-  description: Salmonidé des eaux froides appartenant au genre Salvelinus, souvent adapté aux lacs et rivières nordiques.
+  description: Eaux froides, lacs du nord. Proche de la truite, plus secret.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2769,8 +2734,7 @@ species:
   assets:
     sprite: specie62.png
     shadow: specie62_s.png
-  description: Petit poisson vivipare tropical très prolifique, célèbre pour les couleurs spectaculaires développées par les
-    mâles.
+  description: Minuscule, trop de couleurs, trop de petits.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2814,8 +2778,7 @@ species:
   assets:
     sprite: specie63.png
     shadow: specie63_s.png
-  description: Le saumon chinook est le plus grand saumon du Pacifique et effectue de longues migrations entre l’océan et
-    les rivières.
+  description: Le plus grand saumon du Pacifique.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2860,7 +2823,7 @@ species:
   assets:
     sprite: specie64.png
     shadow: specie64_s.png
-  description: Petit poisson amazonien de banc reconnaissable à sa bande bleu électrique et à sa zone rouge brillante.
+  description: Bande bleu électrique, ventre rouge.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2904,8 +2867,7 @@ species:
   assets:
     sprite: specie65.png
     shadow: specie65_s.png
-  description: Poisson sud-américain aux mâchoires puissantes ; selon les espèces, son régime peut être carnivore, omnivore
-    ou opportuniste.
+  description: Gueule nette. Selon l'espèce, ça change tout.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2948,8 +2910,7 @@ species:
   assets:
     sprite: specie66.png
     shadow: specie66_s.png
-  description: Petit cyprinidé européen dont la reproduction dépend de moules d’eau douce, à l’intérieur desquelles la femelle
-    dépose ses œufs.
+  description: Elle pond dans une moule. La moule n'a pas demandé.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -2993,8 +2954,7 @@ species:
   assets:
     sprite: specie67.png
     shadow: specie67_s.png
-  description: Nom regroupant plusieurs poissons prédateurs nord-américains du genre Micropterus, très populaires en pêche
-    sportive.
+  description: Grosse bouche, ombre, frappe.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3038,8 +2998,7 @@ species:
   assets:
     sprite: specie68.png
     shadow: specie68_s.png
-  description: Poisson au corps serpentiforme ; l’anguille européenne effectue une migration océanique exceptionnelle pour
-    rejoindre sa zone de reproduction.
+  description: Serpent d'eau. Un jour, l'océan.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3087,8 +3046,7 @@ species:
   assets:
     sprite: specie69.png
     shadow: specie69_s.png
-  description: Cyprinidé européen robuste et opportuniste, fréquentant les rivières et se nourrissant d’invertébrés, de végétaux
-    et de petits poissons.
+  description: Robuste, il mange ce qui passe.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3132,7 +3090,7 @@ species:
   assets:
     sprite: specie70.png
     shadow: specie70_s.png
-  description: Prédateur d’eau douce aux bandes verticales sombres, commun dans de nombreux lacs et cours d’eau européens.
+  description: Bandes verticales. Tout le monde la connaît.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3176,8 +3134,7 @@ species:
   assets:
     sprite: specie71.png
     shadow: specie71_s.png
-  description: Crapet nord-américain vivant dans les eaux calmes et structurées, souvent regroupé autour de végétation ou
-    de bois immergé.
+  description: Crapet des structures, eaux calmes.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3221,8 +3178,7 @@ species:
   assets:
     sprite: specie72.png
     shadow: specie72_s.png
-  description: Nom regroupant de nombreux poissons munis de barbillons sensoriels autour de la bouche, évoquant les moustaches
-    d’un chat.
+  description: Barbillons en avant. Il goûte la vase.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3271,8 +3227,7 @@ species:
   assets:
     sprite: specie73.png
     shadow: specie73_s.png
-  description: Prédateur nord-américain adapté aux eaux peu lumineuses grâce à une couche réfléchissante dans l’œil améliorant
-    sa vision nocturne.
+  description: Œil qui brille dans l'eau sombre.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3318,7 +3273,7 @@ species:
   assets:
     sprite: specie74.png
     shadow: specie74_s.png
-  description: Petit cyprinidé argenté des rivières bien oxygénées, vivant souvent en bancs et se nourrissant de petits invertébrés.
+  description: Petit argent des courants vifs.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3362,8 +3317,7 @@ species:
   assets:
     sprite: specie75.png
     shadow: specie75_s.png
-  description: Nom donné à plusieurs petits poissons benthiques d’eau douce, souvent munis de barbillons et adaptés à la vie
-    près du fond.
+  description: Collé au fond, moustaches dans la vase.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3407,7 +3361,7 @@ species:
   assets:
     sprite: specie76.png
     shadow: specie76_s.png
-  description: Grand prédateur nord-américain reconnaissable à sa bouche dépassant largement l’arrière de l’œil.
+  description: La bouche dépasse l'œil. Assez dit.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3451,7 +3405,7 @@ species:
   assets:
     sprite: specie77.png
     shadow: specie77_s.png
-  description: Coléoptère aquatique prédateur dont les pattes postérieures aplaties servent de puissantes rames pour nager.
+  description: Pattes en rames. Il chasse sous la surface.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3495,8 +3449,7 @@ species:
   assets:
     sprite: specie78.png
     shadow: specie78_s.png
-  description: Crustacé d’eau douce proche du homard, vivant sur le fond et se nourrissant de végétaux, détritus et petits
-    animaux.
+  description: Petit homard d'eau douce, sous la pierre.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3541,8 +3494,7 @@ species:
   assets:
     sprite: specie79.png
     shadow: specie79_s.png
-  description: Certaines espèces de serpents vivent étroitement liées aux milieux aquatiques et nagent pour chasser poissons,
-    amphibiens ou invertébrés.
+  description: Il nage quand il veut. Poisson, grenouille, suite.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3586,7 +3538,7 @@ species:
   assets:
     sprite: specie80.png
     shadow: specie80_s.png
-  description: Gastéropode aquatique fréquent des rivières, mares et lacs, où il broute souvent algues et matière organique.
+  description: Il broute les algues des rives.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3630,8 +3582,7 @@ species:
   assets:
     sprite: specie81.png
     shadow: specie81_s.png
-  description: Poisson domestique issu du carassin doré, sélectionné en Chine depuis plus d’un millénaire pour ses couleurs
-    et ses formes.
+  description: Trop vu en bassin. Ici, il a encore des écailles.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3675,7 +3626,7 @@ species:
   assets:
     sprite: specie82.png
     shadow: specie82_s.png
-  description: Variété ornementale de carpe commune sélectionnée au Japon pour ses motifs colorés et élevée dans les bassins.
+  description: Grande robe, motifs, l'étang se la montre.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3720,8 +3671,7 @@ species:
   assets:
     sprite: specie83.png
     shadow: specie83_s.png
-  description: Grand cyprinidé d’Asie de l’Est principalement herbivore, introduit dans de nombreux pays pour contrôler la
-    végétation aquatique.
+  description: Elle mange les herbes. Après, plus d'herbes.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3765,7 +3715,7 @@ species:
   assets:
     sprite: specie84.png
     shadow: specie84_s.png
-  description: Petit cyprinidé nord-américain très tolérant aux conditions difficiles, souvent utilisé comme poisson-appât.
+  description: Petit, costaud, souvent jeté comme appât.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3809,8 +3759,7 @@ species:
   assets:
     sprite: specie85.png
     shadow: specie85_s.png
-  description: Crapet nord-américain robuste, souvent présent dans les petites eaux chaudes et capable de tolérer des habitats
-    dégradés.
+  description: Crapet des petites eaux chaudes.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3854,8 +3803,7 @@ species:
   assets:
     sprite: specie86.png
     shadow: specie86_s.png
-  description: Nom courant de plusieurs poissons-chats cuirassés sud-américains munis d’une bouche en ventouse adaptée au
-    broutage des surfaces.
+  description: Ventouse au ventre. Il racle les parois.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3899,7 +3847,7 @@ species:
   assets:
     sprite: specie87.png
     shadow: specie87_s.png
-  description: Petit cyprinidé nord-américain dont les mâles prennent des teintes rouge-orangé et bleuâtres pendant la reproduction.
+  description: Les mâles se peignent rouge et bleu au printemps.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3943,7 +3891,7 @@ species:
   assets:
     sprite: specie88.png
     shadow: specie88_s.png
-  description: Crapet nord-américain vivement coloré, reconnaissable à sa tache operculaire sombre bordée de rouge.
+  description: Tache d'opercule bordée de rouge.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -3987,8 +3935,7 @@ species:
   assets:
     sprite: specie89.png
     shadow: specie89_s.png
-  description: Nom regroupant de nombreux petits poissons vivant près du fond ; plusieurs possèdent des nageoires pelviennes
-    formant une ventouse.
+  description: Minuscule, fond. Parfois une ventouse sous le ventre.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4032,7 +3979,7 @@ species:
   assets:
     sprite: specie90.png
     shadow: specie90_s.png
-  description: Variété de poisson rouge à corps élancé, connue pour sa robe calico mêlant bleu, rouge, orange, noir et blanc.
+  description: Poisson rouge calico, queue un peu trop longue.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4076,8 +4023,7 @@ species:
   assets:
     sprite: specie91.png
     shadow: specie91_s.png
-  description: Ensemble de variétés de poissons rouges sélectionnées pour des caractères comme une double queue, des yeux
-    proéminents ou un corps arrondi.
+  description: Sélectionné pour la forme. L'étang n'a pas voté.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4121,8 +4067,7 @@ species:
   assets:
     sprite: specie92.png
     shadow: specie92_s.png
-  description: Grand poisson d’eau douce chinois, malgré son nom anglais ce n’est pas un requin ; les jeunes portent de hautes
-    nageoires et des bandes contrastées.
+  description: Grand, rayé, nageoires hautes. Pas un requin.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4165,8 +4110,7 @@ species:
   assets:
     sprite: specie93.png
     shadow: specie93_s.png
-  description: Poisson labyrinthidé d’Asie orientale capable de respirer de l’air, historiquement parmi les premiers poissons
-    tropicaux importés en Europe.
+  description: Il prend l'air. Un des plus anciens dans les bassins.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4211,8 +4155,7 @@ species:
   assets:
     sprite: specie94.png
     shadow: specie94_s.png
-  description: Poisson nord-américain vivant en bancs et filtrant surtout du plancton et des particules organiques dans les
-    eaux calmes.
+  description: Filtre l'eau, en bande, ventre un peu trop rond.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4256,8 +4199,7 @@ species:
   assets:
     sprite: specie95.png
     shadow: specie95_s.png
-  description: Nom de la liste d’origine ne correspondant pas clairement à un nom commun standard d’espèce ; identification
-    exacte à confirmer à partir du sprite.
+  description: Petite robe tachetée. Trop jolie pour l'eau trouble.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4301,8 +4243,7 @@ species:
   assets:
     sprite: specie96.png
     shadow: specie96_s.png
-  description: Variété dorée de la tanche, poisson robuste des eaux calmes et végétalisées capable de supporter de faibles
-    teneurs en oxygène.
+  description: Tanche, mais dorée. L'eau calme lui va.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4347,8 +4288,7 @@ species:
   assets:
     sprite: specie97.png
     shadow: specie97_s.png
-  description: Poisson vivipare du genre Poecilia, originaire des Amériques et couramment élevé en aquarium sous de nombreuses
-    formes colorées.
+  description: Vivipare, mille robes, d'abord les Amériques.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4392,7 +4332,7 @@ species:
   assets:
     sprite: specie98.png
     shadow: specie98_s.png
-  description: Amphibien adulte généralement lié aux milieux humides, où de nombreuses espèces pondent leurs œufs dans l’eau.
+  description: Adulte au bord. Les œufs, dans l'eau.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4439,8 +4379,7 @@ species:
   assets:
     sprite: specie99.png
     shadow: specie99_s.png
-  description: Stade larvaire aquatique des grenouilles et crapauds, qui se transforme progressivement par métamorphose en
-    adulte.
+  description: Pas encore grenouille. Queue, puis plus.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4484,8 +4423,7 @@ species:
   assets:
     sprite: specie100.png
     shadow: specie100_s.png
-  description: Salamandre mexicaine néoténique qui conserve à l’âge adulte ses branchies externes et plusieurs caractères
-    larvaires.
+  description: Il garde ses branchies. Il n'a pas fini de grandir.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4529,7 +4467,7 @@ species:
   assets:
     sprite: specie101.png
     shadow: specie101_s.png
-  description: Grande coquille spiralée aux tons rosés, formée par un gastéropode marin.
+  description: Grande spirale rose, trop belle pour rester au fond.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4575,7 +4513,7 @@ species:
   assets:
     sprite: specie102.png
     shadow: specie102_s.png
-  description: Coquille allongée et spiralée d’un gastéropode marin vivant généralement sur ou près du fond.
+  description: Bulot rayé, lourd dans la main.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4621,7 +4559,7 @@ species:
   assets:
     sprite: specie103.png
     shadow: specie103_s.png
-  description: Coquille épaisse et spiralée rappelant un petit turban, typique de plusieurs gastéropodes marins.
+  description: Turban vert, comme une pierre polie.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4667,7 +4605,7 @@ species:
   assets:
     sprite: specie104.png
     shadow: specie104_s.png
-  description: Coquille en éventail d’un mollusque bivalve apparenté aux coquilles Saint-Jacques.
+  description: Pétoncle doré. Il claque encore un peu.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4713,7 +4651,7 @@ species:
   assets:
     sprite: specie105.png
     shadow: specie105_s.png
-  description: Coquille ronde et spiralée, robuste, appartenant au type des coquilles de turbos.
+  description: Turban tacheté, ramassé trop facilement.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4759,7 +4697,7 @@ species:
   assets:
     sprite: specie106.png
     shadow: specie106_s.png
-  description: Coquille bivalve nervurée en forme d’éventail, aux nuances claires et chaudes.
+  description: Pétoncle clair, comme une pièce de soleil.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4805,7 +4743,7 @@ species:
   assets:
     sprite: specie107.png
     shadow: specie107_s.png
-  description: Coquille de bivalve aux deux valves épaisses, adaptée à la vie enfouie dans le sable ou la vase.
+  description: Palourde ambrée, fermée, sage.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4851,7 +4789,7 @@ species:
   assets:
     sprite: specie108.png
     shadow: specie108_s.png
-  description: Petit bivalve côtier vivant souvent enfoui à faible profondeur dans les sédiments sableux.
+  description: Telline du sable. Un rien la recouvre.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4897,7 +4835,7 @@ species:
   assets:
     sprite: specie109.png
     shadow: specie109_s.png
-  description: Coquille conique très solide d’un gastéropode qui s’agrippe aux rochers battus par les vagues.
+  description: Patelle collée à la roche. Il faut la décoller.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4943,7 +4881,7 @@ species:
   assets:
     sprite: specie110.png
     shadow: specie110_s.png
-  description: Coquille spiralée compacte d’un gastéropode marin, ici remarquable par ses tons orangés.
+  description: Turban orange, trop voyant sur le galet.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -4989,7 +4927,7 @@ species:
   assets:
     sprite: specie111.png
     shadow: specie111_s.png
-  description: Coquille irrégulière de bivalve ; certaines espèces proches peuvent produire de la nacre et des perles.
+  description: Huître. Parfois, autre chose à l'intérieur.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -5038,7 +4976,7 @@ species:
   assets:
     sprite: specie112.png
     shadow: specie112_s.png
-  description: Coquille allongée d’un bivalve qui vit souvent fixé en groupes denses sur les rochers et structures immergées.
+  description: Moule sombre, en grappe, au bas de l'eau.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -5083,7 +5021,7 @@ species:
   assets:
     sprite: specie113.png
     shadow: specie113_s.png
-  description: Coquille spiralée aux tons chauds, polie par l’eau et les sédiments.
+  description: Coquille soleil, fine, déjà chaude dans la paume.
   biology:
     min_length_cm: null
     max_length_cm: null
@@ -5129,7 +5067,7 @@ species:
   assets:
     sprite: specie114.png
     shadow: specie114_s.png
-  description: Coquille spiralée trapue d’un gastéropode marin benthique.
+  description: Bulot brun, banal, et pourtant on le garde.
   biology:
     min_length_cm: null
     max_length_cm: null

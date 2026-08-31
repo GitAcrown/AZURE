@@ -49,19 +49,29 @@ def test_get_or_create_starter_kit(catalog, tmp_path: Path) -> None:
             assert snap.money == 0
             assert snap.milieu_key is None
             keys = {g.item_key for g in snap.gear}
-            assert keys == {"coastal_rod", "widewater_rod", "net"}
-            assert all(g.durability is None for g in snap.gear)
+            assert keys == {
+                "coastal_rod",
+                "widewater_rod",
+                "net",
+                "small_hook",
+                "big_hook",
+            }
+            rods = [g for g in snap.gear if g.item_key in {"coastal_rod", "widewater_rod", "net"}]
+            assert all(g.durability is None for g in rods)
             tool = snap.equipped["tool"]
             assert tool.gear is not None
             assert tool.gear.item_key == "coastal_rod"
-            assert tool.gear.durability is None
-            assert snap.owned_keys() == {"coastal_rod", "widewater_rod", "net"}
+            hook = snap.equipped["hook"]
+            assert hook.gear is not None
+            assert hook.gear.item_key == "small_hook"
+            assert snap.owned_keys() == keys
             assert snap.dex_found == 0
             assert snap.dex_total == 114
             assert snap.fish_carry == 0
             assert snap.fish_carry_max == 5
             assert snap.creature_carry == 0
             assert snap.creature_carry_max == 5
+            assert snap.onboarding_done is False
         finally:
             await store.close()
 
@@ -75,8 +85,10 @@ def test_second_get_or_create_does_not_duplicate_rod(catalog, tmp_path: Path) ->
             first = await store.get_or_create(GUILD_A, USER)
             second = await store.get_or_create(GUILD_A, USER)
             assert second.created is False
-            assert len(second.gear) == 3
+            assert len(second.gear) == 5
             assert {g.id for g in second.gear} == {g.id for g in first.gear}
+            assert first.onboarding_done is False
+            assert second.onboarding_done is False
         finally:
             await store.close()
 
@@ -103,6 +115,62 @@ def test_guild_isolation(catalog, tmp_path: Path) -> None:
     _run(body())
 
 
+def test_onboarding_completes_and_persists(catalog, tmp_path: Path) -> None:
+    async def body() -> None:
+        store = await open_store(tmp_path / "a.db", catalog)
+        try:
+            snap = await store.get_or_create(GUILD_A, USER)
+            assert snap.onboarding_done is False
+            await store.complete_onboarding(GUILD_A, USER)
+            again = await store.get_or_create(GUILD_A, USER)
+            assert again.onboarding_done is True
+            assert again.created is False
+        finally:
+            await store.close()
+
+    _run(body())
+
+
+def test_onboarding_migration_skips_existing_players(catalog, tmp_path: Path) -> None:
+    async def body() -> None:
+        db = tmp_path / "legacy.db"
+        conn = await aiosqlite.connect(db)
+        try:
+            await conn.execute(
+                """
+                CREATE TABLE players (
+                    guild_id INTEGER NOT NULL,
+                    user_id INTEGER NOT NULL,
+                    energy INTEGER NOT NULL,
+                    energy_max INTEGER NOT NULL,
+                    money INTEGER NOT NULL,
+                    milieu_key TEXT,
+                    created_at TEXT NOT NULL,
+                    PRIMARY KEY (guild_id, user_id)
+                )
+                """
+            )
+            await conn.execute(
+                """
+                INSERT INTO players (
+                    guild_id, user_id, energy, energy_max, money, milieu_key, created_at
+                ) VALUES (?, ?, 100, 100, 0, NULL, ?)
+                """,
+                (GUILD_A, USER, "2020-01-01T00:00:00+00:00"),
+            )
+            await conn.commit()
+        finally:
+            await conn.close()
+        store = await open_store(db, catalog)
+        try:
+            snap = await store.get_or_create(GUILD_A, USER)
+            assert snap.onboarding_done is True
+        finally:
+            await store.close()
+
+    _run(body())
+
+
 def test_stackable_vs_unique(catalog, tmp_path: Path) -> None:
     async def body() -> None:
         store = await open_store(tmp_path / "a.db", catalog)
@@ -113,11 +181,11 @@ def test_stackable_vs_unique(catalog, tmp_path: Path) -> None:
             snap = await store.snapshot(GUILD_A, USER)
             bread = next(s for s in snap.stacks if s.item_key == "bread")
             assert bread.quantity == 3
-            assert len(snap.gear) == 3
+            assert len(snap.gear) == 5
 
             await store.add_item(GUILD_A, USER, "coastal_rod", 1)
             snap = await store.snapshot(GUILD_A, USER)
-            assert len(snap.gear) == 4
+            assert len(snap.gear) == 6
             assert sum(1 for g in snap.gear if g.item_key == "coastal_rod") == 2
         finally:
             await store.close()
@@ -152,10 +220,18 @@ def test_reset_player_then_recreate_starter(catalog, tmp_path: Path) -> None:
             assert again.created is True
             assert again.money == 0
             assert again.stacks == []
-            assert len(again.gear) == 3
-            assert {g.item_key for g in again.gear} == {"coastal_rod", "widewater_rod", "net"}
+            assert len(again.gear) == 5
+            assert {g.item_key for g in again.gear} == {
+                "coastal_rod",
+                "widewater_rod",
+                "net",
+                "small_hook",
+                "big_hook",
+            }
             assert again.gear[0].id != old_id
-            assert all(g.durability is None for g in again.gear)
+            rods = [g for g in again.gear if g.item_key in {"coastal_rod", "widewater_rod", "net"}]
+            assert all(g.durability is None for g in rods)
+            assert again.onboarding_done is False
         finally:
             await store.close()
 
@@ -365,6 +441,12 @@ def test_cast_requires_tool_and_energy(catalog, tmp_path: Path) -> None:
         try:
             await store.get_or_create(GUILD_A, USER)
             await store.set_milieu(GUILD_A, USER, "ocean")
+            await store.unequip(GUILD_A, USER, "hook")
+            with pytest.raises(PlayerError, match="crochet"):
+                await store.cast(GUILD_A, USER)
+            snap = await store.snapshot(GUILD_A, USER)
+            small = next(g for g in snap.gear if g.item_key == "small_hook")
+            await store.equip_gear(GUILD_A, USER, small.id)
             await store.unequip(GUILD_A, USER, "tool")
             with pytest.raises(PlayerError, match="/profil"):
                 await store.cast(GUILD_A, USER)
@@ -394,7 +476,7 @@ def test_begin_cast_does_not_write_dex_until_finish(catalog, tmp_path: Path) -> 
             assert pending.trap_early is True
             assert pending.milieu_key == "ocean"
             assert pending.tool_key == "coastal_rod"
-            assert pending.hook_key is None
+            assert pending.hook_key == "small_hook"
             assert pending.bait_key is None
             assert pending.weather_key in {w.key for w in catalog.game.world.weathers}
             result = await store.finish_cast(
@@ -407,6 +489,36 @@ def test_begin_cast_does_not_write_dex_until_finish(catalog, tmp_path: Path) -> 
             tops = await store.list_guild_records(GUILD_A)
             assert tops
             assert tops[0][0] == pending.species_key
+        finally:
+            await store.close()
+
+    _run(body())
+
+
+def test_concurrent_begin_cast_blocks_second(catalog, tmp_path: Path) -> None:
+    async def body() -> None:
+        store = await open_store(tmp_path / "race.db", catalog)
+        try:
+            await store.get_or_create(GUILD_A, USER)
+            await store.set_milieu(GUILD_A, USER, "ocean")
+            first, second = await asyncio.gather(
+                store.begin_cast(GUILD_A, USER, rng=random.Random(1)),
+                store.begin_cast(GUILD_A, USER, rng=random.Random(2)),
+                return_exceptions=True,
+            )
+            results = [first, second]
+            oks = [x for x in results if not isinstance(x, BaseException)]
+            errs = [x for x in results if isinstance(x, BaseException)]
+            assert len(oks) == 1
+            assert len(errs) == 1
+            assert isinstance(errs[0], PlayerError)
+            assert "déjà en cours" in str(errs[0])
+            pending = oks[0]
+            assert store.has_active_cast(GUILD_A, USER)
+            await store.finish_cast(
+                GUILD_A, USER, pending.species_key, bait_consumed=pending.bait_consumed
+            )
+            assert not store.has_active_cast(GUILD_A, USER)
         finally:
             await store.close()
 
@@ -775,7 +887,7 @@ def test_reset_player_clears_caught_specimens(catalog, tmp_path: Path) -> None:
 
 
 def test_collection_gems_unlock_and_sac_split(catalog, tmp_path: Path) -> None:
-    from cogs.azure.views import _collection_block, _inventory_parts
+    from cogs.azure.views import _collection_block, _inventory_parts, _trophy_block
 
     async def body() -> None:
         store = await open_store(tmp_path / "a.db", catalog)
@@ -783,20 +895,50 @@ def test_collection_gems_unlock_and_sac_split(catalog, tmp_path: Path) -> None:
             snap = await store.get_or_create(GUILD_A, USER)
             text = _collection_block(catalog, snap)
             assert "**Dex** · 0/114" in text
-            assert "**Gemmes** · 0/7" in text
-            assert "**Fossiles** · 0/5" in text
+            assert "Gemmes" not in text
+            badges = _trophy_block(catalog, snap)
+            assert "0/7" not in badges
+            assert "Archéologie" not in badges
             await store.add_item(GUILD_A, USER, "red_gem", 2)
             await store.add_item(GUILD_A, USER, "bread", 1)
             await store.add_item(GUILD_A, USER, "fossil_plaster_a", 1)
             snap = await store.snapshot(GUILD_A, USER)
-            text = _collection_block(catalog, snap)
-            assert "**Gemmes** · 1/7" in text
-            assert "**Fossiles** · 1/5" in text
+            assert snap.archaeology_points == 0
+            badges = _trophy_block(catalog, snap)
+            assert "0/7" not in badges
             items = _inventory_parts(catalog, snap, collectibles=False)
             coll = _inventory_parts(catalog, snap, collectibles=True)
             assert any("Pain" in p or "bread" in p.lower() for p in items)
             assert any("Gemme" in p for p in coll)
+            assert all("×" not in p for p in coll if "Gemme" in p)
             assert all("Gemme" not in p for p in items)
+        finally:
+            await store.close()
+
+    _run(body())
+
+
+def test_fossil_set_grants_archaeology_point(catalog, tmp_path: Path) -> None:
+    async def body() -> None:
+        store = await open_store(tmp_path / "fossils.db", catalog)
+        try:
+            await store.get_or_create(GUILD_A, USER)
+            for key in (
+                "fossil_plaster_a",
+                "fossil_plaster_b",
+                "fossil_plaster_c",
+                "fossil_plaster_d",
+                "fossil_plaster_e",
+            ):
+                await store.add_item(GUILD_A, USER, key, 1)
+            snap = await store.snapshot(GUILD_A, USER)
+            assert snap.archaeology_points == 1
+            owned = snap.owned_keys()
+            assert "fossil_plaster_a" not in owned
+            await store.add_item(GUILD_A, USER, "fossil_plaster_a", 1)
+            snap = await store.snapshot(GUILD_A, USER)
+            assert snap.archaeology_points == 1
+            assert "fossil_plaster_a" in snap.owned_keys()
         finally:
             await store.close()
 

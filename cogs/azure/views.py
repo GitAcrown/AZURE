@@ -1,4 +1,4 @@
-"""UI Components v2 AZURE — LayoutViews profil / notices / inspection."""
+"""UI Components v2 AZURE — LayoutViews profil / notices / village."""
 
 from __future__ import annotations
 
@@ -21,11 +21,15 @@ from common.asset_emojis import (
 from common.catalog import Catalog, Item
 from common.catalog.models import Npc
 from common.discord_ui import (
+    SELECT_MAX,
     append_controls,
+    button_label,
     edit_error,
     make_container,
     prepend_tabs,
     section_with_thumbnail,
+    select_desc,
+    select_label,
 )
 from common.display import (
     dialogue_turn,
@@ -37,7 +41,10 @@ from common.display import (
     weather_display,
     weather_of,
 )
+from common.inspect import inspect_item_text, inspect_species_text
 from common.money import format_money, format_money_plain
+from common.onboarding import slide_at, slide_count
+from common.daily import daily_place_block
 from common.player import (
     CaughtSpecimen,
     CastResult,
@@ -48,7 +55,7 @@ from common.player import (
     PlayerStore,
 )
 from common.player.db import BAIT_SLOT, GEAR_SLOTS
-from common.fishing import cast_energy_parts
+from common.fishing import cast_energy_parts, item_is_gem
 from common.player.store import carry_compartment, collect_owned_effects
 from common.village import (
     ROLE_LABELS,
@@ -120,6 +127,12 @@ DEX_GROUP_LABELS = {
 DEX_PAGE_SIZE = 12
 SAC_PAGE_SIZE = 12
 
+HUB_TAB_LABELS = {
+    "profil": "Profil",
+    "sac": "Sac",
+    "dex": "Dex",
+}
+
 RARITY_LABELS = {
     "common": "commune",
     "uncommon": "peu commune",
@@ -169,6 +182,21 @@ def _partial_emoji(code: str | None) -> discord.PartialEmoji | None:
         return None
 
 
+def _nav_arrow_kwargs(delta: int, *, disabled: bool) -> dict:
+    key = "LEFT" if delta < 0 else "RIGHT"
+    fallback = "◀" if delta < 0 else "▶"
+    kwargs: dict = {
+        "style": discord.ButtonStyle.secondary,
+        "disabled": disabled,
+    }
+    emoji = _partial_emoji(ui_emoji(key))
+    if emoji is not None:
+        kwargs["emoji"] = emoji
+    else:
+        kwargs["label"] = fallback
+    return kwargs
+
+
 def _is_collectible_key(catalog: Catalog, item_key: str) -> bool:
     try:
         return item_is_collectible(catalog.get_item(item_key))
@@ -177,18 +205,25 @@ def _is_collectible_key(catalog: Catalog, item_key: str) -> bool:
 
 
 def _inventory_parts(
-    catalog: Catalog, snap: PlayerSnapshot, *, collectibles: bool = False
+    catalog: Catalog, snap: PlayerSnapshot, *, collectibles: bool | None = False
 ) -> list[str]:
     equipped_ids = {eq.gear_id for eq in snap.equipped.values() if eq.gear_id is not None}
     parts: list[str] = []
     for stack in snap.stacks:
-        if _is_collectible_key(catalog, stack.item_key) != collectibles:
+        if (
+            collectibles is not None
+            and _is_collectible_key(catalog, stack.item_key) != collectibles
+        ):
             continue
-        parts.append(item_display(catalog, stack.item_key, extra=f" ×{stack.quantity}"))
+        extra = f" ×{stack.quantity}" if stack.quantity > 1 and not _is_badge_item(catalog, stack.item_key) else ""
+        parts.append(item_display(catalog, stack.item_key, extra=extra))
     for gear in snap.gear:
         if gear.id in equipped_ids:
             continue
-        if _is_collectible_key(catalog, gear.item_key) != collectibles:
+        if (
+            collectibles is not None
+            and _is_collectible_key(catalog, gear.item_key) != collectibles
+        ):
             continue
         extra = ""
         try:
@@ -230,19 +265,51 @@ def _shadow_collection_lines(
     return [f"**{label}** · {unlocked}/{len(items)}", " ".join(bits)]
 
 
+def _is_badge_item(catalog: Catalog, item_key: str) -> bool:
+    try:
+        item = catalog.get_item(item_key)
+    except Exception:
+        return False
+    if item_is_gem(item):
+        return True
+    col = item.collection
+    return col is not None and col.group == "fossil_replicas"
+
+
+def _badge_emojis(catalog: Catalog, snap: PlayerSnapshot, items: list[Item]) -> str:
+    if not items:
+        return ""
+    owned = snap.owned_keys()
+    bits: list[str] = []
+    for it in items:
+        has = it.key in owned
+        code = (item_emoji(it.key, shadow=not has) or "").strip()
+        if not code:
+            code = (item_emoji(it.key, shadow=has) or "").strip()
+        bits.append(code or ("✦" if has else "·"))
+    return " ".join(bits)
+
+
 def _gem_items(catalog: Catalog) -> list[Item]:
     return _collectible_group(catalog, "gemstones")
 
 
-def _collection_block(catalog: Catalog, snap: PlayerSnapshot) -> str:
-    lines = [f"**Dex** · {snap.dex_found}/{snap.dex_total}"]
-    lines.extend(_shadow_collection_lines(catalog, snap, _gem_items(catalog), "Gemmes"))
-    lines.extend(
-        _shadow_collection_lines(
-            catalog, snap, _collectible_group(catalog, "fossil_replicas"), "Fossiles"
-        )
+def _trophy_block(catalog: Catalog, snap: PlayerSnapshot) -> str:
+    gems = _badge_emojis(catalog, snap, _gem_items(catalog))
+    fossils = _badge_emojis(
+        catalog, snap, _collectible_group(catalog, "fossil_replicas")
     )
+    lines: list[str] = []
+    row = "   ".join(part for part in (gems, fossils) if part)
+    if row:
+        lines.append(row)
+    if snap.archaeology_points:
+        lines.append(f"**Archéologie** · **{snap.archaeology_points}**")
     return "\n".join(lines)
+
+
+def _collection_block(catalog: Catalog, snap: PlayerSnapshot) -> str:
+    return f"**Dex** · {snap.dex_found}/{snap.dex_total}"
 
 
 def _equipped_lines(catalog: Catalog, snap: PlayerSnapshot) -> list[str]:
@@ -275,20 +342,6 @@ def travel_arrival_flash(catalog: Catalog, snap: PlayerSnapshot) -> str:
     return f"**Tu es arrivé à {phrase}.**"
 
 
-def _onboarding_lines(snap: PlayerSnapshot) -> str:
-    if snap.milieu_key:
-        return (
-            "**Cannes** et **filet** déjà dans le sac.\n"
-            "**/pecher** pour lancer · **/village** pour vendre · **/profil** pour équiper."
-        )
-    return (
-        "**Premier pas**\n"
-        "1. Choisis un milieu avec **/monde** (premier aller **immédiat**)\n"
-        "2. **/pecher** pour lancer — **Relancer** après une prise\n"
-        "3. **/village** pour vendre · **/profil** pour l'**objet** actif"
-    )
-
-
 def _milieu_profile_line(catalog: Catalog, snap: PlayerSnapshot) -> str:
     if not snap.milieu_key:
         return "—"
@@ -310,6 +363,134 @@ def _milieu_profile_line(catalog: Catalog, snap: PlayerSnapshot) -> str:
     return line
 
 
+def _is_food_item(item: Item) -> bool:
+    if item.consumable is None or not item.consumable.consumed_on_use:
+        return False
+    effects = item.effects or {}
+    return "restore_energy_pct" in effects or "max_energy_bonus_pct" in effects
+
+
+def _food_stacks(catalog: Catalog, snap: PlayerSnapshot) -> list[tuple[Item, int]]:
+    out: list[tuple[Item, int]] = []
+    for stack in snap.stacks:
+        if stack.quantity <= 0:
+            continue
+        try:
+            item = catalog.get_item(stack.item_key)
+        except Exception:
+            continue
+        if _is_food_item(item):
+            out.append((item, stack.quantity))
+    return out
+
+
+def _eat_options(catalog: Catalog, snap: PlayerSnapshot) -> list[discord.SelectOption]:
+    options: list[discord.SelectOption] = []
+    for item, qty in _food_stacks(catalog, snap):
+        effects = item.effects or {}
+        if "restore_energy_pct" in effects:
+            try:
+                desc = f"+{int(round(float(effects['restore_energy_pct']) * 100))} % énergie"
+            except (TypeError, ValueError):
+                desc = "énergie"
+        elif "max_energy_bonus_pct" in effects:
+            try:
+                desc = f"+{int(round(float(effects['max_energy_bonus_pct']) * 100))} % max"
+            except (TypeError, ValueError):
+                desc = "énergie max"
+        else:
+            desc = "consommer"
+        extra = f" ×{qty}" if qty > 1 else ""
+        kwargs: dict = {
+            "label": select_label(f"{item.name}{extra}"),
+            "value": item.key[:100],
+            "description": select_desc(desc),
+        }
+        emoji = _select_emoji(item.key)
+        if emoji is not None:
+            kwargs["emoji"] = emoji
+        options.append(discord.SelectOption(**kwargs))
+        if len(options) >= SELECT_MAX:
+            break
+    return options
+
+
+def _hub_tab_row(active: str) -> discord.ui.ActionRow:
+    options = [
+        discord.SelectOption(label=label, value=key, default=key == active)
+        for key, label in HUB_TAB_LABELS.items()
+    ]
+    return discord.ui.ActionRow(_HubTabSelect(options))
+
+
+class OnboardingView(discord.ui.LayoutView):
+    """Diaporama lancé à la première commande, jusqu'à « C'est parti »."""
+
+    def __init__(self, catalog: Catalog, *, page: int = 0) -> None:
+        super().__init__(timeout=600)
+        self.catalog = catalog
+        total = slide_count()
+        self.page = max(0, min(int(page), total - 1))
+        slide = slide_at(self.page)
+        last = self.page >= total - 1
+        children: list = [
+            discord.ui.TextDisplay(f"## {slide.title}"),
+            discord.ui.TextDisplay(f"-# {self.page + 1} / {total}"),
+            discord.ui.Separator(),
+            discord.ui.TextDisplay(slide.body),
+        ]
+        buttons: list = [_OnboardNavButton(delta=-1, disabled=self.page <= 0)]
+        if last:
+            buttons.append(_OnboardStartButton())
+        else:
+            buttons.append(_OnboardNavButton(delta=1, disabled=False))
+        append_controls(children, button_row=discord.ui.ActionRow(*buttons))
+        self.add_item(make_container(*children))
+
+
+class _OnboardNavButton(discord.ui.Button):
+    def __init__(self, *, delta: int, disabled: bool) -> None:
+        super().__init__(**_nav_arrow_kwargs(delta, disabled=disabled))
+        self.delta = delta
+
+    async def callback(self, interaction: discord.Interaction) -> None:
+        parent = self.view
+        if not isinstance(parent, OnboardingView):
+            return
+        nxt = OnboardingView(parent.catalog, page=parent.page + self.delta)
+        await interaction.response.edit_message(view=nxt)
+
+
+class _OnboardStartButton(discord.ui.Button):
+    def __init__(self) -> None:
+        super().__init__(style=discord.ButtonStyle.primary, label="C'est parti")
+
+    async def callback(self, interaction: discord.Interaction) -> None:
+        parent = self.view
+        if not isinstance(parent, OnboardingView):
+            return
+        guild = interaction.guild
+        if guild is None:
+            await edit_error(interaction, "Cette commande s'utilise sur un serveur.")
+            return
+        store = getattr(interaction.client, "store", None)
+        if store is None:
+            await edit_error(interaction, "AZURE n'est pas prêt.")
+            return
+        assert isinstance(store, PlayerStore)
+        await store.complete_onboarding(guild.id, interaction.user.id)
+        snap = await store.snapshot(guild.id, interaction.user.id)
+        env_score = await store.environment_score(guild.id)
+        await interaction.response.edit_message(
+            view=MondeView(
+                parent.catalog,
+                snap,
+                env_score=env_score,
+                flash="**Choisis un milieu.** Premier aller : **immédiat**.",
+            )
+        )
+
+
 class ProfilView(discord.ui.LayoutView):
     def __init__(
         self,
@@ -322,6 +503,7 @@ class ProfilView(discord.ui.LayoutView):
         super().__init__(timeout=180)
         self.catalog = catalog
         self.display_name = display_name
+        self.hub_tab = "profil"
 
         milieu = _milieu_profile_line(catalog, snap)
         equipped_lines = _equipped_lines(catalog, snap)
@@ -349,24 +531,33 @@ class ProfilView(discord.ui.LayoutView):
             discord.ui.Separator(),
             discord.ui.TextDisplay("### Collection\n" + _collection_block(catalog, snap)),
         ]
-        if snap.created or not snap.milieu_key:
+        trophies = _trophy_block(catalog, snap)
+        if trophies:
             children += [
                 discord.ui.Separator(),
-                discord.ui.TextDisplay(_onboarding_lines(snap)),
+                discord.ui.TextDisplay(trophies),
             ]
         arrived = travel_arrival_flash(catalog, snap)
         if arrived:
             children += [discord.ui.Separator(), discord.ui.TextDisplay(arrived)]
         options = _equip_options(catalog, snap)
-        note = flash or (
-            "Rien d'autre à équiper."
-            if not options
-            else "Un seul **objet** actif. Change canne, crochet, appât ou objet."
-        )
+        eat = _eat_options(catalog, snap)
+        if flash:
+            note = flash
+        elif options and eat:
+            note = "Un seul **objet** actif. **Manger** recharge l'énergie."
+        elif options:
+            note = "Un seul **objet** actif. Change canne, crochet, appât ou objet."
+        elif eat:
+            note = "**Manger** pour récupérer de l'énergie."
+        else:
+            note = "Rien à équiper, rien à manger."
+        prepend_tabs(children, _hub_tab_row("profil"))
         append_controls(
             children,
             note=note,
             select_row=discord.ui.ActionRow(_EquipSelect(options)) if options else None,
+            extra_select_row=discord.ui.ActionRow(_EatSelect(eat)) if eat else None,
         )
         self.add_item(make_container(*children))
 
@@ -388,8 +579,8 @@ def _equip_options(catalog: Catalog, snap: PlayerSnapshot) -> list[discord.Selec
         if item_name:
             label = f"{label} · {item_name}"
         kwargs: dict = {
-            "label": label[:100],
-            "value": f"unequip:{slot}",
+            "label": select_label(label),
+            "value": f"unequip:{slot}"[:100],
         }
         emoji = _select_emoji(_equipped_key(eq))
         if emoji is not None:
@@ -411,8 +602,8 @@ def _equip_options(catalog: Catalog, snap: PlayerSnapshot) -> list[discord.Selec
         slot_label = SLOT_LABELS.get(eq.slot or "", eq.slot or "?")
         extra = _durability_label(item, gear.durability)
         kwargs = {
-            "label": f"{slot_label} · {item.name}{extra}".strip()[:100],
-            "value": f"gear:{gear.id}",
+            "label": select_label(f"{slot_label} · {item.name}{extra}".strip()),
+            "value": f"gear:{gear.id}"[:100],
         }
         emoji = _select_emoji(item.key)
         if emoji is not None:
@@ -429,14 +620,14 @@ def _equip_options(catalog: Catalog, snap: PlayerSnapshot) -> list[discord.Selec
         if eq is None or not eq.equippable or eq.slot != BAIT_SLOT:
             continue
         kwargs = {
-            "label": f"Appât · {item.name} ×{stack.quantity}"[:100],
-            "value": f"bait:{item.key}",
+            "label": select_label(f"Appât · {item.name} ×{stack.quantity}"),
+            "value": f"bait:{item.key}"[:100],
         }
         emoji = _select_emoji(item.key)
         if emoji is not None:
             kwargs["emoji"] = emoji
         options.append(discord.SelectOption(**kwargs))
-    return options[:25]
+    return options[:SELECT_MAX]
 
 
 class _EquipSelect(discord.ui.Select):
@@ -460,6 +651,8 @@ class _EquipSelect(discord.ui.Select):
             return
         assert isinstance(store, PlayerStore)
         assert isinstance(catalog, Catalog)
+        if not interaction.response.is_done():
+            await interaction.response.defer()
         raw = self.values[0]
         try:
             if raw.startswith("unequip:"):
@@ -480,120 +673,37 @@ class _EquipSelect(discord.ui.Select):
             else:
                 raise PlayerError("choix invalide")
         except (PlayerError, ValueError) as exc:
-            snap = await store.snapshot(guild.id, interaction.user.id)
-            await interaction.response.edit_message(
-                view=ProfilView(
-                    catalog,
-                    snap,
-                    interaction.user.display_name,
-                    flash=f"**{str(exc).rstrip('.')}.**",
-                )
+            nxt = await load_player_hub(
+                catalog,
+                store,
+                guild.id,
+                interaction.user.id,
+                interaction.user.display_name,
+                tab="profil",
+                flash=f"**{str(exc).rstrip('.')}.**",
             )
+            await _apply_view(interaction, nxt)
             return
-        snap = await store.snapshot(guild.id, interaction.user.id)
-        await interaction.response.edit_message(
-            view=ProfilView(
-                catalog, snap, interaction.user.display_name, flash=flash
-            )
+        nxt = await load_player_hub(
+            catalog,
+            store,
+            guild.id,
+            interaction.user.id,
+            interaction.user.display_name,
+            tab="profil",
+            flash=flash,
         )
+        await _apply_view(interaction, nxt)
 
 
-class MondeView(discord.ui.LayoutView):
-    """Saison / météo, et select pour se déplacer à pied."""
-
-    def __init__(
-        self,
-        catalog: Catalog,
-        snap: PlayerSnapshot,
-        *,
-        debug: bool = False,
-        flash: str = "",
-    ) -> None:
-        super().__init__(timeout=180)
-        current_key = snap.milieu_key
-        dest = snap.travel_dest
-        remaining = travel_remaining_s(snap.travel_arrives_at)
-        walking = bool(dest and remaining is not None and remaining > 0)
-        keys = [m.key for m in catalog.milieus]
-        state = world_state(catalog.game.world, snap.guild_id, keys)
-        clock = state.at.strftime("%H:%M")
-        lines = [
-            f"**Saison** · {season_label(state.season)}",
-            f"**Moment** · {time_label(state.time_of_day)} · `{clock}`",
-        ]
-        walk_mins = travel_minutes_left(remaining) if walking and remaining is not None else 0
-        effects = collect_owned_effects(catalog, snap.gear, snap.stacks, snap.equipped)
-        forecast = bool(effects.get("destination_weather_forecast_minutes"))
-        milieu_lines: list[str] = []
-        for milieu in catalog.milieus:
-            weather = state.weathers[milieu.key]
-            bit = f"**{milieu.name}** · {weather_display(weather)}"
-            if current_key == milieu.key:
-                bit += " · **ici**"
-            if walking and dest == milieu.key:
-                bit += f" · **en route** · encore **{walk_mins} min**"
-            if forecast:
-                nxt_weather = weather_at(
-                    snap.guild_id, milieu.key, state.next_bucket_at, catalog.game.world
-                )
-                bit += f" · puis {weather_display(nxt_weather)}"
-            milieu_lines.append(bit)
-        minutes = walk_minutes(catalog, snap)
-        children: list = [
-            discord.ui.TextDisplay("## Monde"),
-            discord.ui.TextDisplay(
-                f"-# {catalog.game.world.timezone} · **marche gratuite** · {minutes} min"
-            ),
-            discord.ui.Separator(),
-            discord.ui.TextDisplay("\n".join(lines)),
-            discord.ui.Separator(),
-            discord.ui.TextDisplay("\n".join(milieu_lines)),
-        ]
-        options: list[discord.SelectOption] = []
-        selected = dest if walking else None
-        for m in catalog.milieus:
-            if current_key == m.key:
-                continue
-            opt_kwargs: dict = {
-                "label": m.name,
-                "value": m.key,
-                "default": selected is not None and m.key == selected,
-            }
-            if walking and dest == m.key:
-                opt_kwargs["description"] = f"en route · encore {walk_mins} min"[:100]
-            elif m.description:
-                opt_kwargs["description"] = m.description[:100]
-            options.append(discord.SelectOption(**opt_kwargs))
-        note = flash or travel_arrival_flash(catalog, snap)
-        if not note and not current_key:
-            note = "Premier milieu : **immédiat**. Ensuite, **marche gratuite**."
-        if not note and walking and dest:
-            try:
-                dest_name = catalog.get_milieu(dest).name
-            except Exception:
-                dest_name = dest
-            note = f"**En route** vers {dest_name} · encore **{walk_mins} min**"
-        if debug:
-            nxt = state.next_bucket_at.strftime("%H:%M")
-            debug_note = f"bucket `{state.bucket}` · prochaine rotation `{nxt}`"
-            note = f"{note} · {debug_note}" if note else debug_note
-        append_controls(
-            children,
-            note=note,
-            select_row=discord.ui.ActionRow(_MilieuSelect(options, debug=debug)) if options else None,
-        )
-        self.add_item(make_container(*children))
-
-
-class _MilieuSelect(discord.ui.Select):
-    def __init__(self, options: list[discord.SelectOption], *, debug: bool = False) -> None:
+class _EatSelect(discord.ui.Select):
+    def __init__(self, options: list[discord.SelectOption]) -> None:
         super().__init__(
-            placeholder="Marcher vers un milieu…",
+            placeholder="Manger…",
             min_values=1,
             max_values=1,
             options=options,
         )
-        self._debug = debug
 
     async def callback(self, interaction: discord.Interaction) -> None:
         guild = interaction.guild
@@ -607,13 +717,280 @@ class _MilieuSelect(discord.ui.Select):
             return
         assert isinstance(store, PlayerStore)
         assert isinstance(catalog, Catalog)
+        if not interaction.response.is_done():
+            await interaction.response.defer()
+        item_key = self.values[0]
+        try:
+            energy, energy_max = await store.consume_item(
+                guild.id, interaction.user.id, item_key
+            )
+            flash = (
+                f"{item_display(catalog, item_key)} · **énergie** `{energy}/{energy_max}`"
+            )
+        except PlayerError as exc:
+            flash = f"**{str(exc).rstrip('.')}.**"
+        nxt = await load_player_hub(
+            catalog,
+            store,
+            guild.id,
+            interaction.user.id,
+            interaction.user.display_name,
+            tab="profil",
+            flash=flash,
+        )
+        await _apply_view(interaction, nxt)
+
+
+class _HubTabSelect(discord.ui.Select):
+    def __init__(self, options: list[discord.SelectOption]) -> None:
+        super().__init__(placeholder="Onglet…", min_values=1, max_values=1, options=options)
+
+    async def callback(self, interaction: discord.Interaction) -> None:
+        guild = interaction.guild
+        if guild is None:
+            await edit_error(interaction, "Cette commande s'utilise sur un serveur.")
+            return
+        store = getattr(interaction.client, "store", None)
+        catalog = getattr(interaction.client, "catalog", None)
+        if store is None or catalog is None or not isinstance(store, PlayerStore):
+            await edit_error(interaction, "AZURE n'est pas prêt.")
+            return
+        assert isinstance(catalog, Catalog)
+        if not interaction.response.is_done():
+            await interaction.response.defer()
+        nxt = await load_player_hub(
+            catalog,
+            store,
+            guild.id,
+            interaction.user.id,
+            interaction.user.display_name,
+            tab=self.values[0],
+        )
+        await _apply_view(interaction, nxt)
+
+
+
+def monde_cast_cost_bit(catalog: Catalog, weather_key: str, *, ignore: bool) -> str:
+    base, extra = cast_energy_parts(catalog, weather_key, ignore=ignore)
+    if extra:
+        return f"lancer **{base + extra}** (**+{extra}** météo)"
+    return f"lancer **{base}**"
+
+
+def monde_here_line(
+    catalog: Catalog,
+    snap: PlayerSnapshot,
+    *,
+    state,
+    walking: bool,
+    dest: str | None,
+    walk_mins: int,
+) -> str:
+    current_key = snap.milieu_key
+    if not current_key:
+        return "Tu n'es **nulle part**. Choisis un milieu — le premier aller est **immédiat**."
+    try:
+        milieu = catalog.get_milieu(current_key)
+        phrase = milieu_at_phrase(milieu.key, milieu.name)
+    except Exception:
+        phrase = current_key
+    weather = state.weathers.get(current_key)
+    bits = [f"**Tu es à {phrase}**"]
+    if weather is not None:
+        bits.append(weather_display(weather))
+    bits.append(time_label(state.time_of_day))
+    line = " · ".join(bits)
+    if walking and dest:
+        try:
+            dest_name = catalog.get_milieu(dest).name
+        except Exception:
+            dest_name = dest
+        line += f"\n**En route** vers {dest_name} · encore **{walk_mins} min**"
+    return line
+
+
+def monde_travel_note(catalog: Catalog, snap: PlayerSnapshot) -> str:
+    minutes = walk_minutes(catalog, snap)
+    fare = passeur_price(catalog, remaining_s=None, snap=snap)
+    fare_txt = format_money(fare, catalog.game.money)
+    if not snap.milieu_key:
+        return (
+            f"Premier milieu : **immédiat**. Ensuite, **marche gratuite** "
+            f"(**{minutes} min**). Pour arriver tout de suite : passeur au "
+            f"**/village** ({fare_txt})."
+        )
+    return (
+        f"Marche **gratuite** · **{minutes} min**. Pour arriver tout de suite : "
+        f"passeur au **/village** ({fare_txt})."
+    )
+
+
+class MondeView(discord.ui.LayoutView):
+    """Carte : où tu es, ce que ça change pour pêcher, comment y aller."""
+
+    def __init__(
+        self,
+        catalog: Catalog,
+        snap: PlayerSnapshot,
+        *,
+        env_score: int = 50,
+        debug: bool = False,
+        flash: str = "",
+    ) -> None:
+        super().__init__(timeout=180)
+        self.debug = debug
+        self.env_score = env_score
+        current_key = snap.milieu_key
+        dest = snap.travel_dest
+        remaining = travel_remaining_s(snap.travel_arrives_at)
+        walking = bool(dest and remaining is not None and remaining > 0)
+        keys = [m.key for m in catalog.milieus]
+        state = world_state(catalog.game.world, snap.guild_id, keys)
+        clock = state.at.strftime("%H:%M")
+        nxt_clock = state.next_bucket_at.strftime("%H:%M")
+        walk_mins = travel_minutes_left(remaining) if walking and remaining is not None else 0
+        effects = collect_owned_effects(catalog, snap.gear, snap.stacks, snap.equipped)
+        ignore_weather = bool(effects.get("ignore_bad_weather_fatigue_penalty"))
+        ignore_night = bool(effects.get("ignore_night_fishing_success_penalty"))
+        forecast = bool(effects.get("destination_weather_forecast_minutes"))
+
+        now_lines = [
+            f"**Saison** · {season_label(state.season)}",
+            f"**Moment** · {time_label(state.time_of_day)} · `{clock}`",
+            f"**Prochaine météo** · `{nxt_clock}`",
+        ]
+        if state.time_of_day == "night":
+            if ignore_night:
+                now_lines.append("**Nuit** · la lanterne ignore le malus de réussite")
+            else:
+                now_lines.append("**Nuit** · prises plus rares (lanterne ignore ça)")
+        if environment_is_great(catalog, env_score):
+            now_lines.append("Les beaux poissons **affluent** (note environnementale).")
+        elif environment_is_poor(catalog, env_score):
+            now_lines.append("Les beaux poissons se **raréfient** (note environnementale).")
+
+        milieu_lines: list[str] = []
+        for milieu in catalog.milieus:
+            weather = state.weathers[milieu.key]
+            bits = [
+                f"**{milieu.name}**",
+                weather_display(weather),
+                monde_cast_cost_bit(catalog, weather.key, ignore=ignore_weather),
+            ]
+            if current_key == milieu.key:
+                bits.append("**ici**")
+            if walking and dest == milieu.key:
+                bits.append(f"**en route** · encore **{walk_mins} min**")
+            if forecast:
+                nxt_weather = weather_at(
+                    snap.guild_id, milieu.key, state.next_bucket_at, catalog.game.world
+                )
+                bits.append(f"dans 1 h → {weather_display(nxt_weather)}")
+            milieu_lines.append(" · ".join(bits))
+
+        children: list = [
+            discord.ui.TextDisplay("## Monde"),
+            discord.ui.TextDisplay(
+                monde_here_line(
+                    catalog,
+                    snap,
+                    state=state,
+                    walking=walking,
+                    dest=dest,
+                    walk_mins=walk_mins,
+                )
+            ),
+            discord.ui.Separator(),
+            discord.ui.TextDisplay("\n".join(now_lines)),
+            discord.ui.Separator(),
+            discord.ui.TextDisplay("\n".join(milieu_lines)),
+        ]
+        options: list[discord.SelectOption] = []
+        selected = dest if walking else None
+        minutes = walk_minutes(catalog, snap)
+        first = current_key is None
+        for m in catalog.milieus:
+            if current_key == m.key:
+                continue
+            opt_kwargs: dict = {
+                "label": select_label(m.name),
+                "value": m.key[:100],
+                "default": selected is not None and m.key == selected,
+            }
+            if walking and dest == m.key:
+                opt_kwargs["description"] = select_desc(
+                    f"en route · encore {walk_mins} min"
+                )
+            elif first:
+                opt_kwargs["description"] = select_desc("immédiat")
+            else:
+                opt_kwargs["description"] = select_desc(f"marche · {minutes} min")
+            options.append(discord.SelectOption(**opt_kwargs))
+            if len(options) >= SELECT_MAX:
+                break
+        note = flash or travel_arrival_flash(catalog, snap) or monde_travel_note(catalog, snap)
+        if debug:
+            debug_note = f"bucket `{state.bucket}` · prochaine rotation `{nxt_clock}`"
+            note = f"{note} · {debug_note}" if note else debug_note
+        append_controls(
+            children,
+            note=note,
+            select_row=(
+                discord.ui.ActionRow(
+                    _MilieuSelect(options, debug=debug, env_score=env_score)
+                )
+                if options
+                else None
+            ),
+        )
+        self.add_item(make_container(*children))
+
+
+class _MilieuSelect(discord.ui.Select):
+    def __init__(
+        self,
+        options: list[discord.SelectOption],
+        *,
+        debug: bool = False,
+        env_score: int = 50,
+    ) -> None:
+        super().__init__(
+            placeholder="Aller à…",
+            min_values=1,
+            max_values=1,
+            options=options,
+        )
+        self._debug = debug
+        self._env_score = env_score
+
+    async def callback(self, interaction: discord.Interaction) -> None:
+        guild = interaction.guild
+        if guild is None:
+            await edit_error(interaction, "Cette commande s'utilise sur un serveur.")
+            return
+        store = getattr(interaction.client, "store", None)
+        catalog = getattr(interaction.client, "catalog", None)
+        if store is None or catalog is None:
+            await edit_error(interaction, "AZURE n'est pas prêt.")
+            return
+        assert isinstance(store, PlayerStore)
+        assert isinstance(catalog, Catalog)
+        if not interaction.response.is_done():
+            await interaction.response.defer()
         key = self.values[0]
         try:
             changed, new_key = await store.set_milieu(guild.id, interaction.user.id, key)
         except PlayerError as exc:
             snap = await store.snapshot(guild.id, interaction.user.id)
-            await interaction.response.edit_message(
-                view=MondeView(catalog, snap, debug=self._debug, flash=f"**{str(exc).rstrip('.')}.**")
+            await _apply_view(
+                interaction,
+                MondeView(
+                    catalog,
+                    snap,
+                    env_score=self._env_score,
+                    debug=self._debug,
+                    flash=f"**{str(exc).rstrip('.')}.**",
+                ),
             )
             return
         snap = await store.snapshot(guild.id, interaction.user.id)
@@ -631,9 +1008,17 @@ class _MilieuSelect(discord.ui.Select):
             flash = f"**Tu restes à {phrase}.**"
         else:
             flash = f"**Tu es à {phrase}.** Ensuite : **/pecher**."
-        await interaction.response.edit_message(
-            view=MondeView(catalog, snap, debug=self._debug, flash=flash)
+        await _apply_view(
+            interaction,
+            MondeView(
+                catalog,
+                snap,
+                env_score=self._env_score,
+                debug=self._debug,
+                flash=flash,
+            ),
         )
+
 
 
 async def _apply_view(interaction: discord.Interaction, view: discord.ui.LayoutView) -> None:
@@ -641,10 +1026,22 @@ async def _apply_view(interaction: discord.Interaction, view: discord.ui.LayoutV
     files = getattr(view, "attachments", None)
     if files:
         kwargs["attachments"] = files
-    if interaction.response.is_done():
-        await interaction.edit_original_response(**kwargs)
-    else:
-        await interaction.response.edit_message(**kwargs)
+    try:
+        if interaction.response.is_done():
+            await interaction.edit_original_response(**kwargs)
+        else:
+            await interaction.response.edit_message(**kwargs)
+    except discord.HTTPException:
+        follow: dict = {"view": view, "ephemeral": True}
+        if files:
+            follow["files"] = files
+        try:
+            if interaction.response.is_done():
+                await interaction.followup.send(**follow)
+            else:
+                await interaction.response.send_message(**follow)
+        except discord.HTTPException:
+            return
 
 
 async def prepare_catch_view(
@@ -690,6 +1087,11 @@ async def run_bite_timer(
         )
     except (discord.HTTPException, discord.NotFound):
         pending.resolved = True
+    finally:
+        if pending.resolved:
+            store = getattr(interaction.client, "store", None)
+            if isinstance(store, PlayerStore):
+                store.clear_active_cast(pending.guild_id, pending.user_id, pending)
 
 
 def _slot_item_line(catalog: Catalog, slot: str, item_key: str | None) -> str:
@@ -768,18 +1170,28 @@ class _BiteButton(discord.ui.Button):
         pending = parent.pending
         catalog = parent.catalog
         if pending.resolved:
-            await interaction.response.edit_message(view=NoticeView("Fuite", "Trop tard."))
+            try:
+                await _apply_view(interaction, NoticeView("Fuite", "Trop tard."))
+            except discord.HTTPException:
+                return
             return
         if self.phase == "waiting" and pending.trap_early:
             pending.resolved = True
-            await interaction.response.edit_message(view=NoticeView("Fuite", "Trop tôt."))
+            await _apply_view(interaction, NoticeView("Fuite", "Trop tôt."))
             return
         if self.phase != "open":
-            await interaction.response.defer()
+            if not interaction.response.is_done():
+                try:
+                    await interaction.response.defer()
+                except discord.HTTPException:
+                    pass
             return
         pending.resolved = True
         if not interaction.response.is_done():
-            await interaction.response.defer()
+            try:
+                await interaction.response.defer()
+            except discord.HTTPException:
+                return
         store = getattr(interaction.client, "store", None)
         if store is None or not isinstance(store, PlayerStore):
             await edit_error(interaction, "AZURE n'est pas prêt.")
@@ -808,9 +1220,57 @@ class _BiteButton(discord.ui.Button):
                 preview=pending.preview,
             )
             await _apply_view(interaction, CatchView(catalog, result))
+            await _maybe_auto_share_gem(interaction, catalog, result)
         except PlayerError as exc:
             await edit_error(interaction, str(exc))
             return
+
+
+def _catch_share_text(catalog: Catalog, result: CastResult, display_name: str) -> str:
+    species = catalog.get_species(result.species_key)
+    bits = [f"**{display_name}** a pris {species.name}"]
+    if result.length_cm is not None:
+        bits.append(f"`{result.length_cm} cm`")
+    if result.weight_kg is not None:
+        bits.append(f"`{result.weight_kg} kg`")
+    if result.personal_record:
+        bits.append("**record perso**")
+    if result.guild_rank == 1:
+        bits.append("**record du serveur**")
+    if result.loot_key:
+        try:
+            item = catalog.get_item(result.loot_key)
+            if item_is_gem(item):
+                bits.append(f"et {item_display(catalog, item.key)} · **exceptionnel**")
+            else:
+                bits.append(f"et {item.name}")
+        except Exception:
+            bits.append(f"et {result.loot_key}")
+    return " · ".join(bits)
+
+
+def _loot_is_gem(catalog: Catalog, loot_key: str | None) -> bool:
+    if not loot_key:
+        return False
+    try:
+        return item_is_gem(catalog.get_item(loot_key))
+    except Exception:
+        return False
+
+
+async def _maybe_auto_share_gem(
+    interaction: discord.Interaction, catalog: Catalog, result: CastResult
+) -> None:
+    if not _loot_is_gem(catalog, result.loot_key):
+        return
+    channel = interaction.channel
+    if channel is None or not hasattr(channel, "send"):
+        return
+    text = _catch_share_text(catalog, result, interaction.user.display_name)
+    try:
+        await channel.send(text)
+    except discord.HTTPException:
+        return
 
 
 class CatchView(discord.ui.LayoutView):
@@ -877,10 +1337,17 @@ class CatchView(discord.ui.LayoutView):
             note += f" · **dans le sac** · {result.carry_used}/{result.carry_max}"
         else:
             note += f" · **relâché** · **sac plein** {result.carry_used}/{result.carry_max}"
+        if result.daily_just_rewarded:
+            note += (
+                " · **quête du jour** · "
+                + format_money(result.daily_just_rewarded, catalog.game.money)
+            )
+        elif result.daily_note and result.daily_count is not None:
+            note += f" · **quête du jour** · {result.daily_count}/{result.daily_target}"
         self.result = result
         self.catalog = catalog
         shareable = bool(result.is_new or result.personal_record or result.guild_rank or result.loot_key)
-        recast_ok, energy_bit = _recast_energy_note(catalog, result)
+        recast_ok, energy_bit = _recast_note(catalog, result)
         if energy_bit:
             note += f" · {energy_bit}"
         buttons = [_RecastButton(disabled=not recast_ok)]
@@ -888,6 +1355,13 @@ class CatchView(discord.ui.LayoutView):
             buttons.append(_ShareCatchButton())
         append_controls(children, note=note, button_row=discord.ui.ActionRow(*buttons))
         self.add_item(make_container(*children))
+
+
+def _recast_note(catalog: Catalog, result: CastResult) -> tuple[bool, str]:
+    snap = result.snap
+    if snap is None or not _equipped_key(snap.equipped.get("hook")):
+        return False, "**équipe un crochet**"
+    return _recast_energy_note(catalog, result)
 
 
 def _recast_energy_note(catalog: Catalog, result: CastResult) -> tuple[bool, str]:
@@ -934,22 +1408,41 @@ async def start_cast_flow(
         msg = str(exc)
         snap = await store.get_or_create(guild.id, interaction.user.id)
         if "milieu" in msg.lower():
+            env_score = await store.environment_score(guild.id)
             await _apply_view(
                 interaction,
                 MondeView(
                     catalog,
                     snap,
+                    env_score=env_score,
                     flash="**Choisis un milieu** pour pêcher. Premier aller : **immédiat**.",
                 ),
             )
             return
-        if "outil" in msg.lower() or "équipe" in msg.lower():
+        if "crochet" in msg.lower():
             await _apply_view(
                 interaction,
-                ProfilView(
+                await load_player_hub(
                     catalog,
-                    snap,
+                    store,
+                    guild.id,
+                    interaction.user.id,
                     interaction.user.display_name,
+                    tab="profil",
+                    flash="**Équipe un crochet** pour pêcher.",
+                ),
+            )
+            return
+        if "outil" in msg.lower():
+            await _apply_view(
+                interaction,
+                await load_player_hub(
+                    catalog,
+                    store,
+                    guild.id,
+                    interaction.user.id,
+                    interaction.user.display_name,
+                    tab="profil",
                     flash="**Équipe un outil** pour pêcher.",
                 ),
             )
@@ -995,19 +1488,7 @@ class _ShareCatchButton(discord.ui.Button):
             return
         result = parent.result
         catalog = parent.catalog
-        species = catalog.get_species(result.species_key)
-        bits = [f"**{interaction.user.display_name}** a pris {species.name}"]
-        if result.length_cm is not None:
-            bits.append(f"`{result.length_cm} cm`")
-        if result.weight_kg is not None:
-            bits.append(f"`{result.weight_kg} kg`")
-        if result.personal_record:
-            bits.append("**record perso**")
-        if result.guild_rank == 1:
-            bits.append("**record du serveur**")
-        if result.loot_key:
-            bits.append(f"et {catalog.get_item(result.loot_key).name}")
-        text = " · ".join(bits)
+        text = _catch_share_text(catalog, result, interaction.user.display_name)
         try:
             await channel.send(text)
         except discord.HTTPException:
@@ -1034,6 +1515,7 @@ class DexView(discord.ui.LayoutView):
         catalog: Catalog,
         rows: dict[str, DexRow],
         *,
+        display_name: str = "",
         group: str = "all",
         page: int = 0,
         found: int = 0,
@@ -1042,6 +1524,8 @@ class DexView(discord.ui.LayoutView):
         super().__init__(timeout=180)
         self.catalog = catalog
         self.rows = rows
+        self.display_name = display_name
+        self.hub_tab = "dex"
         self.group = group
         self.found = found
         self.total = total
@@ -1084,19 +1568,20 @@ class DexView(discord.ui.LayoutView):
             discord.ui.TextDisplay("\n".join(lines) if lines else "Aucune espèce dans ce groupe."),
         ]
         prepend_tabs(children, discord.ui.ActionRow(_DexGroupSelect(options)))
+        prepend_tabs(children, _hub_tab_row("dex"))
         nav = None
         if pages > 1:
             nav = discord.ui.ActionRow(
-                _DexNavButton(delta=-1, disabled=self.page <= 0, label="◀"),
-                _DexNavButton(delta=1, disabled=self.page >= pages - 1, label="▶"),
+                _DexNavButton(delta=-1, disabled=self.page <= 0),
+                _DexNavButton(delta=1, disabled=self.page >= pages - 1),
             )
         append_controls(children, button_row=nav)
         self.add_item(make_container(*children))
 
 
 class _DexNavButton(discord.ui.Button):
-    def __init__(self, *, delta: int, disabled: bool, label: str) -> None:
-        super().__init__(style=discord.ButtonStyle.secondary, label=label, disabled=disabled)
+    def __init__(self, *, delta: int, disabled: bool) -> None:
+        super().__init__(**_nav_arrow_kwargs(delta, disabled=disabled))
         self.delta = delta
 
     async def callback(self, interaction: discord.Interaction) -> None:
@@ -1106,6 +1591,7 @@ class _DexNavButton(discord.ui.Button):
         nxt = DexView(
             parent.catalog,
             parent.rows,
+            display_name=parent.display_name,
             group=parent.group,
             page=parent.page + self.delta,
             found=parent.found,
@@ -1125,6 +1611,7 @@ class _DexGroupSelect(discord.ui.Select):
         nxt = DexView(
             parent.catalog,
             parent.rows,
+            display_name=parent.display_name,
             group=self.values[0],
             page=0,
             found=parent.found,
@@ -1149,7 +1636,8 @@ class RecordsView(discord.ui.LayoutView):
         for species_key, user_id, length, weight in rows:
             who = names.get(user_id) or f"<@{user_id}>"
             lines.append(
-                species_display(
+                "- "
+                + species_display(
                     catalog,
                     species_key,
                     extra=f" · `{length} cm` · `{weight} kg` · {who}",
@@ -1169,7 +1657,6 @@ SAC_TAB_LABELS = {
     "fish": "Poissons",
     "creature": "Créatures",
     "items": "Items",
-    "collectibles": "Collection",
 }
 
 
@@ -1219,6 +1706,7 @@ class SacView(discord.ui.LayoutView):
         snap: PlayerSnapshot,
         specimens: list[CaughtSpecimen],
         *,
+        display_name: str = "",
         tab: str = "fish",
         page: int = 0,
         flash: str = "",
@@ -1227,38 +1715,30 @@ class SacView(discord.ui.LayoutView):
         self.catalog = catalog
         self.snap = snap
         self.specimens = specimens
+        self.display_name = display_name
+        self.hub_tab = "sac"
         self.tab = tab if tab in SAC_TAB_LABELS else "fish"
         self.page = page
 
-        tab_options = [
-            discord.SelectOption(
-                label=label, value=key, default=self.tab == key
-            )
-            for key, label in SAC_TAB_LABELS.items()
-        ]
-        tab_row = discord.ui.ActionRow(_SacTabSelect(tab_options))
         release_row = None
         nav = None
         note = flash
+        tab_row = discord.ui.ActionRow(
+            *(_SacTabButton(key, active=self.tab == key) for key in SAC_TAB_LABELS)
+        )
 
-        if self.tab in {"items", "collectibles"}:
-            collectibles = self.tab == "collectibles"
-            parts = _inventory_parts(catalog, snap, collectibles=collectibles)
+        if self.tab == "items":
+            parts = _inventory_parts(catalog, snap, collectibles=None)
             pages = max(1, (len(parts) + SAC_PAGE_SIZE - 1) // SAC_PAGE_SIZE) if parts else 1
             self.page = max(0, min(page, pages - 1))
             start = self.page * SAC_PAGE_SIZE
             chunk = parts[start : start + SAC_PAGE_SIZE]
-            if collectibles:
-                empty = "Aucune collection dans le sac."
-                fallback_note = "Collection du sac — lecture seule."
-            else:
-                empty = "Aucun item dans le sac."
-                fallback_note = "Items du sac — lecture seule."
+            empty = "Aucun item dans le sac."
             body = "\n".join(chunk) if chunk else empty
             subtitle = f"-# {SAC_TAB_LABELS[self.tab]}"
             if pages > 1:
                 subtitle += f" · page {self.page + 1}/{pages}"
-            note = flash or fallback_note
+            note = flash or "Items du sac. Pour manger : onglet **Profil**."
         else:
             rows = _specimens_for_tab(catalog, specimens, self.tab)
             if self.tab == "fish":
@@ -1282,9 +1762,9 @@ class SacView(discord.ui.LayoutView):
                 except Exception:
                     name = spec.species_key
                 kwargs: dict = {
-                    "label": name[:100],
-                    "value": str(spec.id),
-                    "description": f"{spec.length_cm} cm · {spec.weight_kg} kg"[:100],
+                    "label": select_label(name),
+                    "value": str(spec.id)[:100],
+                    "description": select_desc(f"{spec.length_cm} cm · {spec.weight_kg} kg"),
                 }
                 emoji = _partial_emoji(species_emoji(spec.species_key))
                 if emoji is not None:
@@ -1298,8 +1778,8 @@ class SacView(discord.ui.LayoutView):
 
         if pages > 1:
             nav = discord.ui.ActionRow(
-                _SacNavButton(delta=-1, disabled=self.page <= 0, label="◀"),
-                _SacNavButton(delta=1, disabled=self.page >= pages - 1, label="▶"),
+                _SacNavButton(delta=-1, disabled=self.page <= 0),
+                _SacNavButton(delta=1, disabled=self.page >= pages - 1),
             )
         children: list = [
             discord.ui.TextDisplay("## Sac"),
@@ -1307,14 +1787,44 @@ class SacView(discord.ui.LayoutView):
             discord.ui.Separator(),
             discord.ui.TextDisplay(body),
         ]
-        prepend_tabs(children, tab_row)
-        append_controls(children, note=note, button_row=nav, select_row=release_row)
+        prepend_tabs(children, _hub_tab_row("sac"))
+        append_controls(
+            children,
+            note=note,
+            button_row=tab_row,
+            extra_button_row=nav,
+            select_row=release_row,
+        )
         self.add_item(make_container(*children))
 
 
+class _SacTabButton(discord.ui.Button):
+    def __init__(self, tab: str, *, active: bool) -> None:
+        super().__init__(
+            style=discord.ButtonStyle.primary if active else discord.ButtonStyle.secondary,
+            label=SAC_TAB_LABELS[tab],
+            disabled=active,
+        )
+        self.tab = tab
+
+    async def callback(self, interaction: discord.Interaction) -> None:
+        parent = self.view
+        if not isinstance(parent, SacView):
+            return
+        nxt = SacView(
+            parent.catalog,
+            parent.snap,
+            parent.specimens,
+            display_name=parent.display_name,
+            tab=self.tab,
+            page=0,
+        )
+        await _apply_view(interaction, nxt)
+
+
 class _SacNavButton(discord.ui.Button):
-    def __init__(self, *, delta: int, disabled: bool, label: str) -> None:
-        super().__init__(style=discord.ButtonStyle.secondary, label=label, disabled=disabled)
+    def __init__(self, *, delta: int, disabled: bool) -> None:
+        super().__init__(**_nav_arrow_kwargs(delta, disabled=disabled))
         self.delta = delta
 
     async def callback(self, interaction: discord.Interaction) -> None:
@@ -1325,26 +1835,9 @@ class _SacNavButton(discord.ui.Button):
             parent.catalog,
             parent.snap,
             parent.specimens,
+            display_name=parent.display_name,
             tab=parent.tab,
             page=parent.page + self.delta,
-        )
-        await _apply_view(interaction, nxt)
-
-
-class _SacTabSelect(discord.ui.Select):
-    def __init__(self, options: list[discord.SelectOption]) -> None:
-        super().__init__(placeholder="Onglet…", min_values=1, max_values=1, options=options)
-
-    async def callback(self, interaction: discord.Interaction) -> None:
-        parent = self.view
-        if not isinstance(parent, SacView):
-            return
-        nxt = SacView(
-            parent.catalog,
-            parent.snap,
-            parent.specimens,
-            tab=self.values[0],
-            page=0,
         )
         await _apply_view(interaction, nxt)
 
@@ -1375,30 +1868,66 @@ class _SacReleaseSelect(discord.ui.Select):
             await interaction.response.defer()
         try:
             specimen_id = int(self.values[0])
-            released, remaining = _drop_specimen_local(
-                catalog, parent.snap, parent.specimens, specimen_id
+            released = await store.release_caught(
+                guild.id, interaction.user.id, specimen_id
             )
         except (PlayerError, ValueError) as exc:
             await edit_error(interaction, str(exc))
             return
+        snap = await store.snapshot(guild.id, interaction.user.id)
+        remaining = await store.list_caught(guild.id, interaction.user.id)
         flash = f"**Relâché** · {species_display(catalog, released.species_key)}"
         nxt = SacView(
             catalog,
-            parent.snap,
+            snap,
             remaining,
+            display_name=parent.display_name,
             tab=parent.tab,
             page=parent.page,
             flash=flash,
         )
-        try:
-            persist = asyncio.create_task(
-                store.release_caught(guild.id, interaction.user.id, specimen_id)
-            )
-            await _apply_view(interaction, nxt)
-            await persist
-        except PlayerError as exc:
-            await edit_error(interaction, str(exc))
-            return
+        await _apply_view(interaction, nxt)
+
+
+async def load_player_hub(
+    catalog: Catalog,
+    store: PlayerStore,
+    guild_id: int,
+    user_id: int,
+    display_name: str,
+    *,
+    tab: str = "profil",
+    sac_tab: str = "fish",
+    dex_group: str = "all",
+    page: int = 0,
+    flash: str = "",
+) -> discord.ui.LayoutView:
+    """Recharge Profil / Sac / Dex pour ré-éditer le même message."""
+    snap = await store.get_or_create(guild_id, user_id)
+    key = tab if tab in HUB_TAB_LABELS else "profil"
+    if key == "sac":
+        specimens = await store.list_caught(guild_id, user_id)
+        return SacView(
+            catalog,
+            snap,
+            specimens,
+            display_name=display_name,
+            tab=sac_tab,
+            page=page,
+            flash=flash,
+        )
+    if key == "dex":
+        rows = await store.list_dex(guild_id, user_id)
+        return DexView(
+            catalog,
+            rows,
+            display_name=display_name,
+            group=dex_group,
+            page=page,
+            found=snap.dex_found,
+            total=snap.dex_total,
+        )
+    return ProfilView(catalog, snap, display_name, flash=flash)
 
 
 def _npc_face_emoji(npc: Npc, *, env_good: bool) -> discord.PartialEmoji | None:
@@ -1499,6 +2028,7 @@ async def load_village_view(
         bargain=bargain,
         known_keys=known_keys,
         talk_catch_id=talk_catch_id,
+        daily_line=daily_place_block(catalog, await store.daily_status(guild_id, user_id)),
     )
 
 
@@ -1529,6 +2059,7 @@ class VillageView(discord.ui.LayoutView):
         bargain: dict | None = None,
         known_keys: set[str] | None = None,
         talk_catch_id: int | None = None,
+        daily_line: str = "",
     ) -> None:
         super().__init__(timeout=300 if talk_status in {"pending", "streaming"} else 180)
         self.catalog = catalog
@@ -1551,7 +2082,9 @@ class VillageView(discord.ui.LayoutView):
         self.bargain = bargain
         self.known_keys = set(known_keys or [])
         self.talk_catch_id = talk_catch_id
+        self.daily_line = daily_line
         self.attachments: list[discord.File] = []
+        self._confirm_used = False
 
         env_good = environment_is_good(catalog, env_score)
         current = next((n for n in present if n.key == npc_key), None)
@@ -1571,7 +2104,7 @@ class VillageView(discord.ui.LayoutView):
             lines: list[str] = []
             for npc in present:
                 name = npc.name or npc.key
-                lines.append(f"**{name}** · {npc_role_label(npc)}")
+                lines.append(f"- **{name}** · {npc_role_label(npc)}")
             body = "\n".join(lines) if lines else body
             note = flash or "Approche-toi. **Parle-leur**, et **montre** ce que tu as."
         else:
@@ -1639,8 +2172,8 @@ class VillageView(discord.ui.LayoutView):
 
         if current is None:
             promo = self._promo_block()
-            if promo:
-                body = f"{promo}\n\n{body}" if body else promo
+            chunks = [part for part in (self.daily_line, promo, body) if part]
+            body = "\n\n".join(chunks) if chunks else body
         children: list = [header, subtitle, discord.ui.Separator()]
         if body:
             children.append(discord.ui.TextDisplay(body))
@@ -1674,7 +2207,7 @@ class VillageView(discord.ui.LayoutView):
             bit = f"**{name}** · {effect}"
             if left:
                 bit += f" · {left}"
-            lines.append(bit)
+            lines.append(f"- {bit}")
         if len(lines) == 1:
             return ""
         return "\n".join(lines)
@@ -1779,6 +2312,8 @@ class VillageView(discord.ui.LayoutView):
             return self._board_env(env_good=env_good)
         if mode == "fossils":
             return self._board_fossils()
+        if mode == "inspect":
+            return self._board_inspect()
         return ""
 
     def _filter_keys(self, key: str) -> bool:
@@ -1798,7 +2333,7 @@ class VillageView(discord.ui.LayoutView):
             mark = ""
             if self.talk_item_key == it.key:
                 mark = f" · **×{self.talk_quantity}**" if self.talk_quantity > 1 else " · **ça**"
-            lines.append(f"{item_display(self.catalog, it.key)} · {format_money(price, money)}{mark}")
+            lines.append(f"- {item_display(self.catalog, it.key)} · {format_money(price, money)}{mark}")
         if not lines:
             return ""
         return "**Étal**\n" + "\n".join(lines[:25])
@@ -1830,7 +2365,9 @@ class VillageView(discord.ui.LayoutView):
             mark = ""
             if self.talk_item_key == spec.species_key:
                 mark = f" · **×{self.talk_quantity}**" if self.talk_quantity > 1 else " · **ça**"
-            lines.append(species_display(catalog, spec.species_key, extra=f"{extra}{mark}"))
+            lines.append(
+                "- " + species_display(catalog, spec.species_key, extra=f"{extra}{mark}")
+            )
         for stack in self.snap.stacks:
             if stack.item_key not in revealed:
                 continue
@@ -1845,7 +2382,8 @@ class VillageView(discord.ui.LayoutView):
                 mark = f" · **×{self.talk_quantity}**" if self.talk_quantity > 1 else " · **ça**"
             if item.category == "waste":
                 lines.append(
-                    self._waste_rate_line(
+                    "- "
+                    + self._waste_rate_line(
                         item,
                         qty=stack.quantity,
                         mark=mark,
@@ -1855,7 +2393,7 @@ class VillageView(discord.ui.LayoutView):
                 continue
             price = apply_named_mult(int(item.economy.sell_price), mods, "sell_mult")
             extra = f" ×{stack.quantity} · {format_money(price, money)}"
-            lines.append(item_display(catalog, item.key, extra=f"{extra}{mark}"))
+            lines.append("- " + item_display(catalog, item.key, extra=f"{extra}{mark}"))
         if not lines:
             return ""
         return "\n".join(lines[:25])
@@ -1894,7 +2432,7 @@ class VillageView(discord.ui.LayoutView):
     def _walk_note(self) -> str:
         return (
             f"-# Marche · **{walk_minutes(self.catalog, self.snap)} min** · "
-            f"**gratuite** · /monde"
+            f"**gratuite** · carte · /monde"
         )
 
     def _here_only(self) -> str:
@@ -1918,7 +2456,7 @@ class VillageView(discord.ui.LayoutView):
                     "travel_mult",
                 )
                 fare = format_money(price, money) if price else "arrivée"
-                dests.append(f"**{milieu.name}** · {fare} · raccourci{mark}")
+                dests.append(f"- **{milieu.name}** · {fare} · raccourci{mark}")
             else:
                 price = apply_named_mult(
                     passeur_price(self.catalog, remaining_s=None, snap=self.snap),
@@ -1926,7 +2464,7 @@ class VillageView(discord.ui.LayoutView):
                     "travel_mult",
                 )
                 dests.append(
-                    f"**{milieu.name}** · {format_money(price, money)}{mark}"
+                    f"- **{milieu.name}** · {format_money(price, money)}{mark}"
                 )
         parts = [self._here_line()]
         if dests:
@@ -1955,7 +2493,8 @@ class VillageView(discord.ui.LayoutView):
             cost = apply_named_mult(int(dur.repair_cost), mods, "repair_mult")
             mark = " · **ça**" if self.talk_item_key == item.key else ""
             lines.append(
-                item_display(self.catalog, item.key, extra=f"{extra} · {format_money(cost, money)}{mark}")
+                "- "
+                + item_display(self.catalog, item.key, extra=f"{extra} · {format_money(cost, money)}{mark}")
             )
         if not lines:
             return ""
@@ -2029,7 +2568,55 @@ class VillageView(discord.ui.LayoutView):
             f"**Crânes** · `{skulls}/{threshold}`\n"
             f"**Fossiles dans la pierre** · `{fossils}`\n"
             f"**Répliques** · `{have}/{len(replicas)}`"
+            + (
+                f"\n**Archéologie** · **{self.snap.archaeology_points}**"
+                if self.snap.archaeology_points
+                else ""
+            )
         )
+
+    def _board_inspect(self) -> str:
+        revealed: list[str] = []
+        for key in list(self.talk_board_keys) + list(self._revealed_keys()):
+            if key and key not in revealed:
+                revealed.append(key)
+        if not revealed:
+            return ""
+        catch = next(
+            (s for s in self.specimens if s.id == self.talk_catch_id),
+            None,
+        )
+        parts: list[str] = []
+        catalog = self.catalog
+        for key in revealed[:4]:
+            try:
+                item = catalog.get_item(key)
+            except Exception:
+                item = None
+            if item is not None:
+                remaining = None
+                for gear in self.snap.gear:
+                    if gear.item_key == key:
+                        remaining = gear.durability
+                        break
+                parts.append(
+                    inspect_item_text(catalog, item, remaining=remaining, markdown=True)
+                )
+                continue
+            try:
+                species = catalog.get_species(key)
+            except Exception:
+                continue
+            spec = catch if catch is not None and catch.species_key == key else None
+            if spec is None:
+                matches = [s for s in self.specimens if s.species_key == key]
+                spec = matches[0] if len(matches) == 1 else None
+            parts.append(
+                inspect_species_text(catalog, species, specimen=spec, markdown=True)
+            )
+        if not parts:
+            return ""
+        return "**Dossier**\n" + "\n\n".join(parts)
 
 
 class _VillageNpcSelect(discord.ui.Select):
@@ -2039,9 +2626,9 @@ class _VillageNpcSelect(discord.ui.Select):
         options: list[discord.SelectOption] = []
         for npc in present:
             kwargs: dict = {
-                "label": (npc.name or npc.key)[:100],
-                "value": npc.key,
-                "description": npc_role_label(npc)[:100],
+                "label": select_label(npc.name or npc.key),
+                "value": npc.key[:100],
+                "description": select_desc(npc_role_label(npc)),
                 "default": current is not None and npc.key == current.key,
             }
             emoji = _npc_face_emoji(npc, env_good=env_good)
@@ -2052,7 +2639,7 @@ class _VillageNpcSelect(discord.ui.Select):
             placeholder="Parler à…",
             min_values=1,
             max_values=1,
-            options=options[:25],
+            options=options[:SELECT_MAX],
         )
 
     async def callback(self, interaction: discord.Interaction) -> None:
@@ -2136,6 +2723,8 @@ def _talk_show_label(npc: Npc) -> tuple[str, str]:
         return "Montrer un déchet", "Pour la note environnementale"
     if npc.role == "summon":
         return "Montrer un fossile", "Ce que tu veux échanger"
+    if npc.role == "lore":
+        return "Montrer quelque chose", "Objet ou prise à identifier"
     return "Montrer quelque chose", "En lien avec cette personne"
 
 
@@ -2144,14 +2733,14 @@ def _talk_show_options(parent: VillageView, npc: Npc) -> list[discord.SelectOpti
     snap = parent.snap
     specimens = parent.specimens
     options: list[discord.SelectOption] = []
-    buyer = npc.role == "shop" and npc.shop_mode == "buy"
-    if buyer:
+    per_catch = (npc.role == "shop" and npc.shop_mode == "buy") or npc.role == "lore"
+    if per_catch:
         for spec in specimens:
             try:
                 species = catalog.get_species(spec.species_key)
             except Exception:
                 continue
-            if not species.economy.sellable:
+            if npc.role != "lore" and not species.economy.sellable:
                 continue
             extra = talk_select_description(
                 length_cm=spec.length_cm,
@@ -2161,19 +2750,16 @@ def _talk_show_options(parent: VillageView, npc: Npc) -> list[discord.SelectOpti
                 ),
             )
             emoji = _partial_emoji(species_emoji(spec.species_key))
-            kwargs: dict = {
-                "label": species.name[:100],
-                "value": f"catch:{spec.id}"[:100],
-            }
+            kwargs = {"label": select_label(species.name), "value": f"catch:{spec.id}"[:100]}
             if extra:
-                kwargs["description"] = extra[:100]
+                kwargs["description"] = select_desc(extra)
             if emoji is not None:
                 kwargs["emoji"] = emoji
             options.append(discord.SelectOption(**kwargs))
-            if len(options) >= 25:
+            if len(options) >= SELECT_MAX:
                 return options
     for key in talk_show_keys(catalog, npc, snap=snap, specimens=specimens):
-        if buyer:
+        if per_catch:
             try:
                 catalog.get_species(key)
                 continue
@@ -2206,15 +2792,15 @@ def _talk_show_options(parent: VillageView, npc: Npc) -> list[discord.SelectOpti
                 ),
             )
             emoji = _partial_emoji(species_emoji(key))
-        kwargs = {"label": label[:100], "value": key}
+        kwargs = {"label": select_label(label), "value": key[:100]}
         if extra:
-            kwargs["description"] = extra[:100]
+            kwargs["description"] = select_desc(extra)
         if emoji is not None:
             kwargs["emoji"] = emoji
         options.append(discord.SelectOption(**kwargs))
-        if len(options) >= 25:
+        if len(options) >= SELECT_MAX:
             break
-    return options[:25]
+    return options[:SELECT_MAX]
 
 
 class VillageTalkModal(discord.ui.Modal, title="Parler"):
@@ -2297,7 +2883,7 @@ class _VillageConfirmButton(discord.ui.Button):
             label = f"{label} · ×{quantity}"
         super().__init__(
             style=discord.ButtonStyle.success,
-            label=label[:80],
+            label=button_label(label),
             disabled=disabled,
         )
         self.intent = intent
@@ -2306,8 +2892,17 @@ class _VillageConfirmButton(discord.ui.Button):
         parent = self.view
         if not isinstance(parent, VillageView) or not parent.npc_key:
             return
+        if parent._confirm_used:
+            if not interaction.response.is_done():
+                try:
+                    await interaction.response.defer()
+                except discord.HTTPException:
+                    pass
+            return
+        parent._confirm_used = True
         loaded = await _village_store(interaction)
         if loaded is None:
+            parent._confirm_used = False
             return
         store, catalog = loaded
         guild = interaction.guild
@@ -2360,6 +2955,7 @@ class _VillageConfirmButton(discord.ui.Button):
             )
             await _apply_view(interaction, nxt)
         except PlayerError as exc:
+            parent._confirm_used = False
             nxt = await load_village_view(
                 catalog,
                 store,
@@ -2498,8 +3094,13 @@ async def _apply_talk_intent(
         cost, _money = await store.repair_gear(guild_id, user_id, gear.id)
         return f"**Réparé** · {item_display(catalog, item_key)} · {format_money_plain(cost, catalog.game.money)}"
     if intent == "exchange":
+        before = (await store.snapshot(guild_id, user_id)).archaeology_points
         replica = await store.exchange_fossil(guild_id, user_id)
-        return f"**Échangé** · {item_display(catalog, replica)}"
+        after = await store.snapshot(guild_id, user_id)
+        extra = ""
+        if after.archaeology_points > before:
+            extra = " · **set assemblé** · **+1** archéologie"
+        return f"**Échangé** · {item_display(catalog, replica)}{extra}"
     raise PlayerError("rien à confirmer pour l'instant")
 
 
@@ -2533,77 +3134,6 @@ class VillageAnnounceView(discord.ui.LayoutView):
             discord.ui.TextDisplay(text),
         ]
         append_controls(children, note=note)
-        self.add_item(make_container(*children))
-
-
-class ItemInspectView(discord.ui.LayoutView):
-    """Fiche d'un item : thumbnail PNG, nom en titre, pas d'emoji du même asset."""
-
-    def __init__(self, catalog: Catalog, item: Item, *, admin: bool = False) -> None:
-        super().__init__(timeout=120)
-        self.attachments: list[discord.File] = []
-
-        name_body = discord.ui.TextDisplay(title_name(item.name))
-        header: discord.ui.Item = name_body
-        path = catalog.assets_root / "items" / item.sprite
-        file = asset_file(path)
-        if file is not None:
-            self.attachments.append(file)
-            header = section_with_thumbnail(name_body, file)
-        else:
-            header = discord.ui.TextDisplay(
-                with_emoji(item_emoji(item.key), f"**{item.name}**")
-            )
-
-        cat_label = CATEGORY_LABELS.get(item.category, item.category)
-        bits = [f"`{item.key}`", cat_label]
-        if not item.enabled:
-            bits.append("désactivé")
-        sub = discord.ui.TextDisplay("-# " + " · ".join(bits))
-
-        details: list[str] = []
-        eq = item.equipment
-        if eq is not None and eq.equippable:
-            slot = SLOT_LABELS.get(eq.slot or "", eq.slot or "—")
-            details.append(f"**Équipement** · {slot}")
-            if eq.capture_method:
-                details.append(f"**Capture** · {eq.capture_method}")
-        dur = item.durability
-        if dur is not None:
-            if dur.max_days is not None or dur.unit == "days":
-                days = dur.max_days if dur.max_days is not None else "—"
-                details.append(f"**Durabilité** · {days} j")
-            elif dur.max is not None:
-                details.append(f"**Durabilité** · {dur.max} usages")
-        buy = item.economy.buy_price
-        sell = item.economy.sell_price
-        has_price = buy is not None or sell is not None
-        if buy is not None:
-            details.append(f"**Achat** · {format_money(buy, catalog.game.money)}")
-        if sell is not None:
-            details.append(f"**Vente** · {format_money(sell, catalog.game.money)}")
-        if admin and item.sources:
-            details.append("**Sources** · " + ", ".join(f"`{s}`" for s in item.sources))
-
-        flavor: list[str] = []
-        desc = italic_text(item.description)
-        lore = italic_text(item.lore)
-        if desc:
-            flavor.append(desc)
-        if lore:
-            flavor.append(lore)
-
-        children: list = [header, sub]
-        if flavor:
-            children += [discord.ui.Separator(), discord.ui.TextDisplay("\n\n".join(flavor))]
-        if details:
-            children += [discord.ui.Separator(), discord.ui.TextDisplay("\n".join(details))]
-        if has_price:
-            children += [
-                discord.ui.TextDisplay(
-                    "-# Prix indicatifs — varient selon le marchand et le contexte."
-                )
-            ]
         self.add_item(make_container(*children))
 
 
@@ -2685,8 +3215,8 @@ class EmojisGalleryView(discord.ui.LayoutView):
         button_row = None
         if total_pages > 1:
             button_row = discord.ui.ActionRow(
-                _GalleryNavButton(delta=-1, disabled=index <= 0, label="◀"),
-                _GalleryNavButton(delta=1, disabled=index >= total_pages - 1, label="▶"),
+                _GalleryNavButton(delta=-1, disabled=index <= 0),
+                _GalleryNavButton(delta=1, disabled=index >= total_pages - 1),
             )
         append_controls(children, button_row=button_row)
         self.add_item(make_container(*children))
@@ -2706,8 +3236,8 @@ class EmojisGalleryView(discord.ui.LayoutView):
 
 
 class _GalleryNavButton(discord.ui.Button):
-    def __init__(self, *, delta: int, disabled: bool, label: str) -> None:
-        super().__init__(style=discord.ButtonStyle.secondary, label=label, disabled=disabled)
+    def __init__(self, *, delta: int, disabled: bool) -> None:
+        super().__init__(**_nav_arrow_kwargs(delta, disabled=disabled))
         self.delta = delta
 
     async def callback(self, interaction: discord.Interaction) -> None:

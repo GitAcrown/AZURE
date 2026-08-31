@@ -143,8 +143,11 @@ def test_load_real_catalog() -> None:
     assert catalog.game.village.travel_minutes == 30
     assert catalog.game.village.bargain.buy_mult == 0.95
     assert catalog.game.village.bargain.sell_mult == 1.05
+    assert catalog.game.daily.catch_count == 3
+    assert catalog.game.daily.reward_bronze == 40
     assert catalog.game.fishing.waste_chance == 0.12
     assert catalog.game.fishing.loot_chance == 0.06
+    assert catalog.game.fishing.gem_chance == 0.001
     assert catalog.game.fishing.cast_energy_cost == 8
     assert catalog.game.fishing.rarity_weights["common"] == 100
     assert catalog.game.fishing.minigame.rod_wait_min_s == 3.5
@@ -178,7 +181,10 @@ def test_lookup_item_and_starter() -> None:
     assert rod.equipment is not None
     assert rod.equipment.slot == "tool"
     starters = catalog.items_by_source("starter", enabled_only=True)
-    assert [it.key for it in starters] == ["coastal_rod", "widewater_rod", "net"]
+    keys = [it.key for it in starters]
+    assert keys[:3] == ["coastal_rod", "widewater_rod", "net"]
+    assert "small_hook" in keys
+    assert "big_hook" in keys
     for key in ("coastal_rod", "widewater_rod", "net"):
         item = catalog.get_item(key)
         assert item.durability is None
@@ -211,9 +217,13 @@ def test_named_village_npcs() -> None:
     assert gabriel.name == "Gabriel"
     assert gabriel.role == "travel"
     assert gabriel.enabled is True
-    unused = catalog.get_npc("npc5")
-    assert unused.enabled is False
-    assert unused.name is None
+    esmer = catalog.get_npc("esmer")
+    assert esmer is catalog.get_npc(5)
+    assert esmer.name == "Esmer"
+    assert esmer.role == "lore"
+    assert esmer.enabled is True
+    assert esmer.portraits.default == "portrait5.png"
+    assert esmer.hook
     gaia = catalog.get_npc("gaia")
     assert gaia.role == "special"
     assert gaia.portraits.good == "portrait10.png"

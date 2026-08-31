@@ -8,8 +8,9 @@ from datetime import datetime, timezone
 from typing import Any, Optional
 
 from common.catalog import Catalog, Item, Npc, Species
+from common.fishing.engine import item_is_gem
 from common.player.models import CaughtSpecimen, PlayerSnapshot
-from common.world import weather_bucket
+from common.world import time_of_day_at, weather_bucket
 
 ROLE_LABELS = {
     "shop": "Étal",
@@ -17,6 +18,7 @@ ROLE_LABELS = {
     "travel": "Passage",
     "special": "Eaux",
     "summon": "Collection",
+    "lore": "Archives",
 }
 
 
@@ -53,6 +55,28 @@ class VillageAnnouncement:
 def _pick_one(keys: list[str], seed: str) -> str:
     digest = hashlib.sha256(seed.encode("utf-8")).digest()
     return keys[int.from_bytes(digest[:8], "big") % len(keys)]
+
+
+SAME_ROLE_MAX = 2
+
+
+def _pick_n(keys: list[str], seed: str, n: int = SAME_ROLE_MAX) -> list[str]:
+    """Tirage déterministe sans remise. Si le pool tient dans `n`, on les garde tous."""
+    if n <= 0 or not keys:
+        return []
+    if len(keys) <= n:
+        return list(keys)
+    remaining = list(keys)
+    chosen: list[str] = []
+    i = 0
+    while remaining and len(chosen) < n:
+        key = _pick_one(remaining, f"{seed}:{i}")
+        chosen.append(key)
+        remaining.remove(key)
+        i += 1
+    order = {key: idx for idx, key in enumerate(keys)}
+    chosen.sort(key=lambda key: order[key])
+    return chosen
 
 
 def skull_score(catalog: Catalog, snap: PlayerSnapshot) -> int:
@@ -121,31 +145,28 @@ def present_npcs(
     dt: datetime | None = None,
     bucket: int | None = None,
 ) -> list[Npc]:
-    """Roster : 1 vendeur, 1 acheteur, 1 repair, 1 travel, Gaia, Oz si seuil."""
+    """Roster : jusqu'à 2 par fonction le jour, 1 la nuit. Gaia et Esmer toujours, Oz si seuil."""
+    if dt is None:
+        dt = datetime.now(timezone.utc)
     if bucket is None:
         bucket = weather_bucket(dt, catalog.game.world)
+    tod = time_of_day_at(dt, catalog.game.world)
+    cap = 1 if tod == "night" else SAME_ROLE_MAX
     present: list[Npc] = []
-    sellers = catalog.npcs_by_shop_mode("sell")
-    if sellers:
-        key = _pick_one([n.key for n in sellers], f"{guild_id}:shop_sell:{bucket}")
-        present.append(catalog.get_npc(key))
-    buyers = catalog.npcs_by_shop_mode("buy")
-    if buyers:
-        key = _pick_one([n.key for n in buyers], f"{guild_id}:shop_buy:{bucket}")
-        present.append(catalog.get_npc(key))
-    repairs = catalog.npcs_by_role("repair")
-    if repairs:
-        key = _pick_one([n.key for n in repairs], f"{guild_id}:repair:{bucket}")
-        present.append(catalog.get_npc(key))
-    travels = catalog.npcs_by_role("travel")
-    if travels:
-        key = _pick_one([n.key for n in travels], f"{guild_id}:travel:{bucket}")
-        present.append(catalog.get_npc(key))
-    for special in catalog.npcs_by_role("special"):
-        present.append(special)
+
+    def _add(candidates: list[Npc], seed: str, *, n: int = cap) -> None:
+        for key in _pick_n([npc.key for npc in candidates], seed, n):
+            present.append(catalog.get_npc(key))
+
+    _add(catalog.npcs_by_shop_mode("sell"), f"{guild_id}:shop_sell:{bucket}")
+    _add(catalog.npcs_by_shop_mode("buy"), f"{guild_id}:shop_buy:{bucket}")
+    _add(catalog.npcs_by_role("repair"), f"{guild_id}:repair:{bucket}")
+    _add(catalog.npcs_by_role("travel"), f"{guild_id}:travel:{bucket}")
+    _add(catalog.npcs_by_role("special"), f"{guild_id}:special:{bucket}")
+    _add(catalog.npcs_by_role("lore"), f"{guild_id}:lore:{bucket}", n=1)
     threshold = catalog.game.village.skull_summon_threshold
     if skulls >= threshold:
-        present.extend(catalog.npcs_by_role("summon"))
+        _add(catalog.npcs_by_role("summon"), f"{guild_id}:summon:{bucket}")
     return present
 
 
@@ -281,11 +302,30 @@ def talk_show_keys(
     elif role == "summon" and snap is not None:
         if "fossil_in_stone" in snap.owned_keys():
             _add("fossil_in_stone")
+    elif role == "lore":
+        if snap is not None:
+            for gear in snap.gear:
+                _add(gear.item_key)
+            gems: list[str] = []
+            other: list[str] = []
+            for stack in snap.stacks:
+                try:
+                    item = catalog.get_item(stack.item_key)
+                except Exception:
+                    continue
+                if item_is_gem(item):
+                    gems.append(item.key)
+                else:
+                    other.append(item.key)
+            for key in gems + other:
+                _add(key)
+        for spec in specimens or []:
+            _add(spec.species_key)
     return keys[:25]
 
 
 DISPLAY_MODES = frozenset(
-    {"none", "stock", "purse", "destinations", "repairs", "fossils", "env"}
+    {"none", "stock", "purse", "destinations", "repairs", "fossils", "env", "inspect"}
 )
 
 
@@ -307,6 +347,8 @@ def role_display(npc: Npc) -> str:
         return "env"
     if role == "summon":
         return "fossils"
+    if role == "lore":
+        return "inspect"
     return "none"
 
 
@@ -345,6 +387,8 @@ def allowed_displays(npc: Npc) -> set[str]:
         return {"none", "env"}
     if role == "summon":
         return {"none", "fossils"}
+    if role == "lore":
+        return {"none", "inspect"}
     return {"none"}
 
 

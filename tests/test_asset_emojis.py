@@ -28,7 +28,8 @@ def test_emoji_jobs_cover_species_items_and_ui() -> None:
     collectible = [it for it in catalog.items if item_is_collectible(it) and it.shadow]
     assert len(item_shadow) == len(collectible)
     assert len(item_shadow) >= 14
-    assert len(ui) == 7
+    assert len(ui) == 9
+    assert {j.key for j in ui} >= {"LEFT", "RIGHT", "COIN1", "MEDAL1"}
     assert len(npcs) == 13
     assert all(j.path.is_file() for j in jobs)
 
