@@ -201,6 +201,30 @@ def waste_sell_unit(item: Item, modifiers: list[dict] | None = None) -> int:
     return apply_named_mult(unit, modifiers or [], "waste_mult")
 
 
+def cleanup_take(
+    catalog: Catalog,
+    snap: PlayerSnapshot,
+    *,
+    item_key: str | None = None,
+    quantity: int | None = None,
+) -> list[tuple[Item, int]]:
+    """Déchets que le nettoyage retire. Sans `item_key` : tout le sac."""
+    allowed = {it.key: it for it in cleanup_waste_items(catalog)}
+    out: list[tuple[Item, int]] = []
+    for stack in snap.stacks:
+        item = allowed.get(stack.item_key)
+        if item is None:
+            continue
+        if item_key and item.key != item_key:
+            continue
+        qty = int(stack.quantity)
+        if item_key and quantity is not None:
+            qty = min(qty, max(1, int(quantity)))
+        if qty >= 1:
+            out.append((item, qty))
+    return out
+
+
 def shop_stock(catalog: Catalog, npc: Npc | None = None) -> list[Item]:
     """Rayon d'un vendeur. Sans PNJ : union des stocks `shop_mode: sell`."""
     if npc is not None:
@@ -535,18 +559,10 @@ def talk_intent_block(
             return "Tu n'as pas de fossile à lui montrer"
         return None
     if intent == "cleanup":
-        for stack in snap.stacks:
-            try:
-                item = catalog.get_item(stack.item_key)
-            except Exception:
-                continue
-            if item.category != "waste":
-                continue
-            if item_key and item.key != item_key:
-                continue
-            if stack.quantity >= 1:
-                return None
-        return "Tu n'as pas de déchet à lui donner"
+        qty = quantity if item_key else None
+        if not cleanup_take(catalog, snap, item_key=item_key, quantity=qty):
+            return "Tu n'as pas de déchet à lui donner"
+        return None
     return "Rien à confirmer pour l'instant"
 
 

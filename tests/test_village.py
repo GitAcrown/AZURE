@@ -955,6 +955,125 @@ def test_waste_rates(catalog) -> None:
     assert waste_sell_unit(bottle, [{"waste_mult": 2.0}]) == 2
 
 
+def test_cleanup_take_lists_owned_waste(catalog) -> None:
+    from common.player.models import PlayerSnapshot, Stack
+    from common.village import cleanup_take, talk_intent_block
+
+    gaia = catalog.get_npc("gaia")
+    snap = PlayerSnapshot(
+        guild_id=GUILD,
+        user_id=USER,
+        energy=100,
+        energy_max=100,
+        energy_max_base=100,
+        money=0,
+        milieu_key="pond",
+        created_at="",
+        stacks=[
+            Stack(item_key="broken_bottle", quantity=2),
+            Stack(item_key="planks", quantity=1),
+            Stack(item_key="bread", quantity=3),
+        ],
+    )
+    all_waste = cleanup_take(catalog, snap)
+    keys = [it.key for it, qty in all_waste]
+    assert keys == ["broken_bottle", "planks"]
+    assert {it.key: qty for it, qty in all_waste} == {
+        "broken_bottle": 2,
+        "planks": 1,
+    }
+    one = cleanup_take(catalog, snap, item_key="broken_bottle", quantity=1)
+    assert len(one) == 1
+    assert one[0][0].key == "broken_bottle"
+    assert one[0][1] == 1
+    assert (
+        talk_intent_block(
+            catalog, gaia, snap, [], [],
+            intent="cleanup", item_key=None, milieu_key=None,
+        )
+        is None
+    )
+    empty = PlayerSnapshot(
+        guild_id=GUILD,
+        user_id=USER,
+        energy=100,
+        energy_max=100,
+        energy_max_base=100,
+        money=0,
+        milieu_key="pond",
+        created_at="",
+    )
+    assert cleanup_take(catalog, empty) == []
+    assert (
+        talk_intent_block(
+            catalog, gaia, empty, [], [],
+            intent="cleanup", item_key=None, milieu_key=None,
+        )
+        == "Tu n'as pas de déchet à lui donner"
+    )
+
+
+def test_gaia_cleanup_lists_what_she_takes(catalog) -> None:
+    from common.player.models import PlayerSnapshot, Stack
+    from common.village.talk import sanitize_talk
+    from cogs.azure.views import VillageView
+
+    gaia = catalog.get_npc("gaia")
+    snap = PlayerSnapshot(
+        guild_id=GUILD,
+        user_id=USER,
+        energy=100,
+        energy_max=100,
+        energy_max_base=100,
+        money=0,
+        milieu_key="pond",
+        created_at="",
+        stacks=[
+            Stack(item_key="broken_bottle", quantity=2),
+            Stack(item_key="planks", quantity=1),
+            Stack(item_key="bread", quantity=3),
+        ],
+    )
+    silent = sanitize_talk(
+        {
+            "reponse": "(Incline un visage trop lisse.) Neth.",
+            "intent": "cleanup",
+            "item_key": None,
+            "milieu_key": None,
+            "display": "none",
+            "board_keys": [],
+        },
+        catalog,
+        gaia,
+    )
+    assert silent["intent"] == "cleanup"
+    assert silent["item_key"] is None
+    assert silent["display"] == "env"
+
+    view = VillageView(
+        catalog,
+        snap,
+        present=[gaia],
+        env_score=50,
+        specimens=[],
+        announcements=[],
+        npc_key="gaia",
+        talk_status="done",
+        talk_intent="cleanup",
+        talk_item_key=None,
+        talk_display="none",
+        talk_board_keys=[],
+        talk_quantity=1,
+    )
+    board = view._display_board(gaia, env_good=True)
+    assert "**Tu donnes**" in board
+    assert "Bouteille cassée" in board
+    assert "×2" in board
+    assert "Planches" in board
+    assert "Pain" not in board
+    assert view._confirm_quantity() == 3
+
+
 def test_talk_facts_include_prices(catalog) -> None:
     from common.player.models import CaughtSpecimen, PlayerSnapshot, Stack
     from common.village.talk import talk_facts

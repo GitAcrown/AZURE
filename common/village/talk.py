@@ -275,6 +275,10 @@ def sanitize_talk(
     )
     if display not in displays:
         display = "none"
+    if intent == "cleanup" and display == "none":
+        display = "env" if npc.role == "special" else "purse"
+        if display not in displays:
+            display = "none"
     try:
         quantity = int(raw.get("quantity") or 1)
     except (TypeError, ValueError):
@@ -482,7 +486,9 @@ def talk_facts(
             f"moins. La surpêche dans un même milieu "
             f"(plus de {village.overfish_per_bucket} prises / heure) fait baisser la note. "
             "intent=cleanup, display=env. "
-            "N'étale PAS tous tes tarifs. Un déchet seulement s'il le montre."
+            "Sans item_key : tu prends TOUS ses déchets. "
+            "Le layout liste ce que tu prends : ne recopie pas son sac. "
+            "N'étale PAS tous tes tarifs. board_keys = un déchet seulement s'il le montre."
         )
         if snap is not None:
             from common.daily import daily_talk_line

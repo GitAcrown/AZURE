@@ -79,6 +79,7 @@ from common.village import (
     npc_role_label,
     apply_named_mult,
     cleanup_waste_items,
+    cleanup_take,
     modifier_label,
     passeur_price,
     present_npcs,
@@ -2299,7 +2300,7 @@ class VillageView(discord.ui.LayoutView):
                 actions.append(
                     _VillageConfirmButton(
                         self.talk_intent,
-                        quantity=self.talk_quantity,
+                        quantity=self._confirm_quantity(),
                         disabled=block is not None,
                     )
                 )
@@ -2440,25 +2441,33 @@ class VillageView(discord.ui.LayoutView):
 
     def _display_board(self, npc: Npc, *, env_good: bool) -> str:
         mode = self.talk_display
+        if self.talk_intent == "cleanup" and (not mode or mode == "none"):
+            mode = "env" if npc.role == "special" else "purse"
         if mode == "none":
             if npc.role == "travel":
                 return self._here_only()
-            return ""
-        if mode == "stock":
-            return self._board_stock(npc)
-        if mode == "purse":
-            return self._board_purse()
-        if mode == "destinations":
-            return self._board_destinations()
-        if mode == "repairs":
-            return self._board_repairs()
-        if mode == "env":
-            return self._board_env(env_good=env_good)
-        if mode == "fossils":
-            return self._board_fossils()
-        if mode == "inspect":
-            return self._board_inspect()
-        return ""
+            text = ""
+        elif mode == "stock":
+            text = self._board_stock(npc)
+        elif mode == "purse":
+            text = self._board_purse()
+        elif mode == "destinations":
+            text = self._board_destinations()
+        elif mode == "repairs":
+            text = self._board_repairs()
+        elif mode == "env":
+            text = self._board_env(env_good=env_good)
+        elif mode == "fossils":
+            text = self._board_fossils()
+        elif mode == "inspect":
+            text = self._board_inspect()
+        else:
+            text = ""
+        if self.talk_intent == "cleanup":
+            give = self._cleanup_give_block()
+            if give:
+                return f"{text}\n\n{give}" if text else give
+        return text
 
     def _filter_keys(self, key: str) -> bool:
         return key in self._revealed_keys()
@@ -2664,7 +2673,9 @@ class VillageView(discord.ui.LayoutView):
             if env:
                 bits.append(f"**+{env}** note environnementale")
         extra = " · ".join(bits)
-        return item_display(self.catalog, item.key, extra=f"{extra}{mark}" if extra else mark)
+        if extra:
+            extra = f" · {extra}"
+        return item_display(self.catalog, item.key, extra=f"{extra}{mark}")
 
     def _board_env(self, *, env_good: bool) -> str:
         village = self.catalog.game.village
@@ -2687,17 +2698,59 @@ class VillageView(discord.ui.LayoutView):
         mods = self._mods()
         owned = {s.item_key: s.quantity for s in self.snap.stacks}
         rates: list[str] = []
-        for item in cleanup_waste_items(self.catalog):
-            if not self._filter_keys(item.key):
-                continue
-            qty = owned.get(item.key)
-            mark = ""
-            if self.talk_item_key == item.key:
-                mark = f" · **×{self.talk_quantity}**" if self.talk_quantity > 1 else " · **ça**"
-            rates.append(self._waste_rate_line(item, qty=qty, mark=mark, modifiers=mods))
-        if rates:
-            lines.append("\n".join(rates[:25]))
+        if self.talk_intent != "cleanup":
+            for item in cleanup_waste_items(self.catalog):
+                if not self._filter_keys(item.key):
+                    continue
+                qty = owned.get(item.key)
+                mark = ""
+                if self.talk_item_key == item.key:
+                    mark = f" · **×{self.talk_quantity}**" if self.talk_quantity > 1 else " · **ça**"
+                rates.append(self._waste_rate_line(item, qty=qty, mark=mark, modifiers=mods))
+            if rates:
+                lines.append("\n".join(rates[:25]))
         return "\n".join(lines)
+
+    def _cleanup_give_block(self) -> str:
+        taken = cleanup_take(
+            self.catalog,
+            self.snap,
+            item_key=self.talk_item_key,
+            quantity=self.talk_quantity if self.talk_item_key else None,
+        )
+        if not taken:
+            return ""
+        mods = self._mods()
+        money = self.catalog.game.money
+        lines = ["**Tu donnes**"]
+        for item, qty in taken:
+            unit = waste_sell_unit(item, mods)
+            env = waste_env_points(item) * qty
+            bits: list[str] = []
+            if qty > 1:
+                bits.append(f"×{qty}")
+            bits.append(format_money(unit * qty, money))
+            if env:
+                bits.append(f"**+{env}** note environnementale")
+            extra = " · ".join(bits)
+            lines.append(
+                "- "
+                + item_display(
+                    self.catalog, item.key, extra=f" · {extra}" if extra else ""
+                )
+            )
+        return "\n".join(lines)
+
+    def _confirm_quantity(self) -> int:
+        if self.talk_intent != "cleanup":
+            return self.talk_quantity
+        taken = cleanup_take(
+            self.catalog,
+            self.snap,
+            item_key=self.talk_item_key,
+            quantity=self.talk_quantity if self.talk_item_key else None,
+        )
+        return max(1, sum(qty for _, qty in taken))
 
     def _board_fossils(self) -> str:
         skulls = skull_score(self.catalog, self.snap)
@@ -3203,28 +3256,32 @@ async def _apply_talk_intent(
         )
     if intent == "cleanup":
         snap = await store.snapshot(guild_id, user_id)
+        taken = cleanup_take(
+            catalog,
+            snap,
+            item_key=item_key,
+            quantity=quantity if item_key else None,
+        )
+        if not taken:
+            raise PlayerError("tu n'as pas de déchet à lui donner")
         sold = 0
         env_total = 0
         money_total = 0
-        for stack in list(snap.stacks):
-            try:
-                item = catalog.get_item(stack.item_key)
-            except Exception:
-                continue
-            if item.category != "waste":
-                continue
-            if item_key and item.key != item_key:
-                continue
+        bits: list[str] = []
+        for item, qty in taken:
             price, _money, env = await store.sell_item(
-                guild_id, user_id, item.key, quantity=stack.quantity
+                guild_id, user_id, item.key, quantity=qty
             )
-            sold += stack.quantity
+            sold += qty
             env_total += env
             money_total += price
-        if sold == 0:
-            raise PlayerError("tu n'as pas de déchet à lui donner")
+            extra = f" ×{qty}" if qty > 1 else ""
+            bits.append(item_display(catalog, item.key, extra=extra))
         extra = f" · +{env_total} note environnementale" if env_total else ""
-        return f"**Nettoyé** · {sold} · {format_money_plain(money_total, catalog.game.money)}{extra}"
+        return (
+            f"**Nettoyé** · {' · '.join(bits)} · "
+            f"{format_money_plain(money_total, catalog.game.money)}{extra}"
+        )
     if intent == "repair":
         if not item_key:
             raise PlayerError("dis-lui d'abord ce que tu veux faire réparer")
