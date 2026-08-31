@@ -147,3 +147,37 @@ def section_with_thumbnail(body: discord.ui.Item, media):
         return discord.ui.Section(body, accessory=discord.ui.Thumbnail(media))
     except Exception:
         return body
+
+
+async def sync_slash_to_guilds(
+    bot: discord.Client, guilds: list
+) -> list[str]:
+    """Publie les slash en commandes de serveur (instantané) et vide le global."""
+    names: list[str] = []
+    tree = getattr(bot, "tree", None)
+    if tree is None:
+        return names
+    for guild in guilds:
+        tree.copy_global_to(guild=guild)
+        synced = await tree.sync(guild=guild)
+        names = [c.name for c in synced]
+    await clear_global_slash(bot)
+    return names
+
+
+async def clear_global_slash(bot: discord.Client) -> None:
+    """Supprime les slash globales côté Discord (sinon doublon avec le serveur)."""
+    app_id = getattr(bot, "application_id", None)
+    http = getattr(bot, "http", None)
+    if app_id is None or http is None:
+        return
+    await http.bulk_upsert_global_commands(int(app_id), [])
+
+
+async def clear_guild_slash(bot: discord.Client, guild) -> None:
+    """Retire les copies serveur (garde les commandes locales pour un re-sync)."""
+    tree = getattr(bot, "tree", None)
+    if tree is None:
+        return
+    tree.clear_commands(guild=guild)
+    await tree.sync(guild=guild)

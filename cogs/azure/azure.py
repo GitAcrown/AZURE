@@ -12,7 +12,7 @@ from discord.ext import commands, tasks
 
 from common.asset_emojis import species_emoji, with_emoji
 from common.catalog import Catalog, CatalogError
-from common.discord_ui import ack, send_error
+from common.discord_ui import ack, send_error, sync_slash_to_guilds
 from common.display import item_display, species_display
 from common.emoji_setup import (
     bind_application_emojis,
@@ -186,8 +186,8 @@ class Azure(commands.Cog):
         await bind_application_emojis(self.bot, _catalog(self.bot))
         if self._synced_dev:
             return
-        raw = getattr(self.bot, "config", {}).get("DEV_GUILD")
         targets: list[discord.abc.Snowflake] = list(self.bot.guilds)
+        raw = getattr(self.bot, "config", {}).get("DEV_GUILD")
         if not targets and raw:
             try:
                 targets = [discord.Object(id=int(raw))]
@@ -197,13 +197,9 @@ class Azure(commands.Cog):
             logger.warning("Aucun serveur à synchroniser (slash). az!sync ~ sur le serveur voulu.")
             return
         try:
-            names: list[str] = []
-            for guild in targets:
-                self.bot.tree.copy_global_to(guild=guild)
-                synced = await self.bot.tree.sync(guild=guild)
-                names = [c.name for c in synced]
+            names = await sync_slash_to_guilds(self.bot, targets)
             logger.info(
-                "Slash commands sync : %s (%d serveur(s))",
+                "Slash commands sync (serveur, pas global) : %s (%d serveur(s))",
                 ", ".join(names) or "—",
                 len(targets),
             )

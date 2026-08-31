@@ -13,6 +13,10 @@ from discord.ext import commands
 from dotenv import dotenv_values
 
 from common.catalog import CatalogError, load_catalog
+from common.discord_ui import (
+    clear_guild_slash,
+    sync_slash_to_guilds,
+)
 from common.emoji_setup import bind_from_disk
 from common.player import open_store
 
@@ -93,13 +97,20 @@ async def load_cogs(bot: commands.Bot) -> None:
 # ---------------------------------------------------------------------------
 
 async def main() -> None:
+    env = dotenv_values(".env")
+    raw_app_id = env.get("APP_ID")
+    try:
+        application_id = int(raw_app_id) if raw_app_id else None
+    except (TypeError, ValueError):
+        application_id = None
     bot = commands.Bot(
         command_prefix=PREFIX,
         intents=intents,
         help_command=None,
         allowed_mentions=discord.AllowedMentions(replied_user=False),
+        application_id=application_id,
     )
-    bot.config = dotenv_values(".env")  # type: ignore[attr-defined]
+    bot.config = env  # type: ignore[attr-defined]
 
     # Validation des variables d'environnement obligatoires
     required_keys = ("TOKEN", "APP_ID")
@@ -345,43 +356,44 @@ async def main() -> None:
         async def sync(
             ctx: commands.Context,
             guilds: commands.Greedy[discord.Object],
-            spec: Optional[Literal["~", "*", "^"]] = None,
+            spec: Optional[Literal["~", "*", "^", "global"]] = None,
         ) -> None:
             """Synchronise les slash commands.
 
-            sync       → commandes globales
-            sync ~     → serveur courant uniquement
-            sync *     → copie global → serveur courant
-            sync ^     → supprime les commandes du serveur courant
-            sync <id>  → synchronise un/des serveur(s) spécifique(s)
+            sync / sync ~ / sync *  → serveur courant uniquement (et vide le global)
+            sync ^                  → retire les commandes de ce serveur
+            sync global             → global uniquement (et vide les copies serveur)
+            sync <id>               → serveur(s) indiqué(s)
             """
             if not guilds:
-                if spec == "~":
-                    synced = await ctx.bot.tree.sync(guild=ctx.guild)
-                elif spec == "*":
-                    ctx.bot.tree.copy_global_to(guild=ctx.guild)
-                    synced = await ctx.bot.tree.sync(guild=ctx.guild)
-                elif spec == "^":
-                    ctx.bot.tree.clear_commands(guild=ctx.guild)
-                    await ctx.bot.tree.sync(guild=ctx.guild)
-                    synced = []
-                else:
+                if spec == "global":
                     synced = await ctx.bot.tree.sync()
-
-                scope = "globales" if spec is None else f"sur '{ctx.guild}'"
-                names = ", ".join(f"`{c.name}`" for c in synced) if synced else "—"
+                    for guild in ctx.bot.guilds:
+                        await clear_guild_slash(ctx.bot, guild)
+                    names = ", ".join(f"`{c.name}`" for c in synced) if synced else "—"
+                    await ctx.send(
+                        f"**{len(synced)} commande(s) globales :** {names}\n"
+                        "Copies serveur retirées — Discord peut mettre jusqu'à 1 h à les afficher."
+                    )
+                    return
+                if spec == "^":
+                    await clear_guild_slash(ctx.bot, ctx.guild)
+                    await ctx.send("**Commandes slash retirées** de ce serveur.")
+                    return
+                names = await sync_slash_to_guilds(ctx.bot, [ctx.guild])
+                listed = ", ".join(f"`{n}`" for n in names) if names else "—"
                 await ctx.send(
-                    f"**{len(synced)} commande(s) synchronisée(s) {scope} :** {names}"
+                    f"**{len(names)} commande(s) sur '{ctx.guild}'** "
+                    f"(plus de copie globale) : {listed}"
                 )
                 return
 
             ok = 0
-            for guild in guilds:
-                try:
-                    await ctx.bot.tree.sync(guild=guild)
-                    ok += 1
-                except discord.HTTPException:
-                    pass
+            try:
+                await sync_slash_to_guilds(ctx.bot, list(guilds))
+                ok = len(guilds)
+            except discord.HTTPException:
+                pass
             await ctx.send(f"Arbre synchronisé dans {ok}/{len(guilds)} serveur(s).")
 
         # -------------------------------------------------------------------
