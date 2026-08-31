@@ -216,6 +216,20 @@ def _nav_arrow_kwargs(delta: int, *, disabled: bool) -> dict:
     return kwargs
 
 
+def _left_action_kwargs(label: str, *, disabled: bool = False) -> dict:
+    kwargs: dict = {
+        "style": discord.ButtonStyle.secondary,
+        "disabled": disabled,
+        "label": button_label(label),
+    }
+    emoji = _partial_emoji(ui_emoji("LEFT"))
+    if emoji is not None:
+        kwargs["emoji"] = emoji
+    else:
+        kwargs["label"] = button_label(f"◀ {label}")
+    return kwargs
+
+
 def _is_collectible_key(catalog: Catalog, item_key: str) -> bool:
     try:
         return item_is_collectible(catalog.get_item(item_key))
@@ -1985,6 +1999,29 @@ def _npc_face_emoji(npc: Npc, *, env_good: bool) -> discord.PartialEmoji | None:
     return _partial_emoji(npc_emoji(npc.key, alt=use_alt))
 
 
+def _npc_card_header(
+    catalog: Catalog,
+    npc: Npc,
+    subtitle: str,
+    *,
+    env_good: bool,
+    attachments: list,
+) -> discord.ui.Item:
+    """Nom + ligne d'identité à gauche du portrait, pour n'importe quel PNJ."""
+    name = npc.name or npc.key
+    sub = (subtitle or "").strip()
+    body = discord.ui.TextDisplay(
+        f"{title_name(name)}\n{sub}" if sub else title_name(name)
+    )
+    filename = npc_portrait_filename(npc, env_good=env_good)
+    file = asset_file(catalog.assets_root / "npcs" / filename)
+    if file is None:
+        return body
+    attachments.append(file)
+    packed = section_with_thumbnail(body, media=file)
+    return packed if isinstance(packed, discord.ui.Section) else body
+
+
 def _repair_max(item: Item) -> int | None:
     dur = item.durability
     if dur is None:
@@ -2160,24 +2197,20 @@ class VillageView(discord.ui.LayoutView):
         else:
             name = current.name or current.key
             role = npc_role_label(current)
-            filename = npc_portrait_filename(current, env_good=env_good)
-            path = catalog.assets_root / "npcs" / filename
-            file = asset_file(path)
-            title = discord.ui.TextDisplay(title_name(name))
-            if file is not None:
-                self.attachments.append(file)
-                header = section_with_thumbnail(title, file)
-            else:
-                header = title
             deal = " · **prix négociés**" if self.bargain else ""
             if role and current.description:
-                subtitle = discord.ui.TextDisplay(
-                    f"-# {purse} · **{role}** · {current.description}{deal}"
-                )
+                ident = f"-# {purse} · **{role}** · {current.description}{deal}"
             elif role:
-                subtitle = discord.ui.TextDisplay(f"-# {purse} · **{role}**{deal}")
+                ident = f"-# {purse} · **{role}**{deal}"
             else:
-                subtitle = discord.ui.TextDisplay(f"-# {purse}{deal}")
+                ident = f"-# {purse}{deal}"
+            header = _npc_card_header(
+                catalog,
+                current,
+                ident,
+                env_good=env_good,
+                attachments=self.attachments,
+            )
             board = self._display_board(current, env_good=env_good)
             talk_block = self._talk_block(current.name or current.key)
             if not talk_block:
@@ -2220,7 +2253,7 @@ class VillageView(discord.ui.LayoutView):
             elif self.talk_status == "streaming":
                 note = f"**{name} répond…**"
 
-        children: list = [header, subtitle]
+        children: list = [header] if current is not None else [header, subtitle]
         if current is None:
             if self.daily_line:
                 children += [
@@ -2715,10 +2748,7 @@ class _VillageNpcSelect(discord.ui.Select):
 
 class _VillagePlaceButton(discord.ui.Button):
     def __init__(self) -> None:
-        super().__init__(
-            style=discord.ButtonStyle.secondary,
-            label="◀ Place",
-        )
+        super().__init__(**_left_action_kwargs("Place du village"))
 
     async def callback(self, interaction: discord.Interaction) -> None:
         parent = self.view
@@ -3171,18 +3201,19 @@ class VillageAnnounceView(discord.ui.LayoutView):
     ) -> None:
         super().__init__(timeout=None)
         self.attachments: list[discord.File] = []
-        name = npc.name or npc.key
-        filename = npc_portrait_filename(npc, env_good=env_good)
-        path = catalog.assets_root / "npcs" / filename
-        file = asset_file(path)
-        title = discord.ui.TextDisplay(title_name(name))
-        header: discord.ui.Item = title
-        if file is not None:
-            self.attachments.append(file)
-            header = section_with_thumbnail(title, file)
+        role = npc_role_label(npc)
+        ident = "-# **Annonce du village**"
+        if role:
+            ident += f" · **{role}**"
+        header = _npc_card_header(
+            catalog,
+            npc,
+            ident,
+            env_good=env_good,
+            attachments=self.attachments,
+        )
         children: list = [
             header,
-            discord.ui.TextDisplay("-# **Annonce du village**"),
             discord.ui.Separator(),
             discord.ui.TextDisplay(text),
         ]

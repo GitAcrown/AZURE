@@ -136,17 +136,23 @@ def make_container(*children, spoiler: bool = False) -> discord.ui.Container:
     return discord.ui.Container(*safe, **kwargs)
 
 
-def section_with_thumbnail(body: discord.ui.Item, media):
-    """Section + thumbnail, ou `body` seul si le média manque/échoue.
+def section_with_thumbnail(*bodies: discord.ui.Item, media=None):
+    """Section + thumbnail, ou le premier `body` si le média manque/échoue.
 
-    `media` : `discord.File`, URL, ou None.
+    Jusqu'à 3 textes à gauche du portrait. `media` : `discord.File`, URL, ou None.
+    Appel historique : `section_with_thumbnail(body, file)`.
     """
+    items = [b for b in bodies if b is not None]
+    if media is None and items and isinstance(items[-1], discord.File):
+        media = items.pop()
+    if not items:
+        raise TypeError("section_with_thumbnail requires at least one body")
     if not media:
-        return body
+        return items[0]
     try:
-        return discord.ui.Section(body, accessory=discord.ui.Thumbnail(media))
+        return discord.ui.Section(*items[:3], accessory=discord.ui.Thumbnail(media))
     except Exception:
-        return body
+        return items[0]
 
 
 async def sync_slash_to_guilds(

@@ -1014,3 +1014,20 @@ def test_equip_select_and_catch_status_display(catalog, tmp_path: Path) -> None:
             await store.close()
 
     _run(body())
+
+
+def test_village_place_button_uses_left_emoji_and_full_label(monkeypatch) -> None:
+    from cogs.azure.views import _VillagePlaceButton
+
+    fallback = _VillagePlaceButton()
+    assert fallback.label == "◀ Place du village"
+    assert fallback.emoji is None
+
+    monkeypatch.setattr(
+        "cogs.azure.views.ui_emoji",
+        lambda key: "<:azure_left:123456789012345678>" if key == "LEFT" else "",
+    )
+    bound = _VillagePlaceButton()
+    assert bound.label == "Place du village"
+    assert bound.emoji is not None
+    assert bound.emoji.name == "azure_left"

@@ -850,6 +850,28 @@ def test_npc_role_labels_are_plain(catalog) -> None:
     assert npc_role_label(catalog.get_npc("oz")) == "Fossiles"
 
 
+def test_npc_card_header_packs_identity_beside_portrait(catalog) -> None:
+    import discord
+
+    from cogs.azure.views import _npc_card_header
+
+    enabled = [n for n in catalog.npcs if n.enabled]
+    assert len(enabled) >= 8
+    for npc in enabled:
+        attachments: list = []
+        role = npc_role_label(npc)
+        ident = f"-# 0 · **{role}** · {npc.description}"
+        header = _npc_card_header(
+            catalog, npc, ident, env_good=True, attachments=attachments
+        )
+        assert isinstance(header, discord.ui.Section), npc.key
+        text = header.children[0].content
+        assert npc.name in text
+        assert role in text
+        assert npc.description in text
+        assert attachments
+
+
 def test_talk_show_keys(catalog) -> None:
     from common.player.models import GearInstance, PlayerSnapshot, Stack
     from common.village import talk_show_keys
