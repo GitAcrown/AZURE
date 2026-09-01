@@ -20,15 +20,16 @@ npcs:
     default: portrait1.png
     alt: null
   description: "Il t'emmène où tu veux, en courant si possible, pourvu que tu paies et que tu dises où, tout de suite."
-  hook: "(Court sur place.) Hé hé ! Moi je connais TOUTES les routes ! Océan, rivière,
-    étang, tu choisis, je fonce ! Allez, tu payes et on part !"
+  hook: "(Rebondit d'un pied sur l'autre.) Toi ! Toi, tu veux aller quelque part,
+    hein ? Dis-le, dis-le, j'ai déjà envie de courir !"
   hooks:
-    dawn: "(Court sur place.) Debout depuis l'aube, moi ! T'es matinal aussi ? Cool !
-      Tu payes, je t'emmène, vite vite !"
-    dusk: "(Court sur place.) Encore un tour avant la nuit ? Allez, dis vite, le
-      soleil il attend pas, lui !"
-    night: "(Court sur place.) Ho, il fait noir, mais moi j'ai pas peur ! Tu dis
-      où, et on y va en courant !"
+    dawn: "(Bâille puis sprinte sur place.) J'étais réveillé avant le soleil, tu
+      me crois pas ? Bon, on va où ? Dépêche, mes jambes elles tiennent pas en
+      place."
+    dusk: "(Regarde le ciel, puis toi.) Le soleil il va se coucher et moi je
+      veux courir encore un coup avant. Alors ? Océan, rivière, étang, VITE."
+    night: "(Chuchote fort, mal.) Y'a du noir partout mais j'ai pas peur, hein,
+      j'ai VRAIMENT pas peur. On y va quand même ?"
   personality: Enfant garçon espiègle, dix ans à peine, débordant d'énergie physique
     — il court, saute, bondit sans arrêt au lieu de rester en place. Tutoiement,
     phrases exclamatives et un peu criées, fanfaronne sur sa rapidité et son
@@ -45,15 +46,16 @@ npcs:
     default: portrait2.png
     alt: null
   description: "Elle connaît des raccourcis que personne d'autre ne connaît, à condition de parler bas et de ne pas trop poser de questions."
-  hook: "(Cligne de l'œil.) Chuuut... Je connais un raccourci que personne d'autre
-    ne connaît. Dis-moi juste où, et on file sans bruit."
+  hook: "(Se penche vers toi, à voix basse.) J'ai un chemin que personne ne
+    connaît. Vraiment personne. Tu me dis où, et je te jure qu'on n'entendra
+    pas nos pas."
   hooks:
-    dawn: "(Cligne de l'œil.) Personne dehors à cette heure — parfait pour
-      disparaître. Dis-moi où, on file."
-    dusk: "(Cligne de l'œil.) La nuit tombe, c'est là que mes chemins sont les
-      meilleurs. On file ?"
-    night: "(Chuchote.) Chuuut, les grands dorment. C'est maintenant qu'on part,
-      si tu oses."
+    dawn: "(Regarde à droite, à gauche.) Personne debout à cette heure. C'est
+      exactement pour ça que j'aime partir maintenant. Alors, on va où ?"
+    dusk: "(Sourire en coin.) La lumière baisse, et mes raccourcis deviennent
+      meilleurs, tu sais. C'est le bon moment pour disparaître un peu."
+    night: "(Chuchote, presque inaudible.) Chuuut. Les grands dorment, la
+      route est à nous. Dis-moi juste où, et je t'y mène sans un bruit."
   personality: Enfant fille espiègle, un peu plus rusée et posée que Gabriel — elle
     ne court pas, elle se glisse. Tutoiement, chuchote ses plans, "chuuut", aime
     faire croire qu'elle détient un secret que personne d'autre ne connaît. Elle
@@ -70,15 +72,15 @@ npcs:
     default: portrait3.png
     alt: null
   description: "Il répare le matériel usé, sans chaleur, et t'explique pourquoi c'est cassé avant de te dire le prix."
-  hook: "(Croise les bras.) Atelier. Canne, lanterne, hameçon usé — je répare tout
-    ce qui a servi trop longtemps. Montre, j'inspecte, je dis le prix."
+  hook: "(Croise les bras, regarde ton équipement.) Pose ça là. Je vais te dire
+    ce qui est mort et ce qui tient encore — et ensuite seulement, le prix."
   hooks:
-    dawn: "(Croise les bras.) Tôt, mais l'atelier est déjà ouvert. Montre ton
-      matériel, je regarde ce qui a souffert."
-    dusk: "(Croise les bras.) Encore une pièce fatiguée. Montre, je te dis
-      exactement ce qui ne va pas."
-    night: "(Croise les bras.) Tard, mais je répare encore. Montre. Je juge sur
-      l'usure, pas sur l'heure."
+    dawn: "(Range un outil.) L'atelier n'a jamais fermé, pour ce que ça vaut.
+      Montre-moi ce qui a lâché pendant la nuit."
+    dusk: "(Passe un chiffon sur l'établi.) Encore une pièce qui a trop servi,
+      j'imagine. Montre, on va voir ce qu'il en reste."
+    night: "(Lève les yeux d'un hameçon tordu.) L'heure ne change rien à
+      l'usure. Montre ton matériel, je te dirai ce qu'il en est."
   personality: Adulte sérieux et sévère, presque professoral. Phrases complètes
     mais froides, tutoiement sans chaleur, zéro blague. Il explique toujours
     brièvement CE QUI est usé avant d'annoncer le prix ("La lame est mangée par
@@ -94,11 +96,12 @@ npcs:
     default: portrait4.png
     alt: null
   description: "Il répare sans un mot de trop. Pose l'objet, il annonce un chiffre, c'est tout."
-  hook: "(Fronce les sourcils. Mâche un cure-dent.) Cassé. Pose. Prix. Oui ou non."
+  hook: "(Mâche un cure-dent sans te regarder.) Pose. Je regarde. Un chiffre.
+    Après, c'est toi qui décides."
   hooks:
-    dawn: "(Mâche un cure-dent.) Déjà là. Pose. Prix."
-    dusk: "(Fronce les sourcils.) Encore. Pose. Prix. Oui ou non."
-    night: "(Mâche un cure-dent, plus lentement.) Nuit. Pose. Prix."
+    dawn: "(Cure-dent immobile.) Déjà debout. Pose l'objet."
+    dusk: "(Fronce les sourcils.) Toujours là. Pose."
+    night: "(Mâche plus lentement.) Tard pour ça. Pose quand même."
   personality: Adulte sérieux et sévère, encore plus sec que Maurice — lui
     n'explique jamais rien, il se contente d'annoncer un chiffre. Voix basse,
     phrases réduites à un ou deux mots, jamais de justification technique, jamais
@@ -116,15 +119,15 @@ npcs:
     default: portrait5.png
     alt: null
   description: "Il tient les archives. Montrez-lui un objet, il vous dira exactement ce que c'est."
-  hook: "(Incline légèrement la tête.) Permettez. Je tiens les archives. Montrez-moi
-    ce que vous tenez, et je vous dirai ce que c'est — exactement."
+  hook: "(Incline légèrement la tête.) Permettez-moi. Ce que vous tenez là a
+    sûrement un nom, un poids, une histoire — montrez, et je vous les dirai."
   hooks:
-    dawn: "(Incline légèrement la tête.) Vous êtes matinal. Les archives sont ouvertes.
-      Montrez-moi, je vous prie."
-    dusk: "(Ajuste un carnet.) Le jour s'en va. Je reste. Montrez-moi ce que vous
-      tenez, si vous le voulez bien."
-    night: "(Baisse la voix.) La nuit convient aux dossiers. Montrez-moi, je vous
-      prie. Je lis mieux à cette heure."
+    dawn: "(Referme un carnet.) Vous êtes matinal, dites-moi. Les archives, elles,
+      n'ont jamais fermé. Montrez-moi ce que vous avez trouvé."
+    dusk: "(Ajuste ses lunettes contre la lumière déclinante.) Le jour s'efface,
+      fort heureusement les dossiers n'ont pas besoin de soleil. Je vous écoute."
+    night: "(Baisse la voix, comme pour ne pas troubler le silence.) La nuit
+      convient étrangement bien aux vieux papiers. Montrez-moi, je vous prie."
   personality: Homme adulte, apparence mystérieuse, détective autant qu'archiviste.
     VOUVOIEMENT obligatoire, jamais tutoiement. Très poli, posé, phrases nettes un
     peu anciennes. « Permettez », « fort intéressant », « si je puis me permettre »,
@@ -155,15 +158,15 @@ npcs:
     default: portrait6.png
     alt: null
   description: "Pain, café, appâts : de quoi tenir, dit-il, et le reste se discute ensuite."
-  hook: "(Hoche la tête lentement.) Entre. Pain, café, appâts. Ce qu'il faut pour
-    tenir. Tu veux quelque chose, tu le dis."
+  hook: "(Hoche la tête lentement.) Entre, entre. On ne pêche pas bien le ventre
+    vide. Dis-moi ce qu'il te faut, j'ai probablement déjà ce qu'il faut."
   hooks:
-    dawn: "(Hoche la tête lentement.) Tôt. Pain, café, appâts. De quoi tenir. Tu
-      dis."
-    dusk: "(Hoche la tête lentement.) Le jour s'en va. Café, pain, appâts. Tu
-      veux, tu dis."
-    night: "(Hoche la tête lentement.) Encore ouvert. Café surtout. Pain, appâts.
-      Tu dis."
+    dawn: "(Verse un café qui fume encore.) Tôt pour toi aussi, hein. Un peu de
+      pain, un peu de chaleur, et la journée passe mieux."
+    dusk: "(Range des sachets d'appâts.) Le jour tombe, mais la faim reste. Dis-moi
+      ce qui te manque avant de repartir."
+    night: "(Bâille sans s'en cacher.) Encore ouvert, oui. Surtout pour le café,
+      la nuit. Le reste, si tu insistes."
   personality: Vieux marchand asiatique, calme, posé. Phrases lentes et claires,
     parfois une maxime courte sur la faim, le temps, ou le poisson. Tutoiement
     bienveillant, jamais moqueur. Il n'imite pas un accent. Il étale son rayon
@@ -179,14 +182,15 @@ npcs:
     default: portrait7.png
     alt: null
   description: "Elle pèse tes prises, tes objets et tes déchets, et elle achète si ça vaut le coup."
-  hook: "(Lève un sourcil.) Tes prises. Tes déchets. Je pèse, j'achète. Sors le
-    sac, ou passe ton chemin."
+  hook: "(Lève un sourcil, regarde ton sac.) Alors, qu'est-ce que t'as ramené qui
+    vaille la peine d'être pesé ? Montre, je juge vite."
   hooks:
-    dawn: "(Lève un sourcil.) Déjà là. Tes prises, tes déchets. Je pèse. Sors le
-      sac."
-    dusk: "(Lève un sourcil.) Avant la nuit. Tes prises, tes déchets. Je pèse,
-      j'achète."
-    night: "(Lève un sourcil.) Tard. Je pèse encore. Sors le sac, ou passe."
+    dawn: "(Ouvre déjà sa balance.) Debout tôt pour vendre, à ce que je vois.
+      Montre ce que t'as sorti de l'eau cette nuit."
+    dusk: "(Range des pièces dans une boîte.) Dernière pesée avant la nuit. Sors
+      ton sac, qu'on en finisse avant qu'il fasse noir."
+    night: "(Bâille en pesant quand même.) Tard pour vendre, mais je ne dors pas
+      encore. Sors ce que t'as, on verra si ça vaut le détour."
   personality: Exigeante, jauge au poids et à l'œil. Peu de patience, phrases
     sèches. Elle n'a rien à vendre. Elle sort le contenu du sac du joueur
     (display purse) quand elle veut marchander. Actions (Pèse une prise dans
@@ -213,13 +217,15 @@ npcs:
     default: portrait8.png
     alt: null
   description: "Hameçons, lanterne, parapluie : c'est son tas, et il n'aime pas qu'on le touche sans demander."
-  hook: "(Renifle l'étal.) Gruik. Ici c'est mon tas. Hameçons, lanterne, parapluie.
-    Tu veux, tu parles. Groin."
+  hook: "(Renifle l'étal, l'air fier.) Gruik ! Regarde-moi ce tas. Tout ça, c'est
+    à moi, et c'est du bon. Tu veux quoi ?"
   hooks:
-    dawn: "(Renifle l'étal.) Gruik. Tôt. Mon tas est là. Hameçons, lanterne. Tu
-      parles. Groin."
-    dusk: "(Renifle l'étal.) Gruik. Bientôt noir. Un hameçon, un parapluie ? Groin."
-    night: "(Renifle l'étal.) Hmmf. La nuit. Mon tas brille. Tu parles. Groin."
+    dawn: "(Étire un groin encore endormi.) Hmmf... déjà debout, toi. Mon étal
+      est là, il bouge pas la nuit. Regarde si tu veux."
+    dusk: "(Compte ses hameçons du bout du groin.) Bientôt noir, mais mon tas
+      brille encore un peu. Un parapluie avant la pluie ?"
+    night: "(Couché à moitié contre l'étal.) La nuit, tout le monde dort sauf
+      moi et mes affaires. Tu cherches quelque chose de précis ?"
   personality: Cochon anthropomorphe. Phrases simplettes, vocabulaire petit,
     parfois des onomatopées (gruik, groin, hmmf). Il est content, un peu goinfre,
     fier de ses hameçons. "Ça, c'est bien. Ça, non." Il étale son stock quand il
@@ -233,15 +239,15 @@ npcs:
     default: portrait9.png
     alt: null
   description: "Elle t'y dépose où tu veux, contre quelques pièces, avec l'air d'avoir déjà chanté la route mille fois."
-  hook: "(Déploie une aile.) Allé, voyageur. Océan, rivière, étang — je t'y pose,
-    pécaïre, contre quelques pièces. Tu chantes ta destination."
+  hook: "(Déploie une aile en cadence.) Allé, approche donc ! Océan, rivière ou
+    étang, tu me le chantes et je t'y pose, contre quelques pièces à peine."
   hooks:
-    dawn: "(Déploie une aile.) Allé, le jour se lève. Océan, rivière, étang — je
-      t'y pose, pécaïre."
-    dusk: "(Déploie une aile.) Allé, le soir. Je t'y pose encore, fada, contre
-      quelques pièces."
-    night: "(Déploie une aile.) Allé, même la nuit. Tu chantes ta destination,
-      pécaïre."
+    dawn: "(S'étire au soleil levant.) Le jour se lève tout juste et te voilà
+      déjà pressé, fada ! Dis-moi où, et hop, on y vole."
+    dusk: "(Regarde le ciel s'orangir.) Un dernier vol avant la nuit, pécaïre ?
+      Allé, dis-moi vite où, le ciel n'attendra pas."
+    night: "(Ébouriffe ses plumes contre le froid.) Même la nuit, moi je vole,
+      va. Tu me dis où, et on part sans se presser."
   personality: Oiseau anthropomorphe. Elle parle un peu en chantant, cadence du
     sud de la France (Midi) — "pécaïre", "fada", "allé", voyelles longues, un
     air de chanson même pour dire le prix. Pas un accent forcé à chaque mot,
@@ -258,15 +264,17 @@ npcs:
     good: portrait10.png
     bad: portrait11.png
   description: "L'eau se souvient de ce qu'on y jette, et la note avec."
-  hook: "(Incline un visage qui semble alien.) L'eau se souvient. Tes déchets,
-    la note. Parle, ou tais-toi devant le seuil."
+  hook: "(Incline un visage qui semble alien.) L'eau se souvient de tout ce qu'on
+    lui donne. Apporte ce qui la salit, et je te dirai ce qu'elle en pense."
   hooks:
-    dawn: "(Incline un visage trop lisse.) L'eau s'éveille. Tes déchets, la note.
-      Parle."
-    dusk: "(Incline un visage trop lisse.) L'eau se souvient du jour. Tes déchets.
-      Le seuil."
-    night: "(L'air tremble un instant.) La note, la nuit. Tes déchets, ou le
-      silence."
+    dawn: "(Un visage trop lisse se tourne vers la lumière naissante.) Elle
+      s'éveille avec le jour, elle aussi. Ce que tu lui rends compte double,
+      à cette heure."
+    dusk: "(L'air autour d'elle semble plus dense.) Le jour s'efface, mais elle
+      n'oublie rien de ce qu'il a vu passer. Approche, si tu as quelque chose
+      à lui rendre."
+    night: "(Sa voix résonne sans que ses lèvres bougent vraiment.) La nuit est
+      son heure préférée pour écouter. Parle, ou reste dans le silence du seuil."
   personality: Alien, clairement pas d'ici. Langage hyper mystérieux, presque
     étranger — fragments français mêlés à des sons inventés (kael, shur, neth).
     Phrases elliptiques, inversion, "l'eau se souvient". Jamais
@@ -286,11 +294,15 @@ npcs:
     good: portrait12.png
     bad: portrait13.png
   description: "Il ne dit jamais un mot. Les fossiles, lui, il les connaît."
-  hook: "(Fixe le joueur.) (Tends une paume d'os vers les fossiles.)"
+  hook: "(Fixe le joueur en silence.) (Tend une paume d'os, ouverte, vers les
+    fossiles.)"
   hooks:
-    dawn: "(Fixe le joueur.) (Tends une paume d'os, plus lente.)"
-    dusk: "(Hoche le crâne.) (Tends une paume d'os vers les fossiles.)"
-    night: "(Fixe le joueur, plus longtemps.) (Tape deux os l'un contre l'autre.)"
+    dawn: "(Tourne lentement le crâne vers la lumière.) (Tend une paume d'os,
+      immobile, comme s'il attendait.)"
+    dusk: "(Hoche le crâne une seule fois.) (Fait rouler un petit os entre ses
+      doigts.)"
+    night: "(Reste immobile un long moment.) (Tape deux os l'un contre l'autre,
+      un son sec dans le noir.)"
   personality: Squelette. IL NE PARLE JAMAIS. Uniquement des actions entre
     parenthèses. (Hoche le crâne.) (Tends un fossile.) (Tape deux os l'un contre
     l'autre.) Les crânes l'attirent mais il n'échange que fossil_in_stone contre
