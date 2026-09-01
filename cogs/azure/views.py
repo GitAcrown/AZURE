@@ -52,7 +52,7 @@ from common.inspect import (
 from common.money import format_money, format_money_plain
 from common.onboarding import slide_at, slide_count
 from common.pitch import pitch_blocks, pitch_tagline, pitch_title
-from common.daily import daily_place_block
+from common.daily import daily_counters_text, daily_place_block
 from common.player import (
     CaughtSpecimen,
     CastResult,
@@ -549,13 +549,12 @@ class _OnboardStartButton(discord.ui.Button):
             return
         assert isinstance(store, PlayerStore)
         await store.complete_onboarding(guild.id, interaction.user.id)
-        snap = await store.snapshot(guild.id, interaction.user.id)
-        env_score = await store.environment_score(guild.id)
         await interaction.response.edit_message(
-            view=MondeView(
+            view=await load_monde_view(
                 parent.catalog,
-                snap,
-                env_score=env_score,
+                store,
+                guild.id,
+                interaction.user.id,
                 flash="**Choisis un milieu.** Premier aller : **immédiat**.",
             )
         )
@@ -918,6 +917,36 @@ def monde_travel_note(catalog: Catalog, snap: PlayerSnapshot) -> str:
     )
 
 
+def monde_presence_bit(count: int) -> str:
+    if count < 1:
+        return ""
+    if count == 1:
+        return "**1 pêcheur**"
+    return f"**{count} pêcheurs**"
+
+
+async def load_monde_view(
+    catalog: Catalog,
+    store: PlayerStore,
+    guild_id: int,
+    user_id: int,
+    *,
+    flash: str = "",
+    debug: bool = False,
+) -> MondeView:
+    snap = await store.snapshot(guild_id, user_id)
+    env_score = await store.environment_score(guild_id)
+    presence = await store.milieu_presence(guild_id)
+    return MondeView(
+        catalog,
+        snap,
+        env_score=env_score,
+        debug=debug,
+        flash=flash,
+        presence=presence,
+    )
+
+
 class MondeView(discord.ui.LayoutView):
     """Carte : où tu es, ce que ça change pour pêcher, comment y aller."""
 
@@ -929,6 +958,7 @@ class MondeView(discord.ui.LayoutView):
         env_score: int = 50,
         debug: bool = False,
         flash: str = "",
+        presence: dict[str, int] | None = None,
     ) -> None:
         super().__init__(timeout=180)
         self.debug = debug
@@ -979,6 +1009,9 @@ class MondeView(discord.ui.LayoutView):
                     snap.guild_id, milieu.key, state.next_bucket_at, catalog.game.world
                 )
                 bits.append(f"dans 1 h → {weather_display(nxt_weather)}")
+            here = monde_presence_bit((presence or {}).get(milieu.key, 0))
+            if here:
+                bits.append(here)
             milieu_lines.append(" · ".join(bits))
 
         children: list = [
@@ -1074,13 +1107,13 @@ class _MilieuSelect(discord.ui.Select):
         try:
             changed, new_key = await store.set_milieu(guild.id, interaction.user.id, key)
         except PlayerError as exc:
-            snap = await store.snapshot(guild.id, interaction.user.id)
             await _apply_view(
                 interaction,
-                MondeView(
+                await load_monde_view(
                     catalog,
-                    snap,
-                    env_score=self._env_score,
+                    store,
+                    guild.id,
+                    interaction.user.id,
                     debug=self._debug,
                     flash=f"**{str(exc).rstrip('.')}.**",
                 ),
@@ -1103,10 +1136,11 @@ class _MilieuSelect(discord.ui.Select):
             flash = f"**Tu es à {phrase}.** Ensuite : **/pecher**."
         await _apply_view(
             interaction,
-            MondeView(
+            await load_monde_view(
                 catalog,
-                snap,
-                env_score=self._env_score,
+                store,
+                guild.id,
+                interaction.user.id,
                 debug=self._debug,
                 flash=flash,
             ),
@@ -1318,7 +1352,7 @@ class _BiteButton(discord.ui.Button):
                 preview=pending.preview,
             )
             await _apply_view(interaction, CatchView(catalog, result))
-            await _maybe_auto_share_gem(interaction, catalog, result)
+            await _maybe_auto_share_catch(interaction, catalog, result)
         except PlayerError as exc:
             await edit_error(interaction, str(exc))
             return
@@ -1356,10 +1390,12 @@ def _loot_is_gem(catalog: Catalog, loot_key: str | None) -> bool:
         return False
 
 
-async def _maybe_auto_share_gem(
+async def _maybe_auto_share_catch(
     interaction: discord.Interaction, catalog: Catalog, result: CastResult
 ) -> None:
-    if not _loot_is_gem(catalog, result.loot_key):
+    gold = result.guild_rank == 1
+    gem = _loot_is_gem(catalog, result.loot_key)
+    if not gold and not gem:
         return
     channel = interaction.channel
     if channel is None or not hasattr(channel, "send"):
@@ -1456,15 +1492,34 @@ def _catch_status_lines(catalog: Catalog, result: CastResult) -> list[str]:
         lines.append(f"**Sac** · {places}")
     else:
         lines.append(f"**Relâché** · sac plein · {places}")
-    if result.daily_just_rewarded:
-        lines.append(
-            "**Quête du jour** · "
-            + format_money(result.daily_just_rewarded, catalog.game.money)
+    if result.daily_guild_just_completed:
+        lines.append("**Le village a fait la quête** · note environnementale")
+    if result.daily_just_rewarded or result.daily_note:
+        bits = daily_counters_text(
+            catalog,
+            count=result.daily_count or 0,
+            target=result.daily_target,
+            done=bool(result.daily_just_rewarded)
+            or (
+                result.daily_target > 0
+                and (result.daily_count or 0) >= result.daily_target
+            ),
+            guild_count=result.daily_guild_count or 0,
+            guild_target=result.daily_guild_target,
+            guild_done=result.daily_guild_just_completed
+            or (
+                result.daily_guild_target > 0
+                and (result.daily_guild_count or 0) >= result.daily_guild_target
+            ),
         )
-    elif result.daily_note and result.daily_count is not None:
-        lines.append(
-            f"**Quête du jour** · `{result.daily_count}/{result.daily_target}`"
-        )
+        if result.daily_just_rewarded:
+            lines.append(
+                "**Quête du jour** · "
+                + format_money(result.daily_just_rewarded, catalog.game.money)
+                + f" · {bits}"
+            )
+        else:
+            lines.append(f"**Quête du jour** · {bits}")
     return lines
 
 
@@ -1521,15 +1576,15 @@ async def start_cast_flow(
         pending = await store.begin_cast(guild.id, interaction.user.id)
     except PlayerError as exc:
         msg = str(exc)
-        snap = await store.get_or_create(guild.id, interaction.user.id)
+        await store.get_or_create(guild.id, interaction.user.id)
         if "milieu" in msg.lower():
-            env_score = await store.environment_score(guild.id)
             await _apply_view(
                 interaction,
-                MondeView(
+                await load_monde_view(
                     catalog,
-                    snap,
-                    env_score=env_score,
+                    store,
+                    guild.id,
+                    interaction.user.id,
                     flash="**Choisis un milieu** pour pêcher. Premier aller : **immédiat**.",
                 ),
             )

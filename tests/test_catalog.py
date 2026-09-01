@@ -145,6 +145,8 @@ def test_load_real_catalog() -> None:
     assert catalog.game.village.bargain.sell_mult == 1.05
     assert catalog.game.daily.catch_count == 3
     assert catalog.game.daily.reward_bronze == 40
+    assert catalog.game.daily.guild_catch_count == 9
+    assert catalog.game.daily.guild_reward_env == 2
     assert catalog.game.fishing.waste_chance == 0.12
     assert catalog.game.fishing.loot_chance == 0.06
     assert catalog.game.fishing.gem_chance == 0.001

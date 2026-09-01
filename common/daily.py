@@ -42,21 +42,45 @@ class DailyStatus:
     target: int
     rewarded: bool
     reward_bronze: int
+    guild_count: int = 0
+    guild_target: int = 0
+    guild_done: bool = False
+    guild_just_completed: bool = False
 
     @property
     def done(self) -> bool:
         return self.rewarded or self.count >= self.target
 
 
+def daily_counters_text(
+    catalog: Catalog,
+    *,
+    count: int,
+    target: int,
+    done: bool,
+    guild_count: int,
+    guild_target: int,
+    guild_done: bool = False,
+) -> str:
+    you = "faite" if done else f"{count}/{target}"
+    village_target = guild_target or int(catalog.game.daily.guild_catch_count)
+    village_done = guild_done or (village_target > 0 and guild_count >= village_target)
+    village = "faite" if village_done else f"{guild_count}/{village_target}"
+    return f"**toi {you}** · **village {village}**"
+
+
 def daily_place_block(catalog: Catalog, status: DailyStatus) -> str:
     phrase = daily_milieu_phrase(catalog, status.milieu_key)
-    target = status.target
-    if status.done:
-        return f"**Quête du jour**\n{target} prises à {phrase} · **faite**"
-    return (
-        f"**Quête du jour**\n{target} prises à {phrase} · "
-        f"**{status.count}/{target}**"
+    bits = daily_counters_text(
+        catalog,
+        count=status.count,
+        target=status.target,
+        done=status.done,
+        guild_count=status.guild_count,
+        guild_target=status.guild_target,
+        guild_done=status.guild_done,
     )
+    return f"**Quête du jour**\n{status.target} prises à {phrase} · {bits}"
 
 
 def daily_talk_line(catalog: Catalog, guild_id: int, *, now: datetime | None = None) -> str:
@@ -64,7 +88,9 @@ def daily_talk_line(catalog: Catalog, guild_id: int, *, now: datetime | None = N
     phrase = daily_milieu_phrase(catalog, key)
     settings = catalog.game.daily
     return (
-        f"Quête du jour (avis sur la Place, même objectif pour tout le serveur) : "
-        f"{settings.catch_count} prises gardées à {phrase}. "
-        f"Récompense {settings.reward_bronze} bronze, une fois, chacun pour soi."
+        f"Quête du jour (avis sur la Place, objectif village) : "
+        f"{settings.catch_count} prises gardées à {phrase} chacun "
+        f"({settings.reward_bronze} bronze une fois). "
+        f"Le village vise {settings.guild_catch_count} prises au total "
+        f"(+{settings.guild_reward_env} note environnementale quand c'est fait)."
     )

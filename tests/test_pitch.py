@@ -24,6 +24,8 @@ def test_pitch_is_one_card_not_a_tutorial() -> None:
     assert "immédiat" in text
     assert "Dex" in text
     assert "quête du jour" in text
+    assert "village" in text
+    assert "record d'or" in text
     assert "C'est parti" not in text
     assert "1 / 6" not in text
     n = sum(1 for s in catalog.species if s.collection.collectible)

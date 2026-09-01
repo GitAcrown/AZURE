@@ -60,6 +60,8 @@ village:
 daily:
   catch_count: 3
   reward_bronze: 40
+  guild_catch_count: 9
+  guild_reward_env: 2
 world:
   timezone: Europe/Paris
   weather_bucket_minutes: 60

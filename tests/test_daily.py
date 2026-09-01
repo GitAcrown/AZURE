@@ -62,7 +62,8 @@ def test_place_block_progress_and_done() -> None:
     )
     text = daily_place_block(catalog, open_)
     assert text.startswith("**Quête du jour**")
-    assert "2/3" in text
+    assert "**toi 2/3**" in text
+    assert "**village 0/9**" in text
     assert "faite" not in text
     assert "- " not in text
     done = DailyStatus(
@@ -72,8 +73,13 @@ def test_place_block_progress_and_done() -> None:
         target=3,
         rewarded=True,
         reward_bronze=40,
+        guild_count=9,
+        guild_target=9,
+        guild_done=True,
     )
-    assert "**faite**" in daily_place_block(catalog, done)
+    closed = daily_place_block(catalog, done)
+    assert "**toi faite**" in closed
+    assert "**village faite**" in closed
 
 
 def test_three_keeps_pay_once(tmp_path: Path) -> None:
@@ -95,11 +101,14 @@ def test_three_keeps_pay_once(tmp_path: Path) -> None:
             first = await store.finish_cast(GUILD, USER, fish, specimen=spec)
             assert first.daily_count == 1
             assert first.daily_just_rewarded == 0
+            assert first.daily_guild_count == 1
             second = await store.finish_cast(GUILD, USER, fish, specimen=spec)
             assert second.daily_count == 2
             third = await store.finish_cast(GUILD, USER, fish, specimen=spec)
             assert third.daily_just_rewarded == 40
             assert third.daily_count == 3
+            assert third.daily_guild_count == 3
+            assert third.daily_guild_just_completed is False
             snap = await store.snapshot(GUILD, USER)
             assert snap.money == 40
             fourth = await store.finish_cast(GUILD, USER, fish, specimen=spec)
@@ -194,3 +203,52 @@ def test_gaia_and_esmer_know_the_board() -> None:
     assert line in gaia
     assert line in esmer
     assert "Place" in line
+    assert "village" in line
+
+
+def test_village_quest_caps_per_player_and_rewards_env_once(tmp_path: Path) -> None:
+    catalog = load_catalog(ASSETS)
+    a, b, c = 11, 12, 13
+
+    async def body() -> None:
+        store = await open_store(tmp_path / "guild-daily.db", catalog)
+        try:
+            want = daily_milieu_key(catalog, GUILD)
+            for uid in (a, b, c):
+                await store.get_or_create(GUILD, uid)
+            start = await store.environment_score(GUILD)
+            for uid in (a, b):
+                for _ in range(3):
+                    status, _pay, _flash = await store.tick_daily(
+                        GUILD, uid, kept=True, milieu_key=want
+                    )
+                assert status.guild_just_completed is False
+            mid = await store.daily_status(GUILD, a)
+            assert mid.guild_count == 6
+            assert mid.guild_done is False
+            extra = await store.tick_daily(GUILD, a, kept=True, milieu_key=want)
+            assert extra[0].count == 3
+            assert extra[0].guild_count == 6
+            for _ in range(2):
+                await store.tick_daily(GUILD, c, kept=True, milieu_key=want)
+            last, _pay, flash = await store.tick_daily(
+                GUILD, c, kept=True, milieu_key=want
+            )
+            assert last.guild_count == 9
+            assert last.guild_done is True
+            assert last.guild_just_completed is True
+            assert flash is True
+            assert await store.environment_score(GUILD) == start + 2
+            await store.get_or_create(GUILD, 14)
+            again, _pay, _flash = await store.tick_daily(
+                GUILD, 14, kept=True, milieu_key=want
+            )
+            assert again.guild_count == 10
+            assert again.guild_just_completed is False
+            assert await store.environment_score(GUILD) == start + 2
+            text = daily_place_block(catalog, last)
+            assert "**village faite**" in text
+        finally:
+            await store.close()
+
+    _run(body())

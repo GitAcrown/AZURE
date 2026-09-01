@@ -426,6 +426,8 @@ class VillageSettings(_ContentModel):
 class DailySettings(_ContentModel):
     catch_count: int = 3
     reward_bronze: int = 40
+    guild_catch_count: int = 9
+    guild_reward_env: int = 2
 
     @model_validator(mode="after")
     def _check_daily(self) -> DailySettings:
@@ -433,6 +435,10 @@ class DailySettings(_ContentModel):
             raise ValueError("daily.catch_count doit être ≥ 1")
         if self.reward_bronze < 0:
             raise ValueError("daily.reward_bronze doit être ≥ 0")
+        if self.guild_catch_count < self.catch_count:
+            raise ValueError("daily.guild_catch_count doit être ≥ catch_count")
+        if self.guild_reward_env < 0:
+            raise ValueError("daily.guild_reward_env doit être ≥ 0")
         return self
 
 

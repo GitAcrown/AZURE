@@ -1012,8 +1012,10 @@ class PlayerStore:
         daily, just_rewarded, daily_note = await self.tick_daily(
             guild_id, user_id, kept=kept, milieu_key=milieu_key
         )
-        if just_rewarded:
+        guild_just = daily.guild_just_completed
+        if just_rewarded or guild_just:
             snap = await self.snapshot(guild_id, user_id)
+        flash_daily = daily_note or guild_just
         return replace(
             result,
             catch_count=catch_count,
@@ -1027,10 +1029,13 @@ class PlayerStore:
             waste_key=waste_key,
             loot_key=loot_key,
             hook_broke=hook_broke,
-            daily_count=daily.count if daily_note else None,
+            daily_count=daily.count if flash_daily else None,
             daily_target=daily.target,
             daily_just_rewarded=just_rewarded,
-            daily_note=daily_note,
+            daily_note=flash_daily,
+            daily_guild_count=daily.guild_count if flash_daily else None,
+            daily_guild_target=daily.guild_target,
+            daily_guild_just_completed=guild_just,
         )
 
     async def _evaluate_catch(
@@ -1491,14 +1496,90 @@ class PlayerStore:
         ):
             count = int(row["count"] or 0)
             rewarded = bool(int(row["rewarded"] or 0))
-        return DailyStatus(
-            day_key=day,
-            milieu_key=milieu,
-            count=count,
-            target=int(settings.catch_count),
-            rewarded=rewarded,
-            reward_bronze=int(settings.reward_bronze),
+        guild_count = await self._guild_daily_count(guild_id, day, milieu)
+        return self._daily_with_guild(
+            DailyStatus(
+                day_key=day,
+                milieu_key=milieu,
+                count=count,
+                target=int(settings.catch_count),
+                rewarded=rewarded,
+                reward_bronze=int(settings.reward_bronze),
+            ),
+            guild_count,
         )
+
+    def _daily_with_guild(
+        self,
+        status: DailyStatus,
+        guild_count: int,
+        *,
+        just: bool = False,
+    ) -> DailyStatus:
+        target = int(self.catalog.game.daily.guild_catch_count)
+        return DailyStatus(
+            day_key=status.day_key,
+            milieu_key=status.milieu_key,
+            count=status.count,
+            target=status.target,
+            rewarded=status.rewarded,
+            reward_bronze=status.reward_bronze,
+            guild_count=guild_count,
+            guild_target=target,
+            guild_done=guild_count >= target,
+            guild_just_completed=just,
+        )
+
+    async def _guild_daily_count(
+        self, guild_id: int, day_key: str, milieu_key: str
+    ) -> int:
+        async with self._conn.execute(
+            """
+            SELECT COALESCE(SUM(count), 0) AS n FROM daily_progress
+            WHERE guild_id = ? AND day_key = ? AND milieu_key = ?
+            """,
+            (guild_id, day_key, milieu_key),
+        ) as cur:
+            row = await cur.fetchone()
+        return int(row["n"] or 0) if row is not None else 0
+
+    async def _complete_guild_daily_if_needed(
+        self, guild_id: int, day_key: str, guild_count: int
+    ) -> bool:
+        target = int(self.catalog.game.daily.guild_catch_count)
+        if guild_count < target:
+            return False
+        async with self._conn.execute(
+            """
+            SELECT daily_day_key, daily_guild_rewarded FROM guild_state
+            WHERE guild_id = ?
+            """,
+            (guild_id,),
+        ) as cur:
+            row = await cur.fetchone()
+        if (
+            row is not None
+            and str(row["daily_day_key"] or "") == day_key
+            and int(row["daily_guild_rewarded"] or 0)
+        ):
+            return False
+        env = int(self.catalog.game.daily.guild_reward_env)
+        if env:
+            await self.add_environment_score(guild_id, env, commit=False)
+        start = int(self.catalog.game.village.environment_score_start)
+        await self._conn.execute(
+            """
+            INSERT INTO guild_state (
+                guild_id, environment_score, daily_day_key, daily_guild_rewarded
+            )
+            VALUES (?, ?, ?, 1)
+            ON CONFLICT(guild_id) DO UPDATE SET
+                daily_day_key = excluded.daily_day_key,
+                daily_guild_rewarded = 1
+            """,
+            (guild_id, start, day_key),
+        )
+        return True
 
     async def tick_daily(
         self,
@@ -1549,7 +1630,6 @@ class PlayerStore:
                     1 if rewarded else 0,
                 ),
             )
-            await self._conn.commit()
             status = DailyStatus(
                 day_key=status.day_key,
                 milieu_key=status.milieu_key,
@@ -1558,8 +1638,33 @@ class PlayerStore:
                 rewarded=rewarded,
                 reward_bronze=status.reward_bronze,
             )
-        flash = progressed or just_rewarded > 0
+        guild_count = await self._guild_daily_count(
+            guild_id, status.day_key, status.milieu_key
+        )
+        guild_just = False
+        if progressed:
+            guild_just = await self._complete_guild_daily_if_needed(
+                guild_id, status.day_key, guild_count
+            )
+        if progressed or just_rewarded > 0 or guild_just:
+            await self._conn.commit()
+        status = self._daily_with_guild(status, guild_count, just=guild_just)
+        flash = progressed or just_rewarded > 0 or guild_just
         return status, just_rewarded, flash
+
+    async def milieu_presence(self, guild_id: int) -> dict[str, int]:
+        out: dict[str, int] = {}
+        async with self._conn.execute(
+            """
+            SELECT milieu_key, COUNT(*) AS n FROM players
+            WHERE guild_id = ? AND milieu_key IS NOT NULL AND milieu_key != ''
+            GROUP BY milieu_key
+            """,
+            (guild_id,),
+        ) as cur:
+            async for row in cur:
+                out[str(row["milieu_key"])] = int(row["n"])
+        return out
 
     async def environment_score(self, guild_id: int) -> int:
         async with self._conn.execute(

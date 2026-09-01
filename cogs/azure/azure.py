@@ -40,12 +40,12 @@ from common.world import weather_bucket
 from .views import (
     CatalogView,
     EmojisGalleryView,
-    MondeView,
     NoticeView,
     OnboardingView,
     PubView,
     RecordsView,
     VillageAnnounceView,
+    load_monde_view,
     load_player_hub,
     load_village_view,
     start_cast_flow,
@@ -252,10 +252,12 @@ class Azure(commands.Cog):
         if await _maybe_onboard(interaction, store, cat):
             return
         snap = await store.get_or_create(guild.id, interaction.user.id)
-        env_score = await store.environment_score(guild.id)
         flash = travel_arrival_flash(cat, snap)
         await _send_view(
-            interaction, MondeView(cat, snap, env_score=env_score, flash=flash)
+            interaction,
+            await load_monde_view(
+                cat, store, guild.id, interaction.user.id, flash=flash
+            ),
         )
 
     @app_commands.command(name="pecher", description="Lance dans le milieu actuel.")
@@ -712,10 +714,12 @@ class Azure(commands.Cog):
         assert guild is not None
         cat = _catalog(self.bot)
         store = _store(self.bot)
-        snap = await store.get_or_create(guild.id, interaction.user.id)
-        env_score = await store.environment_score(guild.id)
+        await store.get_or_create(guild.id, interaction.user.id)
         await _send_view(
-            interaction, MondeView(cat, snap, env_score=env_score, debug=True)
+            interaction,
+            await load_monde_view(
+                cat, store, guild.id, interaction.user.id, debug=True
+            ),
         )
 
     @admin.command(name="simuler", description="Simule N lancers (équilibrage).")

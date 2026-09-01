@@ -25,6 +25,7 @@ def pitch_blocks(catalog: Catalog) -> list[str]:
         (
             "**La boucle** · **/monde** · **/pecher** · **/village**\n"
             "Tu choisis une eau, tu lances, tu **ferres** au bon moment. "
+            "Premier aller : **immédiat**. "
             "L'énergie revient. Au village tu **parles** et tu **montres** "
             "une prise : c'est eux qui proposent de vendre, d'acheter ou de "
             "réparer."
@@ -32,13 +33,14 @@ def pitch_blocks(catalog: Catalog) -> list[str]:
         (
             "**Ce qui continue sans toi**\n"
             "Le **jour** et la **nuit** ne donnent pas les mêmes prises. Les PNJ de la **Place du village** "
-            "changent avec les heures qui passent. Une **quête du jour** pour tout le serveur. "
-            "Le **Dex** retient ce que tu as vu ; **/records** montre les plus "
-            "belles prises."
+            "changent avec les heures qui passent. Une **quête du jour** pour tout le village. "
+            "Le **Dex** retient ce que tu as vu ; un **record d'or** se voit dans le salon, "
+            "**/records** les plus belles prises."
         ),
         (
+            "Les prises des autres comptent pour la **quête du village**. "
             "Commence par **/profil** ! "
-            "**Bonne pêche !**	"
+            "**Bonne pêche !**"
         ),
     ]
 

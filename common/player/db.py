@@ -100,7 +100,9 @@ CREATE INDEX IF NOT EXISTS idx_caught_owner
 
 CREATE TABLE IF NOT EXISTS guild_state (
     guild_id INTEGER PRIMARY KEY,
-    environment_score INTEGER NOT NULL DEFAULT 0
+    environment_score INTEGER NOT NULL DEFAULT 0,
+    daily_day_key TEXT,
+    daily_guild_rewarded INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS guild_milieu_catches (
@@ -199,6 +201,11 @@ _FISHDEX_COLUMN_MIGRATIONS = (
     ("last_weight_kg", "REAL"),
 )
 
+_GUILD_STATE_COLUMN_MIGRATIONS = (
+    ("daily_day_key", "TEXT"),
+    ("daily_guild_rewarded", "INTEGER NOT NULL DEFAULT 0"),
+)
+
 
 async def _migrate_columns(
     conn: aiosqlite.Connection, table: str, columns: tuple[tuple[str, str], ...]
@@ -268,6 +275,7 @@ async def connect_db(path: Path | str) -> aiosqlite.Connection:
     await _migrate_players(conn)
     await _migrate_columns(conn, "fishdex", _FISHDEX_COLUMN_MIGRATIONS)
     await _migrate_columns(conn, "village_talk", _VILLAGE_TALK_COLUMN_MIGRATIONS)
+    await _migrate_columns(conn, "guild_state", _GUILD_STATE_COLUMN_MIGRATIONS)
     await _migrate_guild_records(conn)
     await conn.commit()
     return conn

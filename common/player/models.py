@@ -148,3 +148,6 @@ class CastResult:
     daily_target: int = 0
     daily_just_rewarded: int = 0
     daily_note: bool = False
+    daily_guild_count: int | None = None
+    daily_guild_target: int = 0
+    daily_guild_just_completed: bool = False
