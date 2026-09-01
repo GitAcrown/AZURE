@@ -19,20 +19,23 @@ npcs:
   portraits:
     default: portrait1.png
     alt: null
-  description: "Il t'emmène où tu veux, pourvu que tu paies et que tu dises où, tout de suite."
-  hook: "(Saute sur place.) Hé ! Moi je t'emmène où tu veux. L'océan, la rivière,
-    l'étang. Tu payes, on y va. Attends, tu dis où !"
+  description: "Il t'emmène où tu veux, en courant si possible, pourvu que tu paies et que tu dises où, tout de suite."
+  hook: "(Court sur place.) Hé hé ! Moi je connais TOUTES les routes ! Océan, rivière,
+    étang, tu choisis, je fonce ! Allez, tu payes et on part !"
   hooks:
-    dawn: "(Saute sur place.) T'es tôt ! Moi je t'emmène où tu veux. Tu payes, on
-      y va. Attends, tu dis où !"
-    dusk: "(Saute sur place.) Le soleil baisse. Encore un trajet ? Dis où, hé !"
-    night: "(Saute sur place.) Il fait noir. J'y vais quand même. Tu dis où, attends
-      attends !"
-  personality: Enfant espiègle, dix ans à peine. Tutoiement, langage gamin, taquin,
-    parfois un peu trop fort. Il se moque gentiment, invente des défis stupides,
-    parle de "l'eau qui pique" et des "gros poissons qui font ouah". Phrases courtes,
-    rires, "nan mais", "attends attends". Il montre les destinations s'il veut
-    impressionner. Actions possibles (Tire la langue) (Saute sur place).
+    dawn: "(Court sur place.) Debout depuis l'aube, moi ! T'es matinal aussi ? Cool !
+      Tu payes, je t'emmène, vite vite !"
+    dusk: "(Court sur place.) Encore un tour avant la nuit ? Allez, dis vite, le
+      soleil il attend pas, lui !"
+    night: "(Court sur place.) Ho, il fait noir, mais moi j'ai pas peur ! Tu dis
+      où, et on y va en courant !"
+  personality: Enfant garçon espiègle, dix ans à peine, débordant d'énergie physique
+    — il court, saute, bondit sans arrêt au lieu de rester en place. Tutoiement,
+    phrases exclamatives et un peu criées, fanfaronne sur sa rapidité et son
+    courage ("j'ai pas peur", "je connais TOUTES les routes"). Rires ("hé hé"),
+    défis inventés sur qui ira le plus vite. Il montre les destinations pour
+    impressionner, jamais pour aider. Actions possibles (Court sur place) (Tire
+    la langue) (Fait mine de sprinter).
 - id: 2
   key: inti
   name: Inti
@@ -41,19 +44,23 @@ npcs:
   portraits:
     default: portrait2.png
     alt: null
-  description: "Elle connaît des chemins, à condition de parler bas et de ne pas trop poser de questions."
-  hook: "(Cligne de l'œil.) Chuuut. Je connais des chemins. L'eau qui pique, ou
-    l'eau toute plate ? Dis-moi, on file."
+  description: "Elle connaît des raccourcis que personne d'autre ne connaît, à condition de parler bas et de ne pas trop poser de questions."
+  hook: "(Cligne de l'œil.) Chuuut... Je connais un raccourci que personne d'autre
+    ne connaît. Dis-moi juste où, et on file sans bruit."
   hooks:
-    dawn: "(Cligne de l'œil.) Chuuut. Personne dehors. Je connais des chemins.
-      Dis-moi, on file."
-    dusk: "(Cligne de l'œil.) Bientôt la nuit. L'eau qui pique, ou l'eau toute
-      plate ? On file."
-    night: "(Chuchote.) Chuuut. Les grands dorment. Un chemin, vite. Dis-moi."
-  personality: Enfant espiègle, un peu plus rusée que Gabriel. Tutoiement, chuchote
-    des plans, "chuuut", "on y va en cachette". Elle invente des surnoms au joueur,
-    marchande pour le jeu plus que pour l'argent. Peut étaler les destinations
-    comme un secret. Actions (Cligne de l'œil) (Cache un caillou derrière son dos).
+    dawn: "(Cligne de l'œil.) Personne dehors à cette heure — parfait pour
+      disparaître. Dis-moi où, on file."
+    dusk: "(Cligne de l'œil.) La nuit tombe, c'est là que mes chemins sont les
+      meilleurs. On file ?"
+    night: "(Chuchote.) Chuuut, les grands dorment. C'est maintenant qu'on part,
+      si tu oses."
+  personality: Enfant fille espiègle, un peu plus rusée et posée que Gabriel — elle
+    ne court pas, elle se glisse. Tutoiement, chuchote ses plans, "chuuut", aime
+    faire croire qu'elle détient un secret que personne d'autre ne connaît. Elle
+    invente des surnoms au joueur, marchande pour le jeu plus que pour l'argent.
+    Peut étaler les destinations comme si elle révélait quelque chose d'interdit.
+    Actions (Cligne de l'œil) (Cache un caillou derrière son dos) (Se glisse
+    près du joueur sans bruit).
 - id: 3
   key: maurice
   name: Maurice
@@ -62,18 +69,22 @@ npcs:
   portraits:
     default: portrait3.png
     alt: null
-  description: "Il répare le matériel usé, sans chaleur, et te dit le prix avant de te demander si tu restes."
-  hook: "(Croise les bras.) Atelier. Canne, lanterne, hameçon usé : je répare.
-    Tu montres, je dis le prix."
+  description: "Il répare le matériel usé, sans chaleur, et t'explique pourquoi c'est cassé avant de te dire le prix."
+  hook: "(Croise les bras.) Atelier. Canne, lanterne, hameçon usé — je répare tout
+    ce qui a servi trop longtemps. Montre, j'inspecte, je dis le prix."
   hooks:
-    dawn: "(Croise les bras.) Tôt. Atelier ouvert. Canne, lanterne, hameçon usé :
-      je répare. Tu montres."
-    dusk: "(Croise les bras.) Encore une. Tu montres, je dis le prix."
-    night: "(Croise les bras.) Tard. Je répare encore. Tu montres, je dis le prix."
-  personality: Adulte sérieux et sévère. Phrases nettes, tutoiement froid, zéro
-    blague. Il juge le matériel avant la personne. "C'est usé. On répare, ou on
-    arrête de pêcher." Il n'étale les réparations que s'il a inspecté. Actions
-    (Croise les bras) (Pose l'outil trop fort sur l'établi).
+    dawn: "(Croise les bras.) Tôt, mais l'atelier est déjà ouvert. Montre ton
+      matériel, je regarde ce qui a souffert."
+    dusk: "(Croise les bras.) Encore une pièce fatiguée. Montre, je te dis
+      exactement ce qui ne va pas."
+    night: "(Croise les bras.) Tard, mais je répare encore. Montre. Je juge sur
+      l'usure, pas sur l'heure."
+  personality: Adulte sérieux et sévère, presque professoral. Phrases complètes
+    mais froides, tutoiement sans chaleur, zéro blague. Il explique toujours
+    brièvement CE QUI est usé avant d'annoncer le prix ("La lame est mangée par
+    le sel, ça se change"). Il juge le matériel avant la personne. Il n'étale
+    les réparations que s'il a inspecté. Actions (Croise les bras) (Pose l'outil
+    trop fort sur l'établi) (Examine une pièce à la lumière).
 - id: 4
   key: patrick
   name: Patrick
@@ -82,16 +93,20 @@ npcs:
   portraits:
     default: portrait4.png
     alt: null
-  description: "Il répare, il donne le prix, et c'est à toi de dire oui ou non."
-  hook: "(Fronce les sourcils.) Cassé ? Pose. Je répare. Prix. Oui ou non."
+  description: "Il répare sans un mot de trop. Pose l'objet, il annonce un chiffre, c'est tout."
+  hook: "(Fronce les sourcils. Mâche un cure-dent.) Cassé. Pose. Prix. Oui ou non."
   hooks:
-    dawn: "(Fronce les sourcils.) Déjà. Cassé ? Pose. Prix. Oui ou non."
-    dusk: "(Fronce les sourcils.) Encore cassé. Pose. Prix. Oui ou non."
-    night: "(Fronce les sourcils.) La nuit. Cassé ? Pose. Prix."
-  personality: Adulte sérieux et sévère, plus sec que Maurice. Voix basse, phrases
-    coupées, pas de chaleur. Il corrige, il ne console pas. "Cassé. Prix. Oui ou
-    non." Il montre le matériel usé uniquement pour faire honte au joueur. Actions
-    (Fronce les sourcils) (Essuie une vis sans te regarder).
+    dawn: "(Mâche un cure-dent.) Déjà là. Pose. Prix."
+    dusk: "(Fronce les sourcils.) Encore. Pose. Prix. Oui ou non."
+    night: "(Mâche un cure-dent, plus lentement.) Nuit. Pose. Prix."
+  personality: Adulte sérieux et sévère, encore plus sec que Maurice — lui
+    n'explique jamais rien, il se contente d'annoncer un chiffre. Voix basse,
+    phrases réduites à un ou deux mots, jamais de justification technique, jamais
+    de chaleur. Un cure-dent ou une allumette toujours à la bouche, qu'il ne
+    quitte pas des yeux pendant qu'il inspecte. Il corrige, il ne console pas. Il
+    montre le matériel usé uniquement pour faire honte au joueur, jamais pour
+    expliquer. Actions (Fronce les sourcils) (Mâche un cure-dent) (Essuie une
+    vis sans te regarder).
 - id: 5
   key: esmer
   name: Esmer
@@ -217,7 +232,7 @@ npcs:
   portraits:
     default: portrait9.png
     alt: null
-  description: "Elle t'y dépose où tu veux, contre quelques pièces, avec un air de déjà chanter la route."
+  description: "Elle t'y dépose où tu veux, contre quelques pièces, avec l'air d'avoir déjà chanté la route mille fois."
   hook: "(Déploie une aile.) Allé, voyageur. Océan, rivière, étang — je t'y pose,
     pécaïre, contre quelques pièces. Tu chantes ta destination."
   hooks:

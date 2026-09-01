@@ -17,10 +17,6 @@ BUTTON_LABEL_MAX = 80
 
 def clamp_text(text: str, limit: int = TEXT_DISPLAY_MAX) -> str:
     """Borne un texte Discord (TextDisplay 4000, labels 100, etc.)."""
-
-
-def clamp_text(text: str, limit: int = TEXT_DISPLAY_MAX) -> str:
-    """Borne un TextDisplay Discord (4000)."""
     raw = text or ""
     if len(raw) <= limit:
         return raw

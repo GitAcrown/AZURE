@@ -43,6 +43,7 @@ from .views import (
     NoticeView,
     OnboardingView,
     PubView,
+    LeaderboardView,
     RecordsView,
     VillageAnnounceView,
     load_monde_view,
@@ -295,6 +296,87 @@ class Azure(commands.Cog):
             names[user_id] = member.display_name if member is not None else f"<@{user_id}>"
         await _send_view(interaction, RecordsView(cat, rows, names=names))
 
+    @app_commands.command(name="classement", description="Classement du serveur : argent, dex, archéologie, environnement.")
+    @app_commands.guild_only()
+    async def classement(self, interaction: discord.Interaction) -> None:
+        guild = interaction.guild
+        if guild is None:
+            await send_error(interaction, "Cette commande s'utilise sur un serveur.")
+            return
+        store = _store(self.bot)
+        cat = _catalog(self.bot)
+        if await _maybe_onboard(interaction, store, cat):
+            return
+        rows = await store.leaderboard(guild.id, "money")
+        names: dict[int, str] = {}
+        for user_id, _value in rows:
+            member = guild.get_member(user_id)
+            names[user_id] = member.display_name if member is not None else f"<@{user_id}>"
+        await _send_view(
+            interaction, LeaderboardView(cat, rows, metric="money", names=names)
+        )
+
+    @app_commands.command(name="donner", description="Donne un objet de ton sac à un autre joueur.")
+    @app_commands.guild_only()
+    @app_commands.describe(
+        joueur="Qui reçoit le cadeau",
+        item="Objet à donner (appât, consommable, trésor…)",
+        quantite="Quantité à donner",
+    )
+    async def donner(
+        self,
+        interaction: discord.Interaction,
+        joueur: discord.Member,
+        item: str,
+        quantite: app_commands.Range[int, 1, 99] = 1,
+    ) -> None:
+        guild = interaction.guild
+        if guild is None:
+            await send_error(interaction, "Cette commande s'utilise sur un serveur.")
+            return
+        if joueur.bot:
+            await send_error(interaction, "on ne donne pas de cadeaux aux bots.")
+            return
+        store = _store(self.bot)
+        cat = _catalog(self.bot)
+        if await _maybe_onboard(interaction, store, cat):
+            return
+        try:
+            given = await store.gift_item(
+                guild.id, interaction.user.id, joueur.id, item, int(quantite)
+            )
+        except PlayerError as exc:
+            await send_error(interaction, str(exc))
+            return
+        await _send_view(
+            interaction,
+            NoticeView(
+                "Cadeau",
+                f"{item_display(cat, item, extra=f' ×{given}')} · "
+                f"{interaction.user.mention} → {joueur.mention}",
+            ),
+        )
+
+    @donner.autocomplete("item")
+    async def donner_item_autocomplete(
+        self, interaction: discord.Interaction, current: str
+    ) -> list[app_commands.Choice[str]]:
+        guild = interaction.guild
+        if guild is None:
+            return []
+        store = _store(self.bot)
+        cat = _catalog(self.bot)
+        try:
+            snap = await store.snapshot(guild.id, interaction.user.id)
+        except PlayerError:
+            return []
+        allowed = {
+            s.item_key
+            for s in snap.stacks
+            if cat.get_item(s.item_key).category != "waste"
+        }
+        return _item_choices(cat, current, allowed=allowed)
+
     @app_commands.command(name="village", description="Place du village : étals, atelier, passages.")
     @app_commands.guild_only()
     async def village(self, interaction: discord.Interaction) -> None:
@@ -353,6 +435,25 @@ class Azure(commands.Cog):
         history = await store.list_village_talk(
             guild.id, interaction.user.id, npc_key, bucket=bucket
         )
+        talk_count = await store.count_village_talk(
+            guild.id, interaction.user.id, npc_key, bucket=bucket
+        )
+        talk_limit = int(cat.game.village.talk_limit or 0)
+        if talk_limit and talk_count >= talk_limit:
+            name = npc.name or npc.key
+            view = await load_village_view(
+                cat,
+                store,
+                guild.id,
+                interaction.user.id,
+                npc_key=npc_key,
+                flash=(
+                    f"**{name} a autre chose à faire.** Repasse un peu plus tard "
+                    "pour reprendre la discussion."
+                ),
+            )
+            await _send_view(interaction, view)
+            return
         shown_label = ""
         if shown_key:
             try:
@@ -462,6 +563,11 @@ class Azure(commands.Cog):
             quantity=int(result.get("quantity") or 1),
         )
         flash = f"**{npc.name or npc.key} cède un peu.**" if granted else ""
+        warn_after = int(cat.game.village.talk_warn_after or 0)
+        if warn_after and talk_limit and talk_count + 1 >= warn_after and talk_count + 1 < talk_limit:
+            remaining = talk_limit - (talk_count + 1)
+            warn = f"-# Encore {remaining} échange{'s' if remaining > 1 else ''} avant qu'il ne retourne à ses occupations."
+            flash = f"{flash}\n{warn}" if flash else warn
         await _show(
             status="done",
             response=result["reponse"],
@@ -628,6 +734,8 @@ class Azure(commands.Cog):
     ) -> None:
         guild = interaction.guild
         assert guild is not None
+        if not await ack(interaction, ephemeral=True):
+            return
         cat = _catalog(self.bot)
         store = _store(self.bot)
         bucket = weather_bucket(None, cat.game.world)
@@ -668,7 +776,7 @@ class Azure(commands.Cog):
                 await channel.send(**kwargs)
             except discord.HTTPException:
                 logger.warning("Impossible de poster le bonus village (salon).")
-        await interaction.response.send_message(
+        await interaction.followup.send(
             view=NoticeView(
                 "Bonus",
                 f"{speaker.name or speaker.key} · jusqu'à {posted.ends_at}",

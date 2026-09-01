@@ -69,7 +69,20 @@ def daily_counters_text(
     return f"**toi {you}** · **village {village}**"
 
 
-def daily_place_block(catalog: Catalog, status: DailyStatus) -> str:
+def daily_contributors_text(rows: list[tuple[int, int]]) -> str:
+    """Ligne des meilleurs contributeurs du jour, ex. `🏆 <@1> ×4 · <@2> ×2`."""
+    if not rows:
+        return ""
+    bits = [f"<@{user_id}> ×{count}" for user_id, count in rows]
+    return "-# 🏆 " + " · ".join(bits)
+
+
+def daily_place_block(
+    catalog: Catalog,
+    status: DailyStatus,
+    *,
+    contributors: list[tuple[int, int]] | None = None,
+) -> str:
     phrase = daily_milieu_phrase(catalog, status.milieu_key)
     bits = daily_counters_text(
         catalog,
@@ -80,7 +93,11 @@ def daily_place_block(catalog: Catalog, status: DailyStatus) -> str:
         guild_target=status.guild_target,
         guild_done=status.guild_done,
     )
-    return f"**Quête du jour**\n{status.target} prises à {phrase} · {bits}"
+    block = f"**Quête du jour**\n{status.target} prises à {phrase} · {bits}"
+    contrib_line = daily_contributors_text(contributors or [])
+    if contrib_line:
+        block += f"\n{contrib_line}"
+    return block
 
 
 def daily_talk_line(catalog: Catalog, guild_id: int, *, now: datetime | None = None) -> str:

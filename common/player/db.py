@@ -182,6 +182,9 @@ _PLAYER_COLUMN_MIGRATIONS = (
     ("archaeology_points", "INTEGER NOT NULL DEFAULT 0"),
     # DEFAULT 1 : les profils déjà en base ont déjà joué, pas d'onboarding.
     ("onboarding_done", "INTEGER NOT NULL DEFAULT 1"),
+    # Cumul des points de note environnementale apportés par ce joueur
+    # (déchets vendus/nettoyés) — sert au classement de contribution.
+    ("env_contribution", "INTEGER NOT NULL DEFAULT 0"),
 )
 
 _VILLAGE_TALK_COLUMN_MIGRATIONS = (

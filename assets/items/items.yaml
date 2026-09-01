@@ -148,7 +148,7 @@ items:
   sprite: item6.png
   shadow: item6_s.png
   shadow_ready: false
-  description: "Une pierre rouge, presque trop vive. On dit que les belles prises s'approchent de qui la porte."
+  description: "Une pierre rouge, presque trop vive pour rester immobile dans une poche. Les pêcheurs qui la gardent sur eux jurent tous avoir remarqué quelque chose — mais jamais la même chose."
   enabled: true
   sources:
   - exceptional_loot
@@ -172,7 +172,7 @@ items:
   sprite: item7.png
   shadow: item7_s.png
   shadow_ready: false
-  description: "Chaude et translucide, elle garde un peu de soleil même sous l'eau. La chance, paraît-il, aime cette couleur."
+  description: "Chaude et translucide, elle garde un peu de soleil même sous l'eau. Réchauffée dans le poing, elle rend presque supportable d'attendre une touche qui ne vient pas."
   enabled: true
   sources:
   - exceptional_loot
@@ -196,7 +196,7 @@ items:
   sprite: item8.png
   shadow: item8_s.png
   shadow_ready: false
-  description: "Une pierre aux reflets de fond d'étang. Les poissons rares, dit-on, la remarquent avant toi."
+  description: "Une pierre aux reflets de fond d'étang, presque invisible tant qu'elle est sèche. Mouillée, elle retrouve d'un coup toute la profondeur qu'elle semblait avoir perdue."
   enabled: true
   sources:
   - exceptional_loot
@@ -698,7 +698,7 @@ items:
     environment_cleanup_score: 1
 - id: 27
   key: jack_o_lantern
-  name: Jack o' Lantern
+  name: Citrouille lanterne
   category: event
   sprite: item27.png
   shadow: item27_s.png
@@ -1251,12 +1251,12 @@ items:
       insectivore: 1.25
 - id: 46
   key: fossil_plaster_a
-  name: Pièce fossile plâtre A
+  name: Vertèbre moulée
   category: collectible
   sprite: item46.png
   shadow: item46_s.png
   shadow_ready: true
-  description: "Une vertèbre moulée dans le plâtre, trop nette pour un vrai os. La première d'une série que Oz reconnaît au toucher."
+  description: "Une vertèbre moulée dans le plâtre, trop nette pour un vrai os. La première d'une série qu'Oz reconnaît au toucher."
   enabled: true
   sources:
   - skeleton_collector
@@ -1275,7 +1275,7 @@ items:
     prestige_value: 1
 - id: 47
   key: fossil_plaster_b
-  name: Pièce fossile plâtre B
+  name: Côte moulée
   category: collectible
   sprite: item47.png
   shadow: item47_s.png
@@ -1299,7 +1299,7 @@ items:
     prestige_value: 1
 - id: 48
   key: fossil_plaster_c
-  name: Pièce fossile plâtre C
+  name: Mâchoire moulée
   category: collectible
   sprite: item48.png
   shadow: item48_s.png
@@ -1323,7 +1323,7 @@ items:
     prestige_value: 2
 - id: 49
   key: fossil_plaster_d
-  name: Pièce fossile plâtre D
+  name: Nageoire moulée
   category: collectible
   sprite: item49.png
   shadow: item49_s.png
@@ -1347,7 +1347,7 @@ items:
     prestige_value: 2
 - id: 50
   key: fossil_plaster_e
-  name: Pièce fossile plâtre E
+  name: Crâne moulé
   category: collectible
   sprite: item50.png
   shadow: item50_s.png

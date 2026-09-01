@@ -112,6 +112,7 @@ class PendingCast:
     window_s: float
     trap_early: bool
     action_label: str
+    energy_cost: int = 0
     milieu_key: str = ""
     weather_key: str = ""
     tool_key: str = ""

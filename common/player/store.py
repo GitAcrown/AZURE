@@ -50,6 +50,9 @@ from common.fishing import (
     cast_energy_parts,
     energy_shortfall_message,
 )
+from common.fishing.engine import gem_items
+
+ARCHAEOLOGY_MILESTONE_EVERY = 3
 
 from .db import ACTIVE_SLOTS, BAIT_SLOT, GEAR_SLOTS, connect_db
 from .energy import (
@@ -271,6 +274,34 @@ class PlayerStore:
         if pending is None or current is pending:
             self._active_casts.pop(key, None)
 
+    @_locked_player
+    async def refund_failed_cast(
+        self, guild_id: int, user_id: int, pending: PendingCast
+    ) -> int:
+        """Rembourse la moitié de l'énergie d'un lancer raté (trop tôt/tard/fuite).
+
+        Punir intégralement une touche manquée décourage l'essai ; on rend une
+        partie du coût pour amortir l'échec sans l'annuler complètement.
+        Renvoie le montant effectivement remboursé.
+        """
+        refund = pending.energy_cost // 2
+        if refund <= 0:
+            return 0
+        snap = await self.get_or_create(guild_id, user_id)
+        new_value = max(0, min(snap.energy_max, snap.energy + refund))
+        capped = new_value - snap.energy
+        if capped <= 0:
+            return 0
+        await self._conn.execute(
+            """
+            UPDATE players SET energy = ?, energy_updated_at = ?
+            WHERE guild_id = ? AND user_id = ?
+            """,
+            (new_value, _now(), guild_id, user_id),
+        )
+        await self._conn.commit()
+        return capped
+
     async def _debit_money(self, guild_id: int, user_id: int, amount: int) -> None:
         paid = int(amount)
         if paid <= 0:
@@ -480,6 +511,61 @@ class PlayerStore:
         if commit:
             await self._conn.commit()
         return quantity
+
+    @_locked_player
+    async def gift_item(
+        self,
+        guild_id: int,
+        from_user_id: int,
+        to_user_id: int,
+        item_key: str,
+        quantity: int = 1,
+    ) -> int:
+        """Donne un item empilable à un autre joueur du même serveur.
+
+        Renforce la dimension sociale : appâts, consommables et trésors se
+        transmettent, sans passer par une boutique. Renvoie la quantité donnée.
+        """
+        if quantity < 1:
+            raise PlayerError("la quantité doit être ≥ 1")
+        if to_user_id == from_user_id:
+            raise PlayerError("tu ne peux pas te faire un cadeau à toi-même")
+        item = self._item(item_key)
+        if not _is_stackable(item):
+            raise PlayerError("cet objet ne se donne pas (équipement non empilable)")
+        if item.category == "waste":
+            raise PlayerError("les déchets ne se donnent pas")
+        await self.get_or_create(guild_id, from_user_id)
+        await self.get_or_create(guild_id, to_user_id)
+        async with self._conn.execute(
+            """
+            SELECT quantity FROM inventory_stacks
+            WHERE guild_id = ? AND user_id = ? AND item_key = ?
+            """,
+            (guild_id, from_user_id, item.key),
+        ) as cur:
+            row = await cur.fetchone()
+        owned = int(row["quantity"]) if row is not None else 0
+        if owned < quantity:
+            raise PlayerError(f"tu n'as que {owned}× cet objet")
+        async with self._conn.execute(
+            """
+            SELECT quantity FROM inventory_stacks
+            WHERE guild_id = ? AND user_id = ? AND item_key = ?
+            """,
+            (guild_id, to_user_id, item.key),
+        ) as cur:
+            row = await cur.fetchone()
+        their_qty = int(row["quantity"]) if row is not None else 0
+        room = max(1, item.inventory.max_stack) - their_qty
+        if room <= 0:
+            raise PlayerError(f"{item.name} : le destinataire a déjà le stack plein")
+        given = min(quantity, room)
+        await self._consume_stack(guild_id, from_user_id, item.key, given)
+        await self._add_stack(guild_id, to_user_id, item, given)
+        await self._try_assemble_fossils(guild_id, to_user_id)
+        await self._conn.commit()
+        return given
 
     @_locked_player
     async def add_money(self, guild_id: int, user_id: int, delta: int) -> int:
@@ -701,6 +787,8 @@ class PlayerStore:
         snap = await self.get_or_create(guild_id, user_id)
         if not snap.milieu_key:
             raise PlayerError("choisis un milieu avec /monde")
+        if snap.travel_dest and (travel_remaining_s(snap.travel_arrives_at) or 0) > 0:
+            raise PlayerError("tu es en route — attends d'arriver pour pêcher")
         tool_eq = snap.equipped.get("tool")
         tool_key = None
         if tool_eq is not None:
@@ -833,6 +921,7 @@ class PlayerStore:
             window_s=timings.window_s,
             trap_early=timings.trap_early,
             action_label=timings.action_label,
+            energy_cost=cost,
             milieu_key=snap.milieu_key,
             weather_key=weather.key,
             tool_key=tool_key,
@@ -1652,6 +1741,56 @@ class PlayerStore:
         flash = progressed or just_rewarded > 0 or guild_just
         return status, just_rewarded, flash
 
+    LEADERBOARD_METRICS = ("money", "dex", "archaeology", "env_contribution")
+
+    async def leaderboard(
+        self, guild_id: int, metric: str, *, limit: int = 10
+    ) -> list[tuple[int, int]]:
+        """Classement serveur `(user_id, valeur)` triés décroissant pour `metric`."""
+        if metric not in self.LEADERBOARD_METRICS:
+            raise PlayerError(f"classement inconnu : {metric!r}")
+        out: list[tuple[int, int]] = []
+        if metric == "dex":
+            sql = """
+                SELECT user_id, COUNT(DISTINCT species_key) AS value
+                FROM fishdex
+                WHERE guild_id = ?
+                GROUP BY user_id
+                HAVING value > 0
+                ORDER BY value DESC, user_id ASC
+                LIMIT ?
+            """
+        else:
+            sql = f"""
+                SELECT user_id, {metric} AS value
+                FROM players
+                WHERE guild_id = ? AND {metric} > 0
+                ORDER BY value DESC, user_id ASC
+                LIMIT ?
+            """
+        async with self._conn.execute(sql, (guild_id, limit)) as cur:
+            async for row in cur:
+                out.append((int(row["user_id"]), int(row["value"])))
+        return out
+
+    async def daily_top_contributors(
+        self, guild_id: int, day_key: str, milieu_key: str, *, limit: int = 3
+    ) -> list[tuple[int, int]]:
+        """Meilleurs contributeurs `(user_id, prises)` de la quête du jour en cours."""
+        out: list[tuple[int, int]] = []
+        async with self._conn.execute(
+            """
+            SELECT user_id, count FROM daily_progress
+            WHERE guild_id = ? AND day_key = ? AND milieu_key = ? AND count > 0
+            ORDER BY count DESC, user_id ASC
+            LIMIT ?
+            """,
+            (guild_id, day_key, milieu_key, limit),
+        ) as cur:
+            async for row in cur:
+                out.append((int(row["user_id"]), int(row["count"])))
+        return out
+
     async def milieu_presence(self, guild_id: int) -> dict[str, int]:
         out: dict[str, int] = {}
         async with self._conn.execute(
@@ -1892,6 +2031,13 @@ class PlayerStore:
         )
         if env_gain:
             await self.add_environment_score(guild_id, env_gain, commit=False)
+            await self._conn.execute(
+                """
+                UPDATE players SET env_contribution = env_contribution + ?
+                WHERE guild_id = ? AND user_id = ?
+                """,
+                (env_gain, guild_id, user_id),
+            )
         await self._conn.commit()
         snap = await self.snapshot(guild_id, user_id)
         return total, snap.money, env_gain
@@ -2019,6 +2165,19 @@ class PlayerStore:
                 out.append((row["question"], row["response"]))
         out.reverse()
         return out
+
+    async def count_village_talk(
+        self, guild_id: int, user_id: int, npc_key: str, *, bucket: int
+    ) -> int:
+        async with self._conn.execute(
+            """
+            SELECT COUNT(*) AS n FROM village_talk
+            WHERE guild_id = ? AND user_id = ? AND npc_key = ? AND bucket = ?
+            """,
+            (guild_id, user_id, npc_key, bucket),
+        ) as cur:
+            row = await cur.fetchone()
+        return int(row["n"]) if row is not None else 0
 
     async def last_village_talk(
         self, guild_id: int, user_id: int, npc_key: str, *, bucket: int
@@ -2328,8 +2487,14 @@ class PlayerStore:
         user_id: int,
         *,
         rng: random.Random | None = None,
-    ) -> str:
-        """Échange 1 fossile dans la pierre contre une réplique. Renvoie la clé."""
+    ) -> tuple[str, str | None]:
+        """Échange 1 fossile dans la pierre contre une réplique.
+
+        Renvoie `(clé de la réplique, clé du bonus de palier ou None)`. Tous les
+        `ARCHAEOLOGY_MILESTONE_EVERY` squelettes assemblés, l'archéologie
+        accumulée n'était qu'un score jusqu'ici : elle débloque désormais une
+        gemme (choisie parmi celles qui manquent) pour lui donner un vrai usage.
+        """
         await self.get_or_create(guild_id, user_id)
         snap = await self.snapshot(guild_id, user_id)
         owned_fossils = next(
@@ -2343,11 +2508,26 @@ class PlayerStore:
         owned = snap.owned_keys()
         missing = [it for it in replicas if it.key not in owned]
         pool = missing or replicas
-        pick = (rng or random.Random()).choice(pool)
+        rng = rng or random.Random()
+        pick = rng.choice(pool)
+        points_before = snap.archaeology_points
         await self._consume_stack(guild_id, user_id, "fossil_in_stone", 1)
         await self.add_item(guild_id, user_id, pick.key, 1, commit=False)
+        milestone_key: str | None = None
+        fresh = await self.snapshot(guild_id, user_id)
+        if (
+            fresh.archaeology_points > points_before
+            and fresh.archaeology_points % ARCHAEOLOGY_MILESTONE_EVERY == 0
+        ):
+            gems = gem_items(self.catalog)
+            gems_owned = fresh.owned_keys()
+            gem_pool = [g for g in gems if g.key not in gems_owned] or gems
+            if gem_pool:
+                bonus = rng.choice(gem_pool)
+                await self.add_item(guild_id, user_id, bonus.key, 1, commit=False)
+                milestone_key = bonus.key
         await self._conn.commit()
-        return pick.key
+        return pick.key, milestone_key
 
     async def _consume_stack(
         self, guild_id: int, user_id: int, item_key: str, quantity: int = 1

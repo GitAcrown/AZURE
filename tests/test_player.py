@@ -999,6 +999,27 @@ def test_fossil_set_grants_archaeology_point(catalog, tmp_path: Path) -> None:
     _run(body())
 
 
+def test_archaeology_milestone_grants_gem(catalog, tmp_path: Path) -> None:
+    async def body() -> None:
+        store = await open_store(tmp_path / "milestone.db", catalog)
+        try:
+            await store.get_or_create(GUILD_A, USER)
+            rng = random.Random(0)
+            bonus_keys = []
+            for _ in range(15):
+                await store.add_item(GUILD_A, USER, "fossil_in_stone", 1)
+                _, bonus_key = await store.exchange_fossil(GUILD_A, USER, rng=rng)
+                bonus_keys.append(bonus_key)
+            snap = await store.snapshot(GUILD_A, USER)
+            assert snap.archaeology_points == 3
+            assert bonus_keys.count(None) == 14
+            assert bonus_keys[-1] is not None
+        finally:
+            await store.close()
+
+    _run(body())
+
+
 def test_equip_select_and_catch_status_display(catalog, tmp_path: Path) -> None:
     from cogs.azure.views import (
         _catch_status_lines,

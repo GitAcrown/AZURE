@@ -383,8 +383,9 @@ def test_sell_buy_repair_oz_and_reset(catalog, tmp_path: Path) -> None:
             assert skull_score(catalog, snap) == 20
 
             await store.add_item(GUILD, USER, "fossil_in_stone", 1)
-            replica = await store.exchange_fossil(GUILD, USER, rng=__import__("random").Random(0))
+            replica, bonus_key = await store.exchange_fossil(GUILD, USER, rng=__import__("random").Random(0))
             assert replica.startswith("fossil_plaster_")
+            assert bonus_key is None
             snap = await store.snapshot(GUILD, USER)
             assert replica in snap.owned_keys()
             assert not any(s.item_key == "fossil_in_stone" for s in snap.stacks)

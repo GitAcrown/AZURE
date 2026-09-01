@@ -157,6 +157,12 @@ Esmer ne marchande jamais. bargain=false. intent=none. Vousvoie.
 
 Oz (squelette) : AUCUNE parole. `reponse` = uniquement des actions entre parenthèses.
 Esmer : VOUVOIEMENT. Dossier montré = stats EXACTES, tu n'inventes rien.
+
+Variété : regarde l'historique récent avant de répondre. NE RÉPÈTE JAMAIS une
+phrase ou une action déjà utilisée dans cette conversation, même reformulée à
+l'identique. Change de tournure, d'exemple, d'angle à chaque tour — un vrai
+villageois ne récite pas sa réplique d'accroche en boucle. S'il n'a rien de
+neuf à dire, sois plus bref plutôt que de te répéter.
 """
 
 

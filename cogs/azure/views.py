@@ -880,24 +880,28 @@ def monde_here_line(
 ) -> str:
     current_key = snap.milieu_key
     if not current_key:
-        return "Tu n'es **nulle part**. Choisis un milieu — le premier aller est **immédiat**."
+        return (
+            "Tu n'es **nulle part**. Choisis un milieu ci-dessous — le premier "
+            "aller est **immédiat**."
+        )
     try:
         milieu = catalog.get_milieu(current_key)
         phrase = milieu_at_phrase(milieu.key, milieu.name)
     except Exception:
         phrase = current_key
     weather = state.weathers.get(current_key)
-    bits = [f"**Tu es à {phrase}**"]
+    bits = [f"📍 **Tu es à {phrase}**"]
     if weather is not None:
         bits.append(weather_display(weather))
     bits.append(time_label(state.time_of_day))
     line = " · ".join(bits)
+    line += f"\n⚡ **Énergie** · {snap.energy}/{snap.energy_max}"
     if walking and dest:
         try:
             dest_name = catalog.get_milieu(dest).name
         except Exception:
             dest_name = dest
-        line += f"\n**En route** vers {dest_name} · encore **{walk_mins} min**"
+        line += f"\n🚶 **En route** vers {dest_name} · encore **{walk_mins} min** — pêche impossible tant que tu marches"
     return line
 
 
@@ -977,33 +981,36 @@ class MondeView(discord.ui.LayoutView):
         ignore_night = bool(effects.get("ignore_night_fishing_success_penalty"))
         forecast = bool(effects.get("destination_weather_forecast_minutes"))
 
+        env_pct = environment_pct(catalog, env_score)
         now_lines = [
-            f"**Saison** · {season_label(state.season)}",
-            f"**Moment** · {time_label(state.time_of_day)} · `{clock}`",
-            f"**Prochaine météo** · `{nxt_clock}`",
+            "**🕐 Horloge du serveur** — la même pour tout le monde",
+            f"{season_label(state.season)} · {time_label(state.time_of_day)} · `{clock}`",
+            f"Météo : change pour **tous les milieux** à `{nxt_clock}`",
         ]
         if state.time_of_day == "night":
             if ignore_night:
-                now_lines.append("**Nuit** · la lanterne ignore le malus de réussite")
+                now_lines.append("🌙 Nuit · ta lanterne ignore le malus de réussite")
             else:
-                now_lines.append("**Nuit** · prises plus rares (lanterne ignore ça)")
+                now_lines.append("🌙 Nuit · prises plus rares (une lanterne annule ce malus)")
+        env_line = f"🌱 **Note environnementale** · {env_pct}/100"
         if environment_is_great(catalog, env_score):
-            now_lines.append("Les beaux poissons **affluent** (note environnementale).")
+            env_line += " · les beaux poissons **affluent** pour tout le serveur"
         elif environment_is_poor(catalog, env_score):
-            now_lines.append("Les beaux poissons se **raréfient** (note environnementale).")
+            env_line += " · les beaux poissons se **raréfient** pour tout le serveur"
+        now_lines.append(env_line)
 
-        milieu_lines: list[str] = []
+        milieu_lines: list[str] = ["**🌊 Milieux** — coût affiché = énergie pour **1 lancer** `/pecher`"]
         for milieu in catalog.milieus:
             weather = state.weathers[milieu.key]
             bits = [
                 f"**{milieu.name}**",
                 weather_display(weather),
-                monde_cast_cost_bit(catalog, weather.key, ignore=ignore_weather),
+                f"🎣 {monde_cast_cost_bit(catalog, weather.key, ignore=ignore_weather)}",
             ]
             if current_key == milieu.key:
-                bits.append("**ici**")
+                bits.append("📍 ici")
             if walking and dest == milieu.key:
-                bits.append(f"**en route** · encore **{walk_mins} min**")
+                bits.append(f"🚶 en route · encore **{walk_mins} min**")
             if forecast:
                 nxt_weather = weather_at(
                     snap.guild_id, milieu.key, state.next_bucket_at, catalog.game.world
@@ -1011,8 +1018,13 @@ class MondeView(discord.ui.LayoutView):
                 bits.append(f"dans 1 h → {weather_display(nxt_weather)}")
             here = monde_presence_bit((presence or {}).get(milieu.key, 0))
             if here:
-                bits.append(here)
+                bits.append(f"👥 {here}")
             milieu_lines.append(" · ".join(bits))
+
+        legend = (
+            "-# 📍 tu y es · 🚶 en route · 🎣 énergie par lancer · 👥 pêcheurs "
+            "présents · 🌱 qualité de l'eau, influence les prises rares"
+        )
 
         children: list = [
             discord.ui.TextDisplay("## Monde"),
@@ -1030,6 +1042,7 @@ class MondeView(discord.ui.LayoutView):
             discord.ui.TextDisplay("\n".join(now_lines)),
             discord.ui.Separator(),
             discord.ui.TextDisplay("\n".join(milieu_lines)),
+            discord.ui.TextDisplay(legend),
         ]
         options: list[discord.SelectOption] = []
         selected = dest if walking else None
@@ -1058,9 +1071,15 @@ class MondeView(discord.ui.LayoutView):
         if debug:
             debug_note = f"bucket `{state.bucket}` · prochaine rotation `{nxt_clock}`"
             note = f"{note} · {debug_note}" if note else debug_note
+        can_fish_here = bool(current_key) and not walking
         append_controls(
             children,
             note=note,
+            button_row=(
+                discord.ui.ActionRow(_PecherHereButton())
+                if can_fish_here
+                else None
+            ),
             select_row=(
                 discord.ui.ActionRow(
                     _MilieuSelect(options, debug=debug, env_score=env_score)
@@ -1070,6 +1089,26 @@ class MondeView(discord.ui.LayoutView):
             ),
         )
         self.add_item(make_container(*children))
+
+
+class _PecherHereButton(discord.ui.Button):
+    def __init__(self) -> None:
+        super().__init__(style=discord.ButtonStyle.primary, label="Pêcher ici")
+
+    async def callback(self, interaction: discord.Interaction) -> None:
+        guild = interaction.guild
+        if guild is None:
+            await edit_error(interaction, "Cette commande s'utilise sur un serveur.")
+            return
+        store = getattr(interaction.client, "store", None)
+        catalog = getattr(interaction.client, "catalog", None)
+        if store is None or catalog is None or not isinstance(store, PlayerStore):
+            await edit_error(interaction, "AZURE n'est pas prêt.")
+            return
+        assert isinstance(catalog, Catalog)
+        if not interaction.response.is_done():
+            await interaction.response.defer()
+        await start_cast_flow(interaction, catalog, store)
 
 
 class _MilieuSelect(discord.ui.Select):
@@ -1195,11 +1234,30 @@ async def prepare_catch_view(
     return view
 
 
+async def _cast_failure_note(store: PlayerStore | None, pending: PendingCast) -> str:
+    """Rembourse une partie de l'énergie perdue et renvoie la note à afficher."""
+    refunded = 0
+    if store is not None and pending.energy_cost > 0:
+        try:
+            refunded = await store.refund_failed_cast(
+                pending.guild_id, pending.user_id, pending
+            )
+        except PlayerError:
+            refunded = 0
+    if refunded > 0:
+        return f"**-{pending.energy_cost}** énergie perdue · **+{refunded}** remboursée aussitôt"
+    if pending.energy_cost > 0:
+        return f"**-{pending.energy_cost}** énergie perdue"
+    return ""
+
+
 async def run_bite_timer(
     interaction: discord.Interaction,
     catalog: Catalog,
     pending: PendingCast,
 ) -> None:
+    store = getattr(interaction.client, "store", None)
+    store = store if isinstance(store, PlayerStore) else None
     try:
         await asyncio.sleep(pending.wait_s)
         if pending.resolved:
@@ -1209,16 +1267,15 @@ async def run_bite_timer(
         if pending.resolved:
             return
         pending.resolved = True
+        note = await _cast_failure_note(store, pending)
         await interaction.edit_original_response(
-            view=NoticeView("Fuite", "Il s'est enfui.")
+            view=NoticeView("Fuite", "Il s'est enfui — réessaie quand la fenêtre est verte.", note=note)
         )
     except (discord.HTTPException, discord.NotFound):
         pending.resolved = True
     finally:
-        if pending.resolved:
-            store = getattr(interaction.client, "store", None)
-            if isinstance(store, PlayerStore):
-                store.clear_active_cast(pending.guild_id, pending.user_id, pending)
+        if pending.resolved and store is not None:
+            store.clear_active_cast(pending.guild_id, pending.user_id, pending)
 
 
 def _slot_item_line(catalog: Catalog, slot: str, item_key: str | None) -> str:
@@ -1309,7 +1366,19 @@ class _BiteButton(discord.ui.Button):
             return
         if self.phase == "waiting" and pending.trap_early:
             pending.resolved = True
-            await _apply_view(interaction, NoticeView("Fuite", "Trop tôt."))
+            store = getattr(interaction.client, "store", None)
+            store = store if isinstance(store, PlayerStore) else None
+            note = await _cast_failure_note(store, pending)
+            if store is not None:
+                store.clear_active_cast(pending.guild_id, pending.user_id, pending)
+            await _apply_view(
+                interaction,
+                NoticeView(
+                    "Fuite",
+                    "**Trop tôt** — il a senti la canne bouger avant l'heure.",
+                    note=note,
+                ),
+            )
             return
         if self.phase != "open":
             if not interaction.response.is_done():
@@ -1798,8 +1867,11 @@ class _DexGroupSelect(discord.ui.Select):
         await interaction.response.edit_message(view=nxt)
 
 
+RECORDS_PAGE_SIZE = 20
+
+
 class RecordsView(discord.ui.LayoutView):
-    """Meilleures prises du serveur, une par espèce."""
+    """Meilleures prises du serveur, une par espèce, paginées."""
 
     def __init__(
         self,
@@ -1807,12 +1879,19 @@ class RecordsView(discord.ui.LayoutView):
         rows: list[tuple[str, int, float, float]],
         *,
         names: dict[int, str] | None = None,
+        page: int = 0,
     ) -> None:
         super().__init__(timeout=120)
-        names = names or {}
+        self.catalog = catalog
+        self.rows = rows
+        self.names = names or {}
+        pages = max(1, (len(rows) + RECORDS_PAGE_SIZE - 1) // RECORDS_PAGE_SIZE) if rows else 1
+        self.page = max(0, min(page, pages - 1))
+        start = self.page * RECORDS_PAGE_SIZE
+        chunk = rows[start : start + RECORDS_PAGE_SIZE]
         lines: list[str] = []
-        for species_key, user_id, length, weight in rows:
-            who = names.get(user_id) or f"<@{user_id}>"
+        for species_key, user_id, length, weight in chunk:
+            who = self.names.get(user_id) or f"<@{user_id}>"
             lines.append(
                 "- "
                 + species_display(
@@ -1822,13 +1901,130 @@ class RecordsView(discord.ui.LayoutView):
                 )
             )
         body = "\n".join(lines) if lines else "Aucun record pour l'instant."
+        subtitle = "-# Meilleure prise du serveur par espèce"
+        if pages > 1:
+            subtitle += f" · page {self.page + 1}/{pages}"
         children: list = [
             discord.ui.TextDisplay("## Records"),
-            discord.ui.TextDisplay("-# Meilleure prise du serveur par espèce"),
+            discord.ui.TextDisplay(subtitle),
             discord.ui.Separator(),
             discord.ui.TextDisplay(body),
         ]
+        nav = None
+        if pages > 1:
+            nav = discord.ui.ActionRow(
+                _RecordsNavButton(delta=-1, disabled=self.page <= 0),
+                _RecordsNavButton(delta=1, disabled=self.page >= pages - 1),
+            )
+        append_controls(children, button_row=nav)
         self.add_item(make_container(*children))
+
+
+class _RecordsNavButton(discord.ui.Button):
+    def __init__(self, *, delta: int, disabled: bool) -> None:
+        super().__init__(**_nav_arrow_kwargs(delta, disabled=disabled))
+        self.delta = delta
+
+    async def callback(self, interaction: discord.Interaction) -> None:
+        parent = self.view
+        if not isinstance(parent, RecordsView):
+            return
+        nxt = RecordsView(
+            parent.catalog,
+            parent.rows,
+            names=parent.names,
+            page=parent.page + self.delta,
+        )
+        await interaction.response.edit_message(view=nxt)
+
+
+LEADERBOARD_LABELS = {
+    "money": "Argent",
+    "dex": "Espèces découvertes",
+    "archaeology": "Archéologie",
+    "env_contribution": "Contribution environnementale",
+}
+LEADERBOARD_UNITS = {
+    "money": "",
+    "dex": " espèce(s)",
+    "archaeology": " point(s)",
+    "env_contribution": " point(s)",
+}
+
+
+class LeaderboardView(discord.ui.LayoutView):
+    """Classement serveur : argent, dex, archéologie, contribution environnementale."""
+
+    def __init__(
+        self,
+        catalog: Catalog,
+        rows: list[tuple[int, int]],
+        *,
+        metric: str,
+        names: dict[int, str] | None = None,
+    ) -> None:
+        super().__init__(timeout=120)
+        self.catalog = catalog
+        self.rows = rows
+        self.metric = metric if metric in LEADERBOARD_LABELS else "money"
+        self.names = names or {}
+        names = self.names
+        lines: list[str] = []
+        medals = ["🥇", "🥈", "🥉"]
+        for i, (user_id, value) in enumerate(rows):
+            rank = medals[i] if i < 3 else f"`#{i + 1}`"
+            who = names.get(user_id) or f"<@{user_id}>"
+            if self.metric == "money":
+                value_bit = format_money(value, catalog.game.money)
+            else:
+                value_bit = f"**{value}**{LEADERBOARD_UNITS.get(self.metric, '')}"
+            lines.append(f"{rank} {who} · {value_bit}")
+        body = "\n".join(lines) if lines else "Personne n'a encore de score ici."
+        options = [
+            discord.SelectOption(
+                label=label, value=key, default=key == self.metric
+            )
+            for key, label in LEADERBOARD_LABELS.items()
+        ]
+        children: list = [
+            discord.ui.TextDisplay("## Classement"),
+            discord.ui.TextDisplay(f"-# {LEADERBOARD_LABELS[self.metric]} · top {len(rows) or 0}"),
+            discord.ui.Separator(),
+            discord.ui.TextDisplay(body),
+        ]
+        append_controls(
+            children,
+            select_row=discord.ui.ActionRow(_LeaderboardSelect(options)),
+        )
+        self.add_item(make_container(*children))
+
+
+class _LeaderboardSelect(discord.ui.Select):
+    def __init__(self, options: list[discord.SelectOption]) -> None:
+        super().__init__(placeholder="Catégorie…", min_values=1, max_values=1, options=options)
+
+    async def callback(self, interaction: discord.Interaction) -> None:
+        parent = self.view
+        if not isinstance(parent, LeaderboardView):
+            return
+        guild = interaction.guild
+        if guild is None:
+            await edit_error(interaction, "Cette commande s'utilise sur un serveur.")
+            return
+        store = getattr(interaction.client, "store", None)
+        catalog = getattr(interaction.client, "catalog", None)
+        if store is None or catalog is None or not isinstance(store, PlayerStore):
+            await edit_error(interaction, "AZURE n'est pas prêt.")
+            return
+        assert isinstance(catalog, Catalog)
+        metric = self.values[0]
+        rows = await store.leaderboard(guild.id, metric)
+        names: dict[int, str] = {}
+        for user_id, _value in rows:
+            member = guild.get_member(user_id)
+            names[user_id] = member.display_name if member is not None else f"<@{user_id}>"
+        nxt = LeaderboardView(catalog, rows, metric=metric, names=names)
+        await interaction.response.edit_message(view=nxt)
 
 
 SAC_TAB_LABELS = {
@@ -2147,6 +2343,16 @@ def _repair_max(item: Item) -> int | None:
     return None
 
 
+async def _daily_place_block_with_contributors(
+    catalog: Catalog, store: PlayerStore, guild_id: int, user_id: int
+) -> str:
+    status = await store.daily_status(guild_id, user_id)
+    contributors = await store.daily_top_contributors(
+        guild_id, status.day_key, status.milieu_key
+    )
+    return daily_place_block(catalog, status, contributors=contributors)
+
+
 async def load_village_view(
     catalog: Catalog,
     store: PlayerStore,
@@ -2229,7 +2435,7 @@ async def load_village_view(
         bargain=bargain,
         known_keys=known_keys,
         talk_catch_id=talk_catch_id,
-        daily_line=daily_place_block(catalog, await store.daily_status(guild_id, user_id)),
+        daily_line=await _daily_place_block_with_contributors(catalog, store, guild_id, user_id),
     )
 
 
@@ -3348,11 +3554,13 @@ async def _apply_talk_intent(
         return f"**Réparé** · {item_display(catalog, item_key)} · {format_money_plain(cost, catalog.game.money)}"
     if intent == "exchange":
         before = (await store.snapshot(guild_id, user_id)).archaeology_points
-        replica = await store.exchange_fossil(guild_id, user_id)
+        replica, bonus_key = await store.exchange_fossil(guild_id, user_id)
         after = await store.snapshot(guild_id, user_id)
         extra = ""
         if after.archaeology_points > before:
             extra = " · **set assemblé** · **+1** archéologie"
+        if bonus_key:
+            extra += f" · **palier atteint** → {item_display(catalog, bonus_key)} offerte !"
         return f"**Échangé** · {item_display(catalog, replica)}{extra}"
     raise PlayerError("rien à confirmer pour l'instant")
 

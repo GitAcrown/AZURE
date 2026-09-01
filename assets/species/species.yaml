@@ -1328,7 +1328,7 @@ species:
   assets:
     sprite: specie28.png
     shadow: specie28_s.png
-  description: "Quand le tambour noir grogne, c'est sa vessie qui fait le bruit : un rumble sourd, presque trop grave pour un poisson."
+  description: "Quand le tambour noir grogne, c'est sa vessie qui fait le bruit : un grondement sourd, presque trop grave pour un poisson."
   biology:
     min_length_cm: 30
     max_length_cm: 110
@@ -1818,7 +1818,7 @@ species:
   assets:
     sprite: specie38.png
     shadow: specie38_s.png
-  description: "Ses nageoires en oreilles battent au-dessus des abysses, trop profond pour qu'on s'attende à quelque chose d'aussi doux."
+  description: "Ses nageoires en oreilles battent au-dessus des abysses, à une profondeur où on ne s'attend jamais à quelque chose d'aussi doux."
   biology:
     min_length_cm: 12
     max_length_cm: 28
@@ -3111,7 +3111,7 @@ species:
   assets:
     sprite: specie65.png
     shadow: specie65_s.png
-  description: "La gueule est nette, les dents aussi. Selon l'espèce, on a affaire à un chasseur ou à un malentendu."
+  description: "La gueule est nette, les dents aussi, rangées comme des lames dans un tiroir. Il suffit d'un peu de sang dans l'eau pour que le banc entier change d'humeur."
   biology:
     min_length_cm: 14
     max_length_cm: 35
@@ -4309,7 +4309,7 @@ species:
   assets:
     sprite: specie90.png
     shadow: specie90_s.png
-  description: "C'est un poisson rouge calico, la queue un peu trop longue, comme s'il n'avait jamais fini de se déployer."
+  description: "Orange, noir, blanc, sans logique apparente : le calico porte ses taches comme une décision prise à la dernière minute. Sa queue traîne derrière lui, jamais tout à fait pliée."
   biology:
     min_length_cm: 8
     max_length_cm: 20
@@ -5010,7 +5010,7 @@ species:
   assets:
     sprite: specie105.png
     shadow: specie105_s.png
-  description: "Tacheté, un peu trop facile à ramasser : on le voit de loin sur le galet, et on le prend quand même."
+  description: "Ses taches sombres tranchent net sur le galet clair — impossible de le manquer, même les yeux à moitié fermés au petit matin."
   biology:
     min_length_cm: 4
     max_length_cm: 9
@@ -5056,7 +5056,7 @@ species:
   assets:
     sprite: specie106.png
     shadow: specie106_s.png
-  description: "Clair comme une pièce de soleil, ce pétoncle tient dans la paume et chauffe un peu trop vite."
+  description: "Clair comme une pièce de soleil, ce pétoncle tient tout entier dans la paume — et emmagasine la chaleur bien plus vite que la peau ne peut la supporter."
   biology:
     min_length_cm: 5
     max_length_cm: 10
@@ -5240,7 +5240,7 @@ species:
   assets:
     sprite: specie110.png
     shadow: specie110_s.png
-  description: "Le turban orange est trop voyant sur le galet : on ne le cherche pas, on le trouve."
+  description: "Le turban orange ne se cache jamais bien longtemps : sa couleur crie plus fort que le sable ne peut la couvrir."
   biology:
     min_length_cm: 3
     max_length_cm: 8
@@ -5286,7 +5286,7 @@ species:
   assets:
     sprite: specie111.png
     shadow: specie111_s.png
-  description: "C'est une huître. Parfois, entre les deux valves, il y a autre chose que de l'eau de mer."
+  description: "Rugueuse dehors, nacrée dedans, l'huître perlière garde ses secrets fermés à double tour. On l'ouvre sans savoir, et parfois on a de la chance."
   biology:
     min_length_cm: 6
     max_length_cm: 15
@@ -5335,7 +5335,7 @@ species:
   assets:
     sprite: specie112.png
     shadow: specie112_s.png
-  description: "La moule sombre s'accroche en grappe au bas de l'eau, noire, serrée, déjà trop nombreuse pour les compter."
+  description: "La moule sombre s'accroche en grappe au bas de l'eau, noire, serrée, déjà trop nombreuse pour qu'on les compte."
   biology:
     min_length_cm: 4
     max_length_cm: 10
