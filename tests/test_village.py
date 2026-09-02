@@ -1235,3 +1235,156 @@ def test_talk_intent_block_quantity(catalog) -> None:
         )
         == "Dis-lui où tu veux aller"
     )
+
+
+def test_bulk_talk_intents(catalog, tmp_path: Path) -> None:
+    from common.player.models import CaughtSpecimen, PlayerSnapshot
+    from common.village import fossil_in_stone_count, talk_intent_block
+    from common.village.talk import sanitize_talk
+    from cogs.azure.views import _apply_talk_intent
+
+    agathe = catalog.get_npc("agathe")
+    maurice = catalog.get_npc("maurice")
+    oz = catalog.get_npc("oz")
+    bulk = {
+        "reponse": "(Hoche.) Je prends tout.",
+        "intent": "sell_all",
+        "item_key": "parrot_fish",
+        "milieu_key": None,
+        "display": "none",
+        "board_keys": [],
+        "quantity": 1,
+        "bargain": False,
+    }
+    cleaned = sanitize_talk(bulk, catalog, agathe)
+    assert cleaned["intent"] == "sell_all"
+    assert cleaned["item_key"] is None
+    assert cleaned["display"] == "purse"
+
+    rejected = sanitize_talk(bulk, catalog, catalog.get_npc("dan"))
+    assert rejected["intent"] == "none"
+
+    repaired = sanitize_talk(
+        {**bulk, "intent": "repair_all", "reponse": "(Croise les bras.) Tout."},
+        catalog,
+        maurice,
+    )
+    assert repaired["intent"] == "repair_all"
+    assert repaired["item_key"] is None
+    assert repaired["display"] == "repairs"
+
+    swapped = sanitize_talk(
+        {**bulk, "intent": "exchange_all", "reponse": "(Tend les deux paumes.)"},
+        catalog,
+        oz,
+    )
+    assert swapped["intent"] == "exchange_all"
+    assert swapped["item_key"] is None
+    assert swapped["display"] == "fossils"
+
+    snap = PlayerSnapshot(
+        guild_id=GUILD,
+        user_id=USER,
+        energy=100,
+        energy_max=100,
+        energy_max_base=100,
+        money=0,
+        milieu_key="pond",
+        created_at="",
+    )
+    assert (
+        talk_intent_block(
+            catalog, agathe, snap, [], [],
+            intent="sell_all", item_key=None, milieu_key=None,
+        )
+        == "Tu n'as pas de prise à lui vendre"
+    )
+    specs = [
+        CaughtSpecimen(
+            id=1, species_key="parrot_fish", length_cm=30.0, weight_kg=1.04, caught_at=""
+        ),
+        CaughtSpecimen(
+            id=2, species_key="perch", length_cm=20.0, weight_kg=0.4, caught_at=""
+        ),
+    ]
+    assert (
+        talk_intent_block(
+            catalog, agathe, snap, specs, [],
+            intent="sell_all", item_key=None, milieu_key=None,
+        )
+        is None
+    )
+    assert (
+        talk_intent_block(
+            catalog, maurice, snap, [], [],
+            intent="repair_all", item_key=None, milieu_key=None,
+        )
+        == "Rien à réparer"
+    )
+    assert (
+        talk_intent_block(
+            catalog, oz, snap, [], [],
+            intent="exchange_all", item_key=None, milieu_key=None,
+        )
+        == "Tu n'as pas de fossile à lui montrer"
+    )
+
+    async def body() -> None:
+        store = await open_store(tmp_path / "bulk.db", catalog)
+        try:
+            await store.get_or_create(GUILD, USER)
+            await store.finish_cast(
+                GUILD, USER, "parrot_fish", specimen=Specimen(30.0, 1.04)
+            )
+            await store.finish_cast(
+                GUILD, USER, "perch", specimen=Specimen(20.0, 0.4)
+            )
+            assert len(await store.list_caught(GUILD, USER)) == 2
+            flash = await _apply_talk_intent(
+                store, catalog, GUILD, USER,
+                npc=agathe, intent="sell_all",
+                item_key=None, milieu_key=None,
+            )
+            assert "2 prises" in flash
+            assert await store.list_caught(GUILD, USER) == []
+
+            await store.add_item(GUILD, USER, "lantern", 1)
+            await store.add_item(GUILD, USER, "umbrella", 1)
+            snap = await store.snapshot(GUILD, USER)
+            worn = [g for g in snap.gear if g.item_key in {"lantern", "umbrella"}]
+            assert len(worn) == 2
+            for gear in worn:
+                await store._conn.execute(
+                    "UPDATE gear_instances SET durability = 1 WHERE id = ?",
+                    (gear.id,),
+                )
+            await store._conn.commit()
+            await store.add_money(GUILD, USER, 400)
+            flash = await _apply_talk_intent(
+                store, catalog, GUILD, USER,
+                npc=maurice, intent="repair_all",
+                item_key=None, milieu_key=None,
+            )
+            assert "Réparé" in flash
+            snap = await store.snapshot(GUILD, USER)
+            for gear in snap.gear:
+                if gear.item_key in {"lantern", "umbrella"}:
+                    item = catalog.get_item(gear.item_key)
+                    cap = item.durability.max_days or item.durability.max
+                    assert gear.durability == cap
+
+            await store.add_item(GUILD, USER, "fossil_in_stone", 2)
+            assert fossil_in_stone_count(await store.snapshot(GUILD, USER)) == 2
+            flash = await _apply_talk_intent(
+                store, catalog, GUILD, USER,
+                npc=oz, intent="exchange_all",
+                item_key=None, milieu_key=None,
+            )
+            assert "2 répliques" in flash
+            snap = await store.snapshot(GUILD, USER)
+            assert fossil_in_stone_count(snap) == 0
+        finally:
+            await store.close()
+
+    _run(body())
+

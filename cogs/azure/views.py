@@ -85,6 +85,9 @@ from common.village import (
     present_npcs,
     price_modifiers,
     shop_stock,
+    sellable_specimens,
+    repairable_gear,
+    fossil_in_stone_count,
     talk_intent_block,
     talk_select_description,
     talk_show_keys,
@@ -1420,8 +1423,12 @@ class _BiteButton(discord.ui.Button):
                 energy_max=pending.energy_max,
                 preview=pending.preview,
             )
-            await _apply_view(interaction, CatchView(catalog, result))
-            await _maybe_auto_share_catch(interaction, catalog, result)
+            auto_shared = _catch_will_auto_share(catalog, result)
+            await _apply_view(
+                interaction, CatchView(catalog, result, shared=auto_shared)
+            )
+            if auto_shared:
+                await _maybe_auto_share_catch(interaction, catalog, result)
         except PlayerError as exc:
             await edit_error(interaction, str(exc))
             return
@@ -1459,12 +1466,14 @@ def _loot_is_gem(catalog: Catalog, loot_key: str | None) -> bool:
         return False
 
 
+def _catch_will_auto_share(catalog: Catalog, result: CastResult) -> bool:
+    return result.guild_rank == 1 or _loot_is_gem(catalog, result.loot_key)
+
+
 async def _maybe_auto_share_catch(
     interaction: discord.Interaction, catalog: Catalog, result: CastResult
 ) -> None:
-    gold = result.guild_rank == 1
-    gem = _loot_is_gem(catalog, result.loot_key)
-    if not gold and not gem:
+    if not _catch_will_auto_share(catalog, result):
         return
     channel = interaction.channel
     if channel is None or not hasattr(channel, "send"):
@@ -1479,9 +1488,12 @@ async def _maybe_auto_share_catch(
 class CatchView(discord.ui.LayoutView):
     """Résultat d'un lancer : thumbnail sprite, pas d'emoji du même asset."""
 
-    def __init__(self, catalog: Catalog, result: CastResult) -> None:
+    def __init__(
+        self, catalog: Catalog, result: CastResult, *, shared: bool = False
+    ) -> None:
         super().__init__(timeout=120)
         self.attachments: list[discord.File] = []
+        self.shared = shared
         species = catalog.get_species(result.species_key)
 
         name_body = discord.ui.TextDisplay(title_name(species.name))
@@ -1541,7 +1553,7 @@ class CatchView(discord.ui.LayoutView):
             children += [discord.ui.Separator(), text_display("\n".join(status))]
         buttons = [_RecastButton(disabled=not recast_ok)]
         if shareable:
-            buttons.append(_ShareCatchButton())
+            buttons.append(_ShareCatchButton(disabled=shared))
         append_controls(children, button_row=discord.ui.ActionRow(*buttons))
         self.add_item(make_container(*children))
 
@@ -1714,12 +1726,23 @@ class _RecastButton(discord.ui.Button):
 
 
 class _ShareCatchButton(discord.ui.Button):
-    def __init__(self) -> None:
-        super().__init__(style=discord.ButtonStyle.secondary, label="Partager")
+    def __init__(self, *, disabled: bool = False) -> None:
+        super().__init__(
+            style=discord.ButtonStyle.secondary,
+            label="Partagé" if disabled else "Partager",
+            disabled=disabled,
+        )
 
     async def callback(self, interaction: discord.Interaction) -> None:
         parent = self.view
         if not isinstance(parent, CatchView):
+            return
+        if parent.shared or self.disabled:
+            if not interaction.response.is_done():
+                try:
+                    await interaction.response.defer()
+                except discord.HTTPException:
+                    pass
             return
         channel = interaction.channel
         if channel is None or not hasattr(channel, "send"):
@@ -1733,10 +1756,17 @@ class _ShareCatchButton(discord.ui.Button):
         except discord.HTTPException:
             await edit_error(interaction, "Le salon n'accepte pas le message.")
             return
-        if interaction.response.is_done():
-            await interaction.followup.send("Partagé.", ephemeral=True)
-        else:
-            await interaction.response.send_message("Partagé.", ephemeral=True)
+        parent.shared = True
+        self.disabled = True
+        self.label = "Partagé"
+        try:
+            if interaction.response.is_done():
+                await interaction.edit_original_response(view=parent)
+            else:
+                await interaction.response.edit_message(view=parent)
+        except discord.HTTPException:
+            if not interaction.response.is_done():
+                await interaction.response.send_message("Partagé.", ephemeral=True)
 
 
 def _dex_species(catalog: Catalog, group: str) -> list:
@@ -2704,6 +2734,12 @@ class VillageView(discord.ui.LayoutView):
         mode = self.talk_display
         if self.talk_intent == "cleanup" and (not mode or mode == "none"):
             mode = "env" if npc.role == "special" else "purse"
+        elif self.talk_intent == "sell_all" and (not mode or mode == "none"):
+            mode = "purse"
+        elif self.talk_intent == "repair_all" and (not mode or mode == "none"):
+            mode = "repairs"
+        elif self.talk_intent == "exchange_all" and (not mode or mode == "none"):
+            mode = "fossils"
         if mode == "none":
             if npc.role == "travel":
                 return self._here_only()
@@ -2726,6 +2762,18 @@ class VillageView(discord.ui.LayoutView):
             text = ""
         if self.talk_intent == "cleanup":
             give = self._cleanup_give_block()
+            if give:
+                return f"{text}\n\n{give}" if text else give
+        if self.talk_intent == "sell_all":
+            give = self._sell_all_give_block()
+            if give:
+                return f"{text}\n\n{give}" if text else give
+        if self.talk_intent == "repair_all":
+            give = self._repair_all_give_block()
+            if give:
+                return f"{text}\n\n{give}" if text else give
+        if self.talk_intent == "exchange_all":
+            give = self._exchange_all_give_block()
             if give:
                 return f"{text}\n\n{give}" if text else give
         return text
@@ -3002,7 +3050,77 @@ class VillageView(discord.ui.LayoutView):
             )
         return "\n".join(lines)
 
+    def _sell_all_give_block(self) -> str:
+        matches = sellable_specimens(self.catalog, self.specimens)
+        if not matches:
+            return ""
+        mods = self._mods()
+        money = self.catalog.game.money
+        lines = ["**Tu vends**"]
+        total = 0
+        for spec in matches:
+            try:
+                species = self.catalog.get_species(spec.species_key)
+            except Exception:
+                continue
+            price = specimen_price(
+                self.catalog,
+                species,
+                spec.length_cm,
+                spec.weight_kg,
+                modifiers=mods,
+            )
+            total += price
+            extra = (
+                f" · `{spec.length_cm:g} cm` · `{spec.weight_kg:g} kg` · "
+                f"{format_money(price, money)}"
+            )
+            lines.append(
+                "- " + species_display(self.catalog, spec.species_key, extra=extra)
+            )
+        if total:
+            lines.append(f"**Total** · {format_money(total, money)}")
+        return "\n".join(lines)
+
+    def _repair_all_give_block(self) -> str:
+        jobs = repairable_gear(self.catalog, self.snap, self._mods())
+        if not jobs:
+            return ""
+        money = self.catalog.game.money
+        lines = ["**Tu répares**"]
+        total = 0
+        for gear, item, cost in jobs:
+            total += cost
+            extra = _durability_label(item, gear.durability)
+            lines.append(
+                "- "
+                + item_display(
+                    self.catalog,
+                    item.key,
+                    extra=f"{extra} · {format_money(cost, money)}",
+                )
+            )
+        if total:
+            lines.append(f"**Total** · {format_money(total, money)}")
+        return "\n".join(lines)
+
+    def _exchange_all_give_block(self) -> str:
+        n = fossil_in_stone_count(self.snap)
+        if n < 1:
+            return ""
+        extra = f" ×{n}" if n > 1 else ""
+        return (
+            "**Tu donnes**\n- "
+            + item_display(self.catalog, "fossil_in_stone", extra=extra)
+        )
+
     def _confirm_quantity(self) -> int:
+        if self.talk_intent == "sell_all":
+            return max(1, len(sellable_specimens(self.catalog, self.specimens)))
+        if self.talk_intent == "repair_all":
+            return max(1, len(repairable_gear(self.catalog, self.snap, self._mods())))
+        if self.talk_intent == "exchange_all":
+            return max(1, fossil_in_stone_count(self.snap))
         if self.talk_intent != "cleanup":
             return self.talk_quantity
         taken = cleanup_take(
@@ -3328,13 +3446,23 @@ class _VillageConfirmButton(discord.ui.Button):
         labels = {
             "buy": "Confirmer l'achat",
             "sell": "Confirmer la vente",
+            "sell_all": "Tout vendre",
             "repair": "Confirmer la réparation",
+            "repair_all": "Tout réparer",
             "travel": "Confirmer le passage",
             "exchange": "Confirmer l'échange",
+            "exchange_all": "Tout échanger",
             "cleanup": "Confirmer le nettoyage",
         }
         label = labels.get(intent, "Confirmer")
-        if quantity > 1 and intent in {"buy", "sell", "cleanup"}:
+        if quantity > 1 and intent in {
+            "buy",
+            "sell",
+            "sell_all",
+            "cleanup",
+            "repair_all",
+            "exchange_all",
+        }:
             label = f"{label} · ×{quantity}"
         super().__init__(
             style=discord.ButtonStyle.success,
@@ -3515,6 +3643,24 @@ async def _apply_talk_intent(
             f"**Vendu** · {item_display(catalog, item_key)}{qty_bit} · "
             f"{format_money_plain(total, catalog.game.money)}{extra}"
         )
+    if intent == "sell_all":
+        specimens = await store.list_caught(guild_id, user_id)
+        matches = sellable_specimens(catalog, specimens)
+        if not matches:
+            raise PlayerError("tu n'as pas de prise à lui vendre")
+        total = 0
+        sold = 0
+        for spec in matches:
+            price, _key, _money = await store.sell_specimen(
+                guild_id, user_id, spec.id
+            )
+            total += price
+            sold += 1
+        word = "prise" if sold == 1 else "prises"
+        return (
+            f"**Vendu** · {sold} {word} · "
+            f"{format_money_plain(total, catalog.game.money)}"
+        )
     if intent == "cleanup":
         snap = await store.snapshot(guild_id, user_id)
         taken = cleanup_take(
@@ -3552,6 +3698,21 @@ async def _apply_talk_intent(
             raise PlayerError("tu n'as pas cet équipement sur toi")
         cost, _money = await store.repair_gear(guild_id, user_id, gear.id)
         return f"**Réparé** · {item_display(catalog, item_key)} · {format_money_plain(cost, catalog.game.money)}"
+    if intent == "repair_all":
+        snap = await store.snapshot(guild_id, user_id)
+        jobs = repairable_gear(catalog, snap, await store.trade_modifiers(guild_id, user_id))
+        if not jobs:
+            raise PlayerError("rien à réparer")
+        total = 0
+        bits: list[str] = []
+        for gear, item, _cost in jobs:
+            paid, _money = await store.repair_gear(guild_id, user_id, gear.id)
+            total += paid
+            bits.append(item_display(catalog, item.key))
+        return (
+            f"**Réparé** · {' · '.join(bits)} · "
+            f"{format_money_plain(total, catalog.game.money)}"
+        )
     if intent == "exchange":
         before = (await store.snapshot(guild_id, user_id)).archaeology_points
         replica, bonus_key = await store.exchange_fossil(guild_id, user_id)
@@ -3562,6 +3723,28 @@ async def _apply_talk_intent(
         if bonus_key:
             extra += f" · **palier atteint** → {item_display(catalog, bonus_key)} offerte !"
         return f"**Échangé** · {item_display(catalog, replica)}{extra}"
+    if intent == "exchange_all":
+        snap = await store.snapshot(guild_id, user_id)
+        n = fossil_in_stone_count(snap)
+        if n < 1:
+            raise PlayerError("tu n'as pas de fossile à lui montrer")
+        before = snap.archaeology_points
+        replicas: list[str] = []
+        bonus_keys: list[str] = []
+        for _ in range(n):
+            replica, bonus_key = await store.exchange_fossil(guild_id, user_id)
+            replicas.append(replica)
+            if bonus_key:
+                bonus_keys.append(bonus_key)
+        after = await store.snapshot(guild_id, user_id)
+        extra = ""
+        gained = after.archaeology_points - before
+        if gained > 0:
+            extra = f" · **set assemblé** · **+{gained}** archéologie"
+        for bonus_key in bonus_keys:
+            extra += f" · **palier atteint** → {item_display(catalog, bonus_key)} offerte !"
+        word = "réplique" if len(replicas) == 1 else "répliques"
+        return f"**Échangé** · {len(replicas)} {word}{extra}"
     raise PlayerError("rien à confirmer pour l'instant")
 
 

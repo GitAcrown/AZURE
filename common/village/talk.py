@@ -56,12 +56,23 @@ NPC_TALK_SCHEMA = {
         },
         "intent": {
             "type": "string",
-            "enum": ["none", "buy", "sell", "repair", "travel", "exchange", "cleanup"],
+            "enum": [
+                "none",
+                "buy",
+                "sell",
+                "sell_all",
+                "repair",
+                "repair_all",
+                "travel",
+                "exchange",
+                "exchange_all",
+                "cleanup",
+            ],
             "description": "Action proposée, à confirmer. none si bavardage.",
         },
         "item_key": {
             "anyOf": [{"type": "string"}, {"type": "null"}],
-            "description": "Clé YAML item ou espèce si buy/sell/repair/exchange/cleanup, sinon null.",
+            "description": "Clé YAML item ou espèce si buy/sell/repair/exchange/cleanup. Null pour sell_all / repair_all / exchange_all.",
         },
         "milieu_key": {
             "anyOf": [{"type": "string"}, {"type": "null"}],
@@ -96,7 +107,7 @@ NPC_TALK_SCHEMA = {
         },
         "quantity": {
             "type": "integer",
-            "description": "Nombre d'exemplaires si buy/sell (ex. 3 pains). 1 sinon.",
+            "description": "Nombre d'exemplaires si buy/sell (ex. 3 pains). 1 sinon. Inutile pour sell_all.",
         },
         "bargain": {
             "type": "boolean",
@@ -132,11 +143,17 @@ Layout vivant : tu décides ce que le joueur VOIT via `display` + `board_keys`.
 N'étale JAMAIS tout ton rayon, tes tarifs ou son sac. Il découvre en parlant
 et en MONTRANT. `board_keys` = 1 à 4 clés de CE TOUR. Vide = rien sur le layout.
 - Marchand vendeur : `stock` pour l'article dont vous parlez.
+  Plusieurs du même : quantity=N.
 - Acheteur : `purse` pour ce qu'il te MONTRE, pas tout son sac.
+  Toutes ses prises / tous ses poissons : intent=sell_all, item_key=null.
+  Tous ses déchets : intent=cleanup, item_key=null.
 - Passeur : `destinations` pour le milieu dont vous parlez.
 - Réparateur : `repairs` pour le matos qu'il montre.
+  Tout réparer : intent=repair_all, item_key=null.
 - Gaia : `env` si tu parles de la note ; un déchet seulement s'il le montre.
+  Tous les déchets : intent=cleanup, item_key=null.
 - Oz : `fossils` s'il tend un fossile.
+  Tous ses fossiles : intent=exchange_all, item_key=null.
 - Esmer (archiviste) : `inspect` pour l'objet QU'ON LUI MONTRE. intent=none toujours.
 Si tu ne montres rien : display=none, board_keys=[].
 
@@ -147,6 +164,8 @@ Transactions : tu PROPOSES, tu n'exécutes pas. Remplis intent + clés YAML exac
 (le token avant le =). quantity : 3 pains → 3. Sinon 1.
 Conversation seule : intent=none, item_key=null, milieu_key=null.
 S'il MONTRE un item, sers-t'en (item_key, display, board_keys).
+S'il te demande un lot : sell_all, repair_all, exchange_all, ou cleanup
+sans item_key (tous les déchets).
 
 Négociation : s'il marchande vraiment (rabais, geste, un peu moins / un peu plus),
 tu PEUX céder UN TOUT PETIT PEU. bargain=true alors, une seule fois par visite.
@@ -241,7 +260,7 @@ def sanitize_talk(
             item_key = None
     if intent != "travel":
         milieu_key = None
-    if intent in {"none", "travel"}:
+    if intent in {"none", "travel", "sell_all", "repair_all", "exchange_all"}:
         item_key = None
     if intent == "none":
         item_key = None
@@ -283,6 +302,18 @@ def sanitize_talk(
         display = "none"
     if intent == "cleanup" and display == "none":
         display = "env" if npc.role == "special" else "purse"
+        if display not in displays:
+            display = "none"
+    if intent == "sell_all" and display == "none":
+        display = "purse"
+        if display not in displays:
+            display = "none"
+    if intent == "repair_all" and display == "none":
+        display = "repairs"
+        if display not in displays:
+            display = "none"
+    if intent == "exchange_all" and display == "none":
+        display = "fossils"
         if display not in displays:
             display = "none"
     try:
@@ -345,7 +376,8 @@ def talk_facts(
     if role == "shop" and npc.shop_mode == "sell":
         lines.append(
             "Tu VENDS uniquement le rayon ci-dessous. intent=buy, display=stock. "
-            "N'étale PAS tout le rayon : board_keys = l'article dont vous parlez."
+            "N'étale PAS tout le rayon : board_keys = l'article dont vous parlez. "
+            "Plusieurs du même : quantity=N."
         )
         lines.append(f"Ton rayon (clé = nom · prix actuel en {money_name}) :")
         stock = shop_stock(catalog, npc)
@@ -361,7 +393,10 @@ def talk_facts(
     elif role == "shop" and npc.shop_mode == "buy":
         lines.append(
             "Tu n'as rien à vendre. Tu ACHÈTES prises sellable et déchets. "
-            "intent=sell (un type) ou cleanup (tous les déchets). display=purse. "
+            "intent=sell (un type), sell_all (TOUTES les prises) ou "
+            "cleanup (tous les déchets). display=purse. "
+            "sell_all UNIQUEMENT s'il te demande clairement de tout vendre / "
+            "de prendre tous les poissons. "
             "N'affiche PAS son sac. Il doit te MONTRER. "
             "board_keys = seulement ce qu'il montre ou dont vous parlez. "
             "Cite un prix seulement s'il te le demande."
@@ -424,8 +459,10 @@ def talk_facts(
             lines.append("Le joueur n'a rien à te vendre pour l'instant. Dis-le.")
     elif role == "repair":
         lines.append(
-            "Tu RÉPARES le matériel usé. intent=repair, display=repairs. "
-            "Uniquement le matos qu'il montre."
+            "Tu RÉPARES le matériel usé. intent=repair (une pièce) ou "
+            "repair_all (tout le matériel usé). display=repairs. "
+            "repair_all UNIQUEMENT s'il te demande de tout réparer. "
+            "Sinon uniquement le matos qu'il montre."
         )
         worn: list[str] = []
         if snap is not None:
@@ -515,7 +552,9 @@ def talk_facts(
     elif role == "summon":
         lines.append(
             f"Crânes du joueur : {skulls} (seuil {catalog.game.village.skull_summon_threshold}). "
-            "Tu échanges 1 fossil_in_stone contre une réplique. intent=exchange, display=fossils."
+            "Tu échanges fossil_in_stone contre une réplique. "
+            "intent=exchange (1) ou exchange_all (tous). display=fossils. "
+            "exchange_all UNIQUEMENT s'il te demande d'échanger tous ses fossiles."
         )
         fossils = 0
         if snap is not None:

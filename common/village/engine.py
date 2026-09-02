@@ -9,7 +9,7 @@ from typing import Any, Optional
 
 from common.catalog import Catalog, Item, Npc, Species
 from common.fishing.engine import item_is_gem
-from common.player.models import CaughtSpecimen, PlayerSnapshot
+from common.player.models import CaughtSpecimen, GearInstance, PlayerSnapshot
 from common.world import time_of_day_at, weather_bucket
 
 ROLE_LABELS = {
@@ -421,15 +421,15 @@ def allowed_intents(npc: Npc) -> set[str]:
     if role == "shop" and npc.shop_mode == "sell":
         return {"none", "buy"}
     if role == "shop" and npc.shop_mode == "buy":
-        return {"none", "sell", "cleanup"}
+        return {"none", "sell", "sell_all", "cleanup"}
     if role == "repair":
-        return {"none", "repair"}
+        return {"none", "repair", "repair_all"}
     if role == "travel":
         return {"none", "travel"}
     if role == "special":
         return {"none", "cleanup"}
     if role == "summon":
-        return {"none", "exchange"}
+        return {"none", "exchange", "exchange_all"}
     return {"none"}
 
 
@@ -518,6 +518,10 @@ def talk_intent_block(
         if stack_qty + gear_n < 1:
             return "Tu n'as pas ça sur toi"
         return f"Tu n'en as que {stack_qty or gear_n}"
+    if intent == "sell_all":
+        if not sellable_specimens(catalog, specimens):
+            return "Tu n'as pas de prise à lui vendre"
+        return None
     if intent == "travel":
         if not milieu_key:
             return "Dis-lui où tu veux aller"
@@ -554,8 +558,21 @@ def talk_intent_block(
         if snap.money < cost:
             return "Pas assez d'argent"
         return None
+    if intent == "repair_all":
+        jobs = repairable_gear(catalog, snap, mods)
+        if not jobs:
+            return "Rien à réparer"
+        total = sum(cost for _gear, _item, cost in jobs)
+        if snap.money < total:
+            return "Pas assez d'argent"
+        return None
     if intent == "exchange":
         if "fossil_in_stone" not in snap.owned_keys():
+            return "Tu n'as pas de fossile à lui montrer"
+        return None
+    if intent == "exchange_all":
+        n = fossil_in_stone_count(snap)
+        if n < 1:
             return "Tu n'as pas de fossile à lui montrer"
         return None
     if intent == "cleanup":
@@ -564,6 +581,53 @@ def talk_intent_block(
             return "Tu n'as pas de déchet à lui donner"
         return None
     return "Rien à confirmer pour l'instant"
+
+
+def sellable_specimens(
+    catalog: Catalog, specimens: list[CaughtSpecimen] | None
+) -> list[CaughtSpecimen]:
+    """Prises que l'acheteur peut racheter."""
+    out: list[CaughtSpecimen] = []
+    for spec in specimens or []:
+        try:
+            species = catalog.get_species(spec.species_key)
+        except Exception:
+            continue
+        if species.economy.sellable:
+            out.append(spec)
+    return out
+
+
+def repairable_gear(
+    catalog: Catalog,
+    snap: PlayerSnapshot | None,
+    modifiers: list[dict[str, Any]] | None = None,
+) -> list[tuple[GearInstance, Item, int]]:
+    """Équipement usé que le réparateur peut remettre d'aplomb."""
+    out: list[tuple[GearInstance, Item, int]] = []
+    if snap is None:
+        return out
+    mods = modifiers or []
+    for gear in snap.gear:
+        try:
+            item = catalog.get_item(gear.item_key)
+        except Exception:
+            continue
+        dur = item.durability
+        if dur is None or not dur.repairable or dur.repair_cost is None:
+            continue
+        cap = _repair_cap(item)
+        if cap is None or gear.durability is None or gear.durability >= cap:
+            continue
+        cost = apply_named_mult(int(dur.repair_cost), mods, "repair_mult")
+        out.append((gear, item, cost))
+    return out
+
+
+def fossil_in_stone_count(snap: PlayerSnapshot | None) -> int:
+    if snap is None:
+        return 0
+    return next((s.quantity for s in snap.stacks if s.item_key == "fossil_in_stone"), 0)
 
 
 def fossil_replicas(catalog: Catalog) -> list[Item]:
